@@ -1,89 +1,89 @@
 <!-- views/catalogo.html -->
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Catálogo Mardant</title>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Catálogo Mardant</title>
 
-    <!-- Estilos globales que ya tienes (opcional) -->
-    <link rel="stylesheet" href="../css/estilos_inicio.css" />
-    <!-- Estilos específicos del catálogo -->
-    <link rel="stylesheet" href="../css/catalogo.css" />
-  </head>
+  <!-- 1·  hoja global con *todos* los estilos -->
+  <link rel="stylesheet" href="../css/estilos.css" />
+  <!-- 2·  (opcional) extras sólo‑catálogo -->
+  <link rel="stylesheet" href="../css/catalogo.css" />
+</head>
 
-  <body>
-    <!-- Banner superior -->
-    <img
-      src="https://i.imgur.com/K7nyK2A.png"
-      alt="Catálogo Mardant"
-      style="width: 100%; max-height: 200px; object-fit: cover; border-bottom: 3px solid #00bcd4"
-    />
+<body>
+  <!-- Banner superior -->
+  <img src="https://i.imgur.com/K7nyK2A.png"
+       alt="Catálogo Mardant"
+       style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #00bcd4" />
 
-    <!-- Botón volver -->
-    <div class="volver-inicio">
-      <a href="./inicio.html">🏠 Volver al inicio</a>
-    </div>
+  <!-- Botón Volver -->
+  <div class="volver-inicio">
+    <!-- recuerda: si lo usas desde GitHub Pages pon la ruta relativa correcta -->
+    <a href="./inicio.html">🏠 Volver al inicio</a>
+  </div>
 
-    <!-- Buscador -->
-    <input type="text" id="buscador" placeholder="Buscar producto…" autocomplete="off" />
+  <!-- Buscador -->
+  <input id="buscador" type="text" placeholder="Buscar producto…" autocomplete="off" />
 
-    <!-- Filtros de categorías (con imágenes) -->
-    <div id="filtro-categorias" class="grupo-filtro">
-      <!-- El primer botón (vacío) significa “todas las categorías” -->
-      <button type="button" class="categoria-imagen" data-categoria="">
-        <img src="https://i.imgur.com/gy6LkfG.png" alt="Todos" height="60" />
-      </button>
+  <!-- Filtros de Categoría -->
+  <div id="filtro-categorias" class="grupo-filtro">
+    <button type="button" class="categoria-imagen" data-categoria="">
+      <img src="https://i.imgur.com/gy6LkfG.png" alt="Todos" height="60" />
+    </button>
+    <!-- 🔽 Resto de botones exactamente como los tenías -->
+    <button type="button" class="categoria-imagen" data-categoria="POKEMON">
+      <img src="https://i.imgur.com/z7fPTus.png" alt="Pokémon" height="60" />
+    </button>
+    <button type="button" class="categoria-imagen" data-categoria="MY HERO ACADEMIA">
+      <img src="https://i.imgur.com/PB85qrv.png" alt="My Hero Academia" height="60" />
+    </button>
+    <!-- … sigue copiando tus categorías … -->
+  </div>
 
-      <!-- …copié exactamente los mismos botones que tenías… -->
-      <button type="button" class="categoria-imagen" data-categoria="POKEMON">
-        <img src="https://i.imgur.com/z7fPTus.png" alt="Pokémon" height="60" />
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="MY HERO ACADEMIA">
-        <img src="https://i.imgur.com/PB85qrv.png" alt="My Hero Academia" height="60" />
-      </button>
-      <!-- …agrega o quita los que necesites… -->
-    </div>
+  <!-- aquí pintaremos sub‑categorías por JS -->
+  <div id="subfiltro-contenedor"></div>
 
-    <!-- Sub‑filtros (personajes) se pintan por JS aquí -->
-    <div id="subfiltro-contenedor"></div>
+  <!-- Orden / disponibilidad -->
+  <div class="orden">
+    <label for="orden">Ordenar por:</label>
+    <select id="orden">
+      <option value="default">Por defecto</option>
+      <option value="recientes">Lo más nuevo</option>
+      <option value="oferta">Sólo ofertas</option>
+      <option value="precio-asc">Precio (↑)</option>
+      <option value="precio-desc">Precio (↓)</option>
+      <option value="nombre-az">Nombre A‑Z</option>
+      <option value="nombre-za">Nombre Z‑A</option>
+    </select>
 
-    <!-- Orden / disponibilidad -->
-    <div class="orden">
-      <label for="orden">Ordenar por:</label>
-      <select id="orden">
-        <option value="default">Por defecto</option>
-        <option value="recientes">Lo más nuevo primero</option>
-        <option value="oferta">Ofertas</option>
-        <option value="precio-asc">Precio (↑)</option>
-        <option value="precio-desc">Precio (↓)</option>
-        <option value="nombre-az">Nombre A‑Z</option>
-        <option value="nombre-za">Nombre Z‑A</option>
-      </select>
+    <label for="estado" style="margin-left:20px">Disponibilidad:</label>
+    <select id="estado">
+      <option value="todos">Todos</option>
+      <option value="disponible">Sólo disponibles</option>
+      <option value="agotado">Sólo agotados</option>
+    </select>
+  </div>
 
-      <label for="estado" style="margin-left: 20px">Disponibilidad:</label>
-      <select id="estado">
-        <option value="todos">Todos</option>
-        <option value="disponible">Solo disponibles</option>
-        <option value="agotado">Solo agotados</option>
-      </select>
-    </div>
+  <!-- Productos + paginación -->
+  <div id="contenedor" class="grid"></div>
+  <div id="paginacion"></div>
 
-    <!-- Productos y paginación -->
-    <div id="contenedor" class="grid"></div>
-    <div id="paginacion"></div>
+  <!-- Mini‑carrito + contador -->
+  <div class="carrito-contenedor">
+    <a href="./carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">
+      🛒<span id="contador-carrito" class="contador-carrito">0</span>
+    </a>
+    <div id="mini-carrito" class="mini-carrito"></div>
+  </div>
 
-    <!-- Mini‑carrito -->
-    <div class="carrito-contenedor">
-      <a href="./carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">
-        🛒<span id="contador-carrito" class="contador-carrito">0</span>
-      </a>
-      <div id="mini-carrito" class="mini-carrito"></div>
-    </div>
+  <!-- Notificación flotante -->
+  <div id="notificacion-carrito" class="noti-carrito">
+    ✅ Producto añadido al carrito
+  </div>
 
-    <!-- Notificación -->
-    <div id="notificacion-carrito" class="noti-carrito">✅ Producto añadido al carrito</div>
-
-    <!-- Lógica -->
-    <script type="module" src="../js/catalogo.js"></script>
-  </body>
+  <!-- Lógica del catálogo -->
+  <script type="module" src="../js/catalogo.js"></script>
+</body>
 </html>
