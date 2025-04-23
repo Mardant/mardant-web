@@ -47,7 +47,7 @@ h1,h2{
 .producto{
   background:#1a1a1a;border-radius:12px;padding:15px;text-align:center;
   box-shadow:0 0 15px rgba(0,0,0,.4);transition:transform .3s;
-  max-width:380px;width:100%;
+  max-width:420px;width:100%;
 }
 .producto:hover{transform:scale(1.03)}
 .producto img{
