@@ -21,9 +21,17 @@
   border-color: #00bcd4;
 }
 
-#subfiltro-contenedor select {
-  padding: 6px 10px;
-  border-radius: 6px;
+#subfiltro-contenedor{
+  text-align:center;
+  margin:20px 0 10px;
+}
+
+#subfiltro-contenedor select{
+  padding:12px 16px;
+  font-size:16px;
+  border-radius:6px;
+  border:2px solid #00bcd4;
+  background:#fff;
 }
 
 .orden {
@@ -92,25 +100,32 @@
   cursor: not-allowed;
 }
 
-/* Paginación */
-#paginacion {
-  margin: 30px 0;
-  text-align: center;
+#paginacion{
+  text-align:center;
+  margin:30px 0;
 }
 
-#paginacion .boton {
-  margin: 0 4px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  background: #eee;
-  border: none;
-  cursor: pointer;
+#paginacion .boton{
+  background:#00bcd4;
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  padding:10px 16px;
+  margin:4px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:background .2s,transform .2s;
 }
 
-#paginacion .boton.active {
-  background: #00bcd4;
-  color: #fff;
+#paginacion .boton:hover{
+  background:#0097a7;
+  transform:scale(1.05);
 }
+
+#paginacion .boton.active{
+  background:#ff9800;
+}
+
 
 /* Mini‑carrito y notificación se heredan de estilos_inicio.css */
 
