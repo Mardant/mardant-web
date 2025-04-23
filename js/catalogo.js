@@ -140,94 +140,96 @@ function aplicarFiltros() {
 }
 
 /* -------------- RENDER -------------- */
-function renderProductos(arr) {
+function renderProductos(arr){
   const cont = $('#contenedor');
   cont.innerHTML = '';
 
-  if (!arr.length) {
+  if(!arr.length){
     cont.innerHTML = '<p>No hay productos que coincidan.</p>';
-    $('#paginacion').innerHTML = '';
+    $('#paginacion').innerHTML='';
     return;
   }
 
   const totalPag = Math.ceil(arr.length / productosPorPagina);
-  const desde = (paginaActual - 1) * productosPorPagina;
-  const hasta = desde + productosPorPagina;
-  const page = arr.slice(desde, hasta);
-
-  page.forEach((p) => cont.appendChild(cardProducto(p)));
+  const desde    = (paginaActual-1)*productosPorPagina;
+  const hasta    = desde + productosPorPagina;
+  arr.slice(desde,hasta).forEach(p => cont.appendChild(cardProducto(p)));
 
   renderPaginacion(totalPag, arr);
 }
 
-function cardProducto(p) {
+function cardProducto(p){
   const card = document.createElement('div');
   card.className = 'producto';
 
   const nombre = escapeHtml(p.nombre);
-  const img = escapeHtml(p.imagen);
-  const tieneOferta = p.oferta && !isNaN(p.oferta);
-  const precioOrig = parseFloat(p.precio).toFixed(2);
-  const precioShow = tieneOferta
-    ? parseFloat(p.oferta).toFixed(2)
-    : precioOrig;
+  const img    = escapeHtml(p.imagen);
+  const oferta = p.oferta && !isNaN(p.oferta);
+  const precioO = (+p.precio).toFixed(2);
+  const precioF = oferta ? (+p.oferta).toFixed(2) : precioO;
 
-  const estado =
-    tieneOferta
+  const estado = oferta
       ? 'OFERTA'
-      : (p.estado || '').toUpperCase().includes('SIN STOCK')
-      ? 'AGOTADO'
-      : 'Disponible';
+      : (p.estado||'').toUpperCase().includes('SIN STOCK') ? 'AGOTADO' : 'Disponible';
 
-  card.innerHTML = 
+  card.innerHTML = `
     <img src="${img}" alt="${nombre}" class="img" loading="lazy">
     <div class="nombre" title="${nombre}">${nombre}</div>
     <div class="precio">${
-      tieneOferta
-        ? <span style="text-decoration:line-through;color:#bbb;">S/. ${precioOrig}</span><br><span style="color:#FFFF00;font-weight:bold;">S/. ${precioShow}</span>
-        : <span style="color:#4caf50;font-weight:bold;">S/. ${precioOrig}</span>
+       oferta
+        ? `<span style="text-decoration:line-through;color:#bbb;">S/. ${precioO}</span><br>
+           <span style="color:#FFFF00;font-weight:bold;">S/. ${precioF}</span>`
+        : `<span style="color:#4caf50;font-weight:bold;">S/. ${precioO}</span>`
     }</div>
     <div class="estado">${estado}</div>
-    <button class="agregar-carrito" ${
-      estado === 'AGOTADO' ? 'disabled' : ''
-    }>Añadir al carrito</button>
-  ;
-
-  card.querySelector('.agregar-carrito').onclick = () =>
-    agregarAlCarrito(p);
+    <button class="agregar-carrito" ${estado==='AGOTADO'?'disabled':''}>Añadir al carrito</button>
+  `;
+  card.querySelector('.agregar-carrito').onclick = ()=>{
+    agregarAlCarrito({
+      nombre,
+      precio:+precioF,
+      imagen:img||'https://via.placeholder.com/300x300?text=Sin+imagen',
+      estado
+    });
+    mostrarNotificacionCarrito('✅ Producto añadido al carrito');
+  };
 
   return card;
 }
 
-/* -------------- PAGINACIÓN -------------- */
-function renderPaginacion(total, arr) {
+/* ------------- PAGINACIÓN --------------- */
+function renderPaginacion(total, arr){
   const pag = $('#paginacion');
-  pag.innerHTML = '';
+  pag.innerHTML='';
 
-  const btn = (txt, num, extra = '') => {
-    const b = document.createElement('button');
-    b.className = boton ${extra};
-    b.textContent = txt;
-    b.onclick = () => {
-      paginaActual = num;
-      renderProductos(arr);
-    };
+  const crearBtn = (txt,num,extra='')=>{
+    const b=document.createElement('button');
+    b.className=`boton ${extra}`;
+    b.textContent=txt;
+    b.onclick=()=>{paginaActual=num;renderProductos(arr);};
     return b;
   };
 
-  if (paginaActual > 1) pag.appendChild(btn('«', paginaActual - 1));
+  const mostrar=3;
 
-  for (let i = 1; i <= total; i++) {
-    pag.appendChild(btn(i, i, i === paginaActual ? 'active' : ''));
+  if(paginaActual>1) pag.appendChild(crearBtn('«',paginaActual-1));
+
+  if(paginaActual>mostrar+1){
+    pag.appendChild(crearBtn(1,1));
+    pag.appendChild(document.createTextNode(' … '));
   }
 
-  if (paginaActual < total) pag.appendChild(btn('»', paginaActual + 1));
-}
+  for(let i=Math.max(1,paginaActual-mostrar); i<=Math.min(total,paginaActual+mostrar); i++){
+    pag.appendChild(crearBtn(i,i, i===paginaActual?'active':''));
+  }
 
-/* -------------- CARRITO / MINI -------------- */
-/*  reutilizamos exactamente las funciones que ya tenías
-    en scripts_inicio.js: copiar‑pegar o importarlas si lo prefieres.
-    Para no alargar, dejo en una función genérica: */
+  if(paginaActual<total-mostrar){
+    pag.appendChild(document.createTextNode(' … '));
+    pag.appendChild(crearBtn(total,total));
+  }
+
+  if(paginaActual<total) pag.appendChild(crearBtn('»',paginaActual+1));
+}
 
 import {
   agregarAlCarrito,
