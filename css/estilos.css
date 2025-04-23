@@ -155,3 +155,20 @@ h1,h2{
   .boton,.agregar-carrito{font-size:18px;padding:14px 20px}
   .boton-carrito-flotante{font-size:42px;width:78px;height:78px;bottom:16px;right:16px}
 }
+
+/* --- NOTIFICACIÓN FLOTANTE --- */
+.noti-carrito{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#4caf50;
+  color:#fff;
+  padding:12px 20px;
+  border-radius:8px;
+  font-weight:bold;
+  box-shadow:0 4px 12px rgba(0,0,0,.3);
+  z-index:9999;
+  display:none;        /* ← oculto por defecto */
+  opacity:0;
+  transition:opacity .3s ease;
+}
