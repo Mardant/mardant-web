@@ -154,6 +154,37 @@ h1,h2{
   margin:30px auto;
 }
 
+/* ----------  FAQ (Preguntas frecuentes) ---------- */
+.faq-container{
+  padding: 0 20px;              /* pequeño margen lateral */
+}
+
+.faq-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto 40px;
+  padding: 0 20px;              /* el padding hace que no pegue a los lados */
+}
+
+.faq-card{                     /* la tarjeta ya tiene fondo/hover arriba   */
+  min-height: 200px;
+}
+
+.faq-card h3{
+  color: #00bcd4;               /* pregunta en cian */
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.faq-card p{
+  color: #f0f0f0;               /* respuesta en gris muy claro */
+  font-size: 16px;
+  line-height: 1.6;
+}
+
 /* ---------- CENTRADO DEL BLOQUE CABECERA EN CONTACTO ---------- */
 .contacto-centro{
   max-width:1000px;       /* ancho del “cajón” */
