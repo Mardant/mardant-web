@@ -1,17 +1,21 @@
-/* js/catalogo.js — lógica del catálogo para GitHub Pages  */
-/* ------------------------------------------------------- */
+/* js/catalogo.js — lógica del catálogo para GitHub Pages
+   ===================================================== */
 
-/* -------- CONFIG -------- */
-import { API_URL } from './config.js';      // misma URL que ya usas
+/* ---------- CONFIG ---------- */
+import { API_URL } from './config.js';
+import {
+  agregarAlCarrito,
+  actualizarCarritoUI,
+  mostrarMiniCarrito,
+} from './carrito-utils.js';
 
 const productosPorPagina = 21;
-let productosGlobal     = [];
-let categoriaActual     = '';
-let paginaActual        = 1;
+let productosGlobal = [];
+let categoriaActual = '';
+let paginaActual = 1;
 
-/* -------- HELPERS ------- */
+/* ---------- HELPERS --------- */
 const $ = (s) => document.querySelector(s);
-
 const escapeHtml = (t) =>
   typeof t === 'string'
     ? t
@@ -28,7 +32,7 @@ const fetchJSON = (accion) =>
     return r.json();
   });
 
-/* -------- INICIAL ------- */
+/* ---------- INICIAL --------- */
 document.addEventListener('DOMContentLoaded', () => {
   /* inputs */
   $('#orden').addEventListener('change', aplicarFiltros);
@@ -48,17 +52,38 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   );
 
-  /* carga de datos */
+  /* hover mini-carrito */
+  const carritoBtn  = $('.boton-carrito-flotante');
+  const miniCarrito = $('#mini-carrito');
+  if (carritoBtn && miniCarrito) {
+    carritoBtn.addEventListener('mouseenter', () => {
+      mostrarMiniCarrito();
+      miniCarrito.style.display = 'block';
+    });
+    carritoBtn.addEventListener('mouseleave', () =>
+      setTimeout(() => (miniCarrito.style.display = 'none'), 400)
+    );
+    miniCarrito.addEventListener('mouseenter', () => {
+      miniCarrito.style.display = 'block';
+    });
+    miniCarrito.addEventListener('mouseleave', () => {
+      miniCarrito.style.display = 'none';
+    });
+  }
+
+  /* datos */
   fetchJSON('productos')
     .then((data) => {
       productosGlobal = data;
-      fillSubcategorias();      // al inicio todas
+      fillSubcategorias();
       aplicarFiltros();
     })
     .catch(console.error);
+
+  actualizarCarritoUI();
 });
 
-/* ---- SUB-CATEGORÍAS ---- */
+/* ---------- SUB-CATEGORÍAS ---------- */
 function fillSubcategorias() {
   const cont = $('#subfiltro-contenedor');
   cont.innerHTML = '';
@@ -84,23 +109,24 @@ function fillSubcategorias() {
   cont.appendChild(select);
 }
 
-/* -------- FILTROS ------- */
+/* ------------- FILTROS ------------- */
 function aplicarFiltros() {
   const texto        = ($('#buscador').value || '').toLowerCase();
   const orden        = $('#orden').value;
   const estadoFiltro = $('#estado').value;
-  const subcat       = ($('#subfiltro-contenedor select')?.value || '').toLowerCase();
+  const subcat       =
+    ($('#subfiltro-contenedor select')?.value || '').toLowerCase();
 
   let lista = productosGlobal.filter((p) => {
-    const catOK  = !categoriaActual || p.categoria.toUpperCase() === categoriaActual;
-    const subOK  = !subcat || p.subcategoria.toLowerCase() === subcat;
-    const txtOK  =
+    const catOK = !categoriaActual || p.categoria.toUpperCase() === categoriaActual;
+    const subOK = !subcat || p.subcategoria.toLowerCase() === subcat;
+    const txtOK =
       p.nombre.toLowerCase().includes(texto) ||
       p.categoria.toLowerCase().includes(texto) ||
       p.subcategoria.toLowerCase().includes(texto);
 
-    const estado     = (p.estado || '').toUpperCase();
-    const estadoOK   =
+    const estado   = (p.estado || '').toUpperCase();
+    const estadoOK =
       estadoFiltro === 'todos' ||
       (estadoFiltro === 'disponible' && !estado.includes('SIN STOCK')) ||
       (estadoFiltro === 'agotado'    &&  estado.includes('SIN STOCK'));
@@ -108,17 +134,15 @@ function aplicarFiltros() {
     return catOK && subOK && txtOK && estadoOK;
   });
 
-  /* sólo ofertas */
   if (orden === 'oferta') {
     lista = lista.filter((p) => p.oferta && !isNaN(p.oferta));
   }
 
-  /* ordenamiento */
   const precioReal = (p) =>
     !isNaN(parseFloat(p.oferta)) ? parseFloat(p.oferta) : parseFloat(p.precio);
 
   switch (orden) {
-    case 'recientes':   lista.sort((a, b) => b.id - a.id);               break;
+    case 'recientes':   lista.sort((a, b) => b.id - a.id); break;
     case 'precio-asc':  lista.sort((a, b) => precioReal(a) - precioReal(b)); break;
     case 'precio-desc': lista.sort((a, b) => precioReal(b) - precioReal(a)); break;
     case 'nombre-az':   lista.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity:'base' })); break;
@@ -129,7 +153,7 @@ function aplicarFiltros() {
   renderProductos(lista);
 }
 
-/* -------- RENDER -------- */
+/* ------------- RENDER --------------- */
 function renderProductos(arr) {
   const cont = $('#contenedor');
   cont.innerHTML = '';
@@ -180,13 +204,18 @@ function cardProducto(p) {
     <button class="agregar-carrito" ${estado === 'AGOTADO' ? 'disabled' : ''}>
       Añadir al carrito
     </button>
+    <a href="https://wa.me/51985135331?text=${encodeURIComponent(
+      'Hola, me interesa el producto: ' + p.nombre
+    )}" class="boton" target="_blank">📩 Pedir por WhatsApp</a>
   `;
 
-  card.querySelector('.agregar-carrito').onclick = () => agregarAlCarrito(p);
+  card.querySelector('.agregar-carrito').onclick = () =>
+    agregarAlCarrito(p);
+
   return card;
 }
 
-/* ----- PAGINACIÓN ------ */
+/* -------- PAGINACIÓN -------- */
 function renderPaginacion(total, arr) {
   const pag = $('#paginacion');
   pag.innerHTML = '';
@@ -211,15 +240,4 @@ function renderPaginacion(total, arr) {
   if (paginaActual < total) pag.appendChild(btn('»', paginaActual + 1));
 }
 
-/* -- CARRITO / MINI --  */
-/*  Si ya separaste las utilidades del carrito en carrito-utils.js
-    lo importamos (¡ruta relativa correcta!)                     */
-
-import {
-  agregarAlCarrito,
-  actualizarCarritoUI,
-  mostrarMiniCarrito,
-} from './carrito-utils.js';
-
-document.addEventListener('DOMContentLoaded', actualizarCarritoUI);
 
