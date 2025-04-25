@@ -10,7 +10,7 @@
 </head>
 <body>
 
-  <!-- Banner superior -->
+  <!-- Banner -->
   <img src="https://i.imgur.com/dcPrIuh.png"
        alt="Productos a Pedido"
        style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #00bcd4;" />
@@ -20,30 +20,24 @@
     <h2 class="titulo-seccion">Productos a Pedido</h2>
   </div>
 
-  <!-- Botones de navegación -->
+  <!-- Botones navegación -->
   <div class="volver-inicio" style="margin:20px 0;">
-    <!-- Rutas REALES para GitHub Pages -->
-    <a data-vista="inicio"
-       href="../index.html"
-       class="boton">🏠 Volver al inicio</a>
-
-    <a data-vista="catalogo"
-       href="catalogo.html"
-       class="boton">🛍️ Ir al catálogo</a>
+    <a href="../index.html"   class="boton" data-vista="inicio">🏠 Volver al inicio</a>
+    <a href="catalogo.html"   class="boton" data-vista="catalogo">🛍️ Ir al catálogo</a>
   </div>
 
-  <!-- Contenedor de tarjetas -->
+  <!-- Tarjetas -->
   <div class="grid" id="contenedor">
     <p>Cargando productos…</p>
   </div>
 
-  <!-- lógica de esta vista -->
+  <!-- Lógica (ES module) -->
   <script type="module" src="../js/pedidos.js"></script>
 
-  <!-- Botón carrito flotante -->
-  <a data-vista="carrito"
-     href="carrito.html"
+  <!-- Carrito flotante -->
+  <a href="carrito.html"
      class="boton-carrito-flotante"
-     title="Ver carrito 🛒">🛒</a>
+     title="Ver carrito 🛒"
+     data-vista="carrito">🛒</a>
 </body>
 </html>
