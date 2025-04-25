@@ -127,6 +127,16 @@ h1,h2{
   background:#1a1a1a;padding:20px;border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,.5);
   text-align:center;transition:transform .3s,box-shadow .3s;
 }
+/* tamaño y centrado del rectángulo negro de cada red */
+.red-card{
+  width:160px;                 /* ⬅️  asegúrate de fijar un ancho  */
+  min-height:160px;            /*    y una altura mínima            */
+  display:flex;                /*  centrado del icono + texto       */
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
 .faq-card:hover,.paso:hover,.red-card:hover{transform:scale(1.05)}
 .red-card:hover{box-shadow:0 0 18px rgba(0,188,212,.6)}
 .red-card img{width:60px;height:60px;object-fit:contain;margin-bottom:10px;transition:transform .3s}
