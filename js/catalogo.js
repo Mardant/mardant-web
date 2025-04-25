@@ -204,9 +204,6 @@ function cardProducto(p) {
     <button class="agregar-carrito" ${estado === 'AGOTADO' ? 'disabled' : ''}>
       Añadir al carrito
     </button>
-    <a href="https://wa.me/51985135331?text=${encodeURIComponent(
-      'Hola, me interesa el producto: ' + p.nombre
-    )}" class="boton" target="_blank">📩 Pedir por WhatsApp</a>
   `;
 
   card.querySelector('.agregar-carrito').onclick = () =>
@@ -215,29 +212,45 @@ function cardProducto(p) {
   return card;
 }
 
-/* -------- PAGINACIÓN -------- */
+/* ----- PAGINACIÓN abreviada ----- */
 function renderPaginacion(total, arr) {
   const pag = $('#paginacion');
   pag.innerHTML = '';
 
-  const btn = (txt, num, extra = '') => {
+  const MAX_AROUND = 3;          // cuántas páginas mostrar a cada lado
+  const makeBtn = (txt, num, extra='') => {
     const b = document.createElement('button');
     b.className = `boton ${extra}`;
     b.textContent = txt;
-    b.onclick = () => {
-      paginaActual = num;
-      renderProductos(arr);
-    };
+    b.onclick = () => { paginaActual = num; renderProductos(arr); };
     return b;
   };
 
-  if (paginaActual > 1) pag.appendChild(btn('«', paginaActual - 1));
+  /* Flecha « */
+  if (paginaActual > 1) pag.appendChild(makeBtn('«', paginaActual - 1));
 
-  for (let i = 1; i <= total; i++) {
-    pag.appendChild(btn(i, i, i === paginaActual ? 'active' : ''));
+  /* … 1 … */
+  if (paginaActual > MAX_AROUND + 1) {
+    pag.appendChild(makeBtn('1', 1));
+    pag.appendChild(document.createTextNode(' … '));
   }
 
-  if (paginaActual < total) pag.appendChild(btn('»', paginaActual + 1));
+  /* rango visible */
+  for (let i = Math.max(1, paginaActual - MAX_AROUND);
+           i <= Math.min(total, paginaActual + MAX_AROUND);
+           i++) {
+    pag.appendChild(makeBtn(i, i, i === paginaActual ? 'active' : ''));
+  }
+
+  /* … n … */
+  if (paginaActual < total - MAX_AROUND) {
+    pag.appendChild(document.createTextNode(' … '));
+    pag.appendChild(makeBtn(total, total));
+  }
+
+  /* Flecha » */
+  if (paginaActual < total) pag.appendChild(makeBtn('»', paginaActual + 1));
 }
+
 
 
