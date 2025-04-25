@@ -1,0 +1,119 @@
+<!-- views/carrito.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mi carrito – Mardant</title>
+
+  <!-- hoja global + (opcional) extras del catálogo           -->
+  <link rel="stylesheet" href="../css/estilos.css" />
+  <link rel="stylesheet" href="../css/catalogo.css" />
+</head>
+
+<body>
+  <!-- ------------------ CONTENIDO PRINCIPAL ------------------ -->
+  <div class="carrito-container">
+    <h1>🛒 Mi carrito de compras</h1>
+
+    <!-- productos -->
+    <div id="lista-carrito"></div>
+
+    <!-- total -->
+    <div id="total-carrito" class="total">Total: S/. 0.00</div>
+
+    <!-- botón WhatsApp -->
+    <div class="finalizar">
+      <a id="btn-wa" href="#" target="_blank">✅ Finalizar compra por WhatsApp</a>
+    </div>
+  </div>
+
+  <!-- volver al inicio -->
+  <div class="volver-inicio">
+    <a href="./inicio.html">🏠 Volver al inicio</a>
+  </div>
+
+  <!-- (opcional) botón flotante para volver al carrito desde otras vistas -->
+  <!-- lo mantenemos aquí por coherencia visual, pero se puede quitar -->
+  <div class="carrito-contenedor">
+    <a href="./carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">
+      🛒<span id="contador-carrito" class="contador-carrito" style="display:none">0</span>
+    </a>
+  </div>
+
+  <!-- ------------------ LÓGICA ------------------ -->
+  <script type="module">
+    import { actualizarCarritoUI } from '../js/carrito-utils.js';
+
+    const lista  = document.getElementById('lista-carrito');
+    const total  = document.getElementById('total-carrito');
+    const btnWA  = document.getElementById('btn-wa');
+
+    /* ------------ render -------------- */
+    function cargarCarrito() {
+      const carrito = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
+
+      lista.innerHTML = '';
+      if (!carrito.length) {
+        lista.innerHTML = '<p>Tu carrito está vacío.</p>';
+        total.textContent = 'Total: S/. 0.00';
+        btnWA.style.pointerEvents = 'none';
+        btnWA.style.opacity = '.5';
+        return;
+      }
+
+      let totalPrecio = 0;
+
+      carrito.forEach((p, idx) => {
+        const div = document.createElement('div');
+        div.className = 'carrito-item';
+        div.innerHTML = `
+          <img src="${p.imagen}" alt="${p.nombre}">
+          <div class="carrito-info">
+            <div class="nombre">${p.nombre}</div>
+            <div class="precio">S/. ${p.precio.toFixed(2)}</div>
+          </div>
+          <button class="eliminar" data-i="${idx}">Eliminar</button>
+        `;
+        lista.appendChild(div);
+        totalPrecio += Number(p.precio);
+      });
+
+      total.textContent = 'Total (aprox.): S/. ' + totalPrecio.toFixed(2);
+      btnWA.style.pointerEvents = '';
+      btnWA.style.opacity = '';
+      btnWA.href = generarLinkWhatsApp(carrito, totalPrecio);
+    }
+
+    /* ---------- eliminar ---------- */
+    lista.addEventListener('click', (e) => {
+      if (!e.target.matches('.eliminar')) return;
+      const i = Number(e.target.dataset.i);
+      const carrito = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
+      carrito.splice(i, 1);
+      localStorage.setItem('carritoMardant', JSON.stringify(carrito));
+      cargarCarrito();
+      actualizarCarritoUI();
+    });
+
+    /* ---------- link WA ---------- */
+    function generarLinkWhatsApp(arr, total) {
+      let msg = '📦 *Productos seleccionados para cotizar:*\n\n';
+      arr.forEach((p) => {
+        msg += `🔹 *${p.nombre}*\n💰 Precio: S/. ${Number(p.precio).toFixed(2)}\n\n`;
+      });
+      msg += `🧾 *Total aproximado:* S/. ${total.toFixed(2)}\n\n`;
+      msg += '🛍️ Estoy interesado(a) en estos productos. ¡Gracias!';
+      return (
+        'https://wa.me/51985135331?text=' + encodeURIComponent(msg)
+      );
+    }
+
+    /* ---------- init ---------- */
+    document.addEventListener('DOMContentLoaded', () => {
+      cargarCarrito();
+      actualizarCarritoUI();
+    });
+  </script>
+</body>
+</html>
