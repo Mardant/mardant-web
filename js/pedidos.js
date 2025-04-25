@@ -1,4 +1,4 @@
-// js/pedidos.js  –  muestra los productos marcados exactamente “DISPONIBLE A PEDIDO”
+/* js/pedidos.js – muestra los artículos marcados “DISPONIBLE A PEDIDO” */
 
 import { API_URL }             from './config.js';
 import { actualizarCarritoUI } from './carrito-utils.js';
@@ -29,12 +29,20 @@ document.addEventListener('DOMContentLoaded', () => {
   actualizarCarritoUI();
 });
 
+/* —————————————————————————————————————— */
 function render(lista = []) {
   const cont = $('#contenedor');
   cont.innerHTML = '';
 
+  /* ╭─ el truco — normalizamos NO-BREAK SPACE (U+00A0) ──╮ */
+  const norm = (s) => (s || '')
+      .toUpperCase()
+      .replace(/\u00A0/g, ' ')   // ← convierte NBSP en espacio normal
+      .trim();
+  /* ╰──────────────────────────────────────────────────────╯ */
+
   const disponibles = lista.filter(
-    (p) => (p.estado || '').toUpperCase().trim() === 'DISPONIBLE A PEDIDO'
+    (p) => norm(p.estado) === 'DISPONIBLE A PEDIDO'
   );
 
   if (!disponibles.length) {
@@ -42,6 +50,7 @@ function render(lista = []) {
       '<p>No hay productos disponibles para pedido en este momento.</p>';
     return;
   }
+
   disponibles.forEach((p) => cont.appendChild(card(p)));
 }
 
