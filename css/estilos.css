@@ -161,6 +161,25 @@ h1,h2{
   text-align:center;      /* por si añadimos más texto dentro */
 }
 
+/* ----------  BOTÓN CATÁLOGO (CONTACTO) ---------- */
+.boton-catalogo{
+  text-align:center;   /* centra todo el contenido */
+  margin:40px auto;    /* espacio superior + inferior y centra horizontalmente */
+}
+
+/* imagen dentro del botón */
+.boton-catalogo-img{
+  width:250px;
+  max-width:90%;
+  display:block;       /* para que respete el text-align del contenedor */
+  margin:0 auto;       /* centra la propia imagen */
+  border-radius:10px;
+  transition:transform .2s ease;
+}
+.boton-catalogo-img:hover{
+  transform:scale(1.05);
+}
+
 .faq-card:hover,
 .paso:hover,
 .red-card:hover{transform:scale(1.05)}
