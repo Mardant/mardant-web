@@ -95,13 +95,6 @@ h1,h2{
   background:#e1f5fe;box-shadow:0 0 6px rgba(0,188,212,.5);outline:none;
 }
 
-/* ---------------- CENTRADO del bloque cabecera en /views/contacto.html */
-.contacto-centro{
-  max-width:1000px;      /* ancho razonable del bloque */
-  margin:0 auto 30px;    /* ← auto a izquierda/dcha = centrado */
-  text-align:center;     /* por si algún elemento interno lo necesita */
-}
-
 /* ----------  BOTÓN CARRITO FLOTANTE ---------- */
 .boton-carrito-flotante{
   position:fixed;bottom:24px;right:24px;width:70px;height:70px;font-size:36px;
@@ -159,6 +152,13 @@ h1,h2{
   gap:20px;
   max-width:1000px;
   margin:30px auto;
+}
+
+/* ---------- CENTRADO DEL BLOQUE CABECERA EN CONTACTO ---------- */
+.contacto-centro{
+  max-width:1000px;       /* ancho del “cajón” */
+  margin:0 auto 30px;     /* auto a izq/dcha  = centrado */
+  text-align:center;      /* por si añadimos más texto dentro */
 }
 
 .faq-card:hover,
