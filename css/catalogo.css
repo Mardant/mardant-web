@@ -1,31 +1,35 @@
-/* —— Estilos exclusivos del catálogo —— */
-.grupo-filtro {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-  margin: 20px 0;
+/* =======================================================================
+   css/catalogo.css   –  estilos **exclusivos** de la vista Catálogo
+   (todo lo genérico vive en css/estilos.css)
+   ======================================================================= */
+
+/* ----------  FILTROS (barra superior)  ---------- */
+.grupo-filtro{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  justify-content:center;
+  margin:20px 0;
 }
 
-.categoria-imagen {
-  transition: transform 0.2s ease;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  padding: 4px;
-  background: #fff;
+.categoria-imagen{
+  border:2px solid #ccc;
+  border-radius:8px;
+  padding:4px;
+  background:#fff;
+  transition:transform .2s,border-color .2s;
 }
-
 .categoria-imagen:hover,
-.categoria-imagen.selected {
-  transform: scale(1.08);
-  border-color: #00bcd4;
+.categoria-imagen.selected{
+  transform:scale(1.08);
+  border-color:#00bcd4;
 }
 
+/* ----------  SUB-FILTRO (select de personajes)  ---------- */
 #subfiltro-contenedor{
   text-align:center;
   margin:20px 0 10px;
 }
-
 #subfiltro-contenedor select{
   padding:12px 16px;
   font-size:16px;
@@ -34,77 +38,17 @@
   background:#fff;
 }
 
-.orden {
-  text-align: center;
-  margin: 20px 0;
+/* ----------  ORDEN / DISPONIBILIDAD ---------- */
+.orden{
+  text-align:center;
+  margin:20px 0;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 32px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.producto {
-  background: #1a1a1a;
-  color: #fff;
-  padding: 14px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 0 14px rgba(0, 0, 0, 0.35);
-  transition: transform 0.25s;
-}
-
-.producto:hover {
-  transform: translateY(-4px);
-}
-
-.producto .img {
-  width: 100%;
-  height: 280px;
-  object-fit: cover;
-  border-radius: 10px;
-  margin-bottom: 8px;
-}
-
-.producto .nombre {
-  font-weight: 900;
-  font-size: 16px;
-  margin-bottom: 6px;
-  min-height: 38px; /* dos líneas aprox. */
-}
-
-.producto .precio {
-  margin-bottom: 6px;
-}
-
-.producto .estado {
-  font-size: 13px;
-  margin-bottom: 10px;
-}
-
-.agregar-carrito {
-  background: #00bcd4;
-  color: #fff;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.agregar-carrito:disabled {
-  background: #777;
-  cursor: not-allowed;
-}
-
+/* ----------  PAGINACIÓN ---------- */
 #paginacion{
   text-align:center;
   margin:30px 0;
 }
-
 #paginacion .boton{
   background:#00bcd4;
   color:#fff;
@@ -116,22 +60,17 @@
   cursor:pointer;
   transition:background .2s,transform .2s;
 }
+#paginacion .boton:hover{background:#0097a7;transform:scale(1.05)}
+#paginacion .boton.active{background:#ff9800}
 
-#paginacion .boton:hover{
-  background:#0097a7;
-  transform:scale(1.05);
+/* ----------  RESPONSIVE PEQUEÑOS DETALLES ---------- */
+@media (max-width:500px){
+  /* las tarjetas mantienen su estilo global; sólo ajustamos la imagen */
+  .producto .img{height:200px}
 }
 
-#paginacion .boton.active{
-  background:#ff9800;
-}
-
-
-/* Mini‑carrito y notificación se heredan de estilos_inicio.css */
-
-/* Responsive detalles pequeños */
-@media (max-width: 500px) {
-  .producto .img {
-    height: 200px;
-  }
-}
+/* ---------------------------------------------------------------------
+   NOTA:
+   ───── El layout `.grid` y las tarjetas `.producto`, `.agregar-carrito`,
+         etc. ya están definidos en **css/estilos.css**: NO se duplican aquí.
+   --------------------------------------------------------------------- */
