@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <title>Productos a Pedido – Mardant</title>
 
-  <!-- hoja de estilos unificada que ya tienes en /css -->
+  <!-- hoja de estilos unificada -->
   <link rel="stylesheet" href="../css/estilos.css" />
 </head>
 <body>
@@ -20,10 +20,16 @@
     <h2 class="titulo-seccion">Productos a Pedido</h2>
   </div>
 
-  <!-- Botones navegación -->
+  <!-- Botones de navegación -->
   <div class="volver-inicio" style="margin:20px 0;">
-    <a data-vista="inicio"    class="boton">🏠 Volver al inicio</a>
-    <a data-vista="catalogo"  class="boton">🛍️ Ir al catálogo</a>
+    <!-- Rutas REALES para GitHub Pages -->
+    <a data-vista="inicio"
+       href="../index.html"
+       class="boton">🏠 Volver al inicio</a>
+
+    <a data-vista="catalogo"
+       href="catalogo.html"
+       class="boton">🛍️ Ir al catálogo</a>
   </div>
 
   <!-- Contenedor de tarjetas -->
@@ -34,7 +40,10 @@
   <!-- lógica de esta vista -->
   <script type="module" src="../js/pedidos.js"></script>
 
-  <!-- botón carrito flotante -->
-  <a data-vista="carrito" class="boton-carrito-flotante" title="Ver carrito 🛒">🛒</a>
+  <!-- Botón carrito flotante -->
+  <a data-vista="carrito"
+     href="carrito.html"
+     class="boton-carrito-flotante"
+     title="Ver carrito 🛒">🛒</a>
 </body>
 </html>
