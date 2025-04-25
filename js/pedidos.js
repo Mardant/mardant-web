@@ -1,9 +1,10 @@
-/* js/pedidos.js – muestra solo los productos “disponible a pedido”   */
+/* js/pedidos.js  – equivalente a scripts_pedido.html para GitHub Pages */
 
-import { API_URL }                 from './config.js';
-import { actualizarCarritoUI }     from './carrito-utils.js';
+import { API_URL }             from './config.js';
+import { actualizarCarritoUI } from './carrito-utils.js';
 
-const $          = (s) => document.querySelector(s);
+const $ = (s) => document.querySelector(s);
+
 const escapeHtml = (t) =>
   typeof t === 'string'
     ? t.replace(/&/g, '&amp;')
@@ -13,53 +14,66 @@ const escapeHtml = (t) =>
         .replace(/'/g, '&#039;')
     : t;
 
-const contenedor = $('#contenedor');
-
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('📦 pedidos.js cargado correctamente');
+
   fetch(`${API_URL}?accion=productos`)
-    .then(r => r.json())
-    .then(render)
-    .catch(() => (contenedor.innerHTML = '<p>Error al cargar productos.</p>'));
+    .then((r) => {
+      if (!r.ok) throw new Error('API error');
+      return r.json();
+    })
+    .then(mostrarPedidos)
+    .catch((e) => errorPedidos(e));
 
   actualizarCarritoUI();
 });
 
-function render(data = []) {
-  contenedor.innerHTML = '';
+function mostrarPedidos(lista = []) {
+  const cont = $('#contenedor');
+  cont.innerHTML = '';
 
-  /* filtra solo los que están marcados como “Disponible a pedido” */
-  const lista = data.filter((p) =>
-    (p.estado || '').toUpperCase().includes('A PEDIDO')
+  /* ⇢ sólo los marcados EXACTAMENTE “DISPONIBLE A PEDIDO” */
+  const disponibles = lista.filter(
+    (p) => (p.estado || '').toUpperCase().trim() === 'DISPONIBLE A PEDIDO'
   );
 
-  if (!lista.length) {
-    contenedor.innerHTML = '<p>No hay productos disponibles a pedido.</p>';
+  if (!disponibles.length) {
+    cont.innerHTML =
+      '<p>No hay productos disponibles para pedido en este momento.</p>';
     return;
   }
 
-  lista.forEach((p) => contenedor.appendChild(card(p)));
+  disponibles.forEach((p) => cont.appendChild(card(p)));
 }
 
-/* plantilla de tarjeta (sin botón “añadir al carrito”) */
 function card(p) {
-  const div         = document.createElement('div');
-  div.className     = 'producto';
+  const div   = document.createElement('div');
+  div.className = 'producto';
 
-  const nombre      = escapeHtml(p.nombre);
-  const categoria   = escapeHtml(p.categoria);
-  const subcategoria= escapeHtml(p.subcategoria);
-  const precio      = parseFloat(p.precio).toFixed(2);
-  const estado      = 'Disponible a pedido';
+  const nombre   = escapeHtml(p.nombre || '');
+  const estado   = 'Disponible a pedido';
+  const precio   = parseFloat(p.precio || 0).toFixed(2);
+  const imagen   =
+    p.imagen && p.imagen.trim()
+      ? escapeHtml(p.imagen)
+      : 'https://via.placeholder.com/300x300?text=Sin+imagen';
+
+  const urlWA = `https://wa.me/51985135331?text=${encodeURIComponent(
+    'Hola, estoy interesado en el producto: ' + nombre
+  )}`;
 
   div.innerHTML = `
-    <img  src="${escapeHtml(p.imagen)}" alt="${nombre}" class="img" loading="lazy">
-    <div class="nombre"     title="${nombre}">${nombre}</div>
-    <div class="categoria">${categoria} – ${subcategoria}</div>
+    <img src="${imagen}" alt="${nombre}" class="img" loading="lazy">
+    <div class="nombre"><b>${nombre}</b></div>
     <div class="precio">S/. ${precio}</div>
     <div class="estado disponible-a-pedido">${estado}</div>
-    <a href="https://wa.me/51985135331?text=${encodeURIComponent(
-      'Hola, quiero pedir: ' + p.nombre
-    )}" class="boton" target="_blank">📩 Pedir por WhatsApp</a>
+    <a href="${urlWA}" target="_blank" class="boton">📩 Pedir por WhatsApp</a>
   `;
   return div;
+}
+
+function errorPedidos(e) {
+  $('#contenedor').innerHTML =
+    '<p style="color:red;">Error al cargar productos.</p>';
+  console.error('❌ Error al obtener pedidos:', e);
 }
