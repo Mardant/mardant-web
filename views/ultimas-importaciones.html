@@ -1,0 +1,33 @@
+<!-- views/ultimas-importaciones.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Últimas importaciones – Mardant</title>
+
+  <!-- hoja de estilos global que ya tienes -->
+  <link rel="stylesheet" href="../css/estilos.css" />
+</head>
+<body>
+
+  <h1>Últimas Importaciones</h1>
+
+  <!-- botón volver -->
+  <div class="volver-inicio">
+    <a data-vista="inicio">🏠 Volver al inicio</a>
+  </div>
+
+  <!-- aquí se pintan los productos -->
+  <div id="contenedor" class="grid">
+    <p>Cargando productos…</p>
+  </div>
+
+  <!-- botón carrito flotante -->
+  <a data-vista="carrito"
+     class="boton-carrito-flotante"
+     title="Ver carrito 🛒">🛒</a>
+
+  <!-- JS -->
+  <script type="module" src="../js/ultimas.js"></script>
+</body>
+</html>
