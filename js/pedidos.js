@@ -38,7 +38,7 @@ function render(lista = []) {
   const disponibles = lista.filter(p => {
     const estadoNormalizado = norm(p.estado);
     console.log('Estado normalizado:', estadoNormalizado, '| Original:', p.estado); // 3. Ver comparación
-    return estadoNormalizado === 'DISPONIBLEAPEDIDO'; // Versión sin espacios
+    return estadoNormalizado.includes('PEDIDO'); // Versión sin espacios
   });
 
   console.log('Productos filtrados:', disponibles); // 4. Ver resultado final
