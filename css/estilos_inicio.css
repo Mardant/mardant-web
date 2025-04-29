@@ -236,22 +236,75 @@ body{
   padding:20px 10px;
   font-size:14px;
 }
+/* ========== RESPONSIVE ========== */
+@media (max-width: 480px) {
+  /* 🔼 Añadir esto: */
+  .grid-productos {
+    grid-template-columns: 1fr !important; /* Fuerza 1 columna */
+  }
 
-/* Responsive */
-@media (max-width:480px){
-  .bienvenida h1{font-size:20px;}
-  .menu-visual img.boton-imagen{max-height:30px;padding:2px 4px;}
-  .menu-visual{gap:10px;padding:10px;}
-  .producto{padding:10px;}
-  .img{height:180px;}
-  .nombre,.precio{font-size:14px;}
-  .categoria,.estado{font-size:13px;}
-  .carrusel img{height:200px;}
-  .boton{font-size:14px;padding:6px 10px;}
-  .seccion{padding:20px 10px;}
-  .seccion h2{font-size:24px;padding-bottom:6px;margin-bottom:20px;}
-  .boton-ir-catalogo a{font-size:20px;width:44px;height:44px;line-height:44px;}
-  .banner img{height:220px;object-fit:cover;object-position:top center;}
+  .producto {
+    margin: 0 10px; /* Evita pegado a bordes */
+    width: 85%; /* Contenido más compacto */
+    margin: 0 auto 15px; /* Centrado */
+  }
+
+  .carrusel {
+    max-height: 150px; /* Altura relativa */
+  }
+
+  .carrusel img {
+    height: 150px; /* Ajusta a contenedor */
+  }
+
+  .seccion h2 {
+    font-size: 28px; /* Tamaño más adecuado */
+    margin-bottom: 15px;
+    padding: 0 10px 8px; /* Evita overflow */
+  }
+
+  .banner img {
+    height: 180px; /* Reduce altura */
+    object-position: top; /* Enfoca área importante */
+  }
+
+  .menu-visual {
+    gap: 8px; /* Espaciado más ajustado */
+    padding: 10px 5px;
+  }
+
+  .menu-visual img.boton-imagen {
+    max-height: 45px; /* Mejor proporción */
+    padding: 2px;
+  }
+
+  /* 🔼 Nueva regla para texto en móvil */
+  .nombre, .precio, .estado {
+    font-size: 15px !important;
+  }
+
+  .boton {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+}
+
+/* ========== AJUSTES GENERALES ========== */
+/* 🔼 Corregir overflow en textos largos */
+.nombre {
+  word-break: break-word;
+  padding: 0 5px;
+}
+
+/* 🔼 Carrusel adaptable */
+.carrusel {
+  aspect-ratio: 2 / 1; /* Relación 2:1 (ancho/alto) */
+  max-height: unset; /* Elimina límite fijo */
+}
+
+.carrusel img {
+  height: 100%; /* Ocupa altura completa */
+  object-position: center 25%; /* Enfoca parte superior */
 }
 
 /* Botón flecha al catálogo */
