@@ -238,105 +238,126 @@ body{
 }
 /* ========== RESPONSIVE ========== */
 @media (max-width: 480px) {
-  /* 🔼 Añadir esto: */
   .grid-productos {
-    grid-template-columns: 1fr !important; /* Fuerza 1 columna */
+    grid-template-columns: 1fr !important;
+    gap: 10px;
   }
 
   .producto {
-    margin: 0 10px; /* Evita pegado a bordes */
-    width: 85%; /* Contenido más compacto */
-    margin: 0 auto 15px; /* Centrado */
+    width: 90%;
+    margin: 0 auto 12px;
+    padding: 10px;
   }
 
   .carrusel {
-    max-height: 150px; /* Altura relativa */
+    max-height: 130px;
+    margin: 10px auto;
+    border-radius: 8px;
   }
 
   .carrusel img {
-    height: 150px; /* Ajusta a contenedor */
+    height: 130px;
+    object-position: center 30%;
   }
 
   .seccion h2 {
-    font-size: 28px; /* Tamaño más adecuado */
-    margin-bottom: 15px;
-    padding: 0 10px 8px; /* Evita overflow */
+    font-size: 22px !important;
+    margin-bottom: 12px;
+    padding: 0 8px 6px !important;
   }
 
   .banner img {
-    height: 180px; /* Reduce altura */
-    object-position: top; /* Enfoca área importante */
+    height: 160px;
+    object-position: top center;
   }
 
   .menu-visual {
-    gap: 8px; /* Espaciado más ajustado */
-    padding: 10px 5px;
+    gap: 6px;
+    padding: 8px 4px;
   }
 
   .menu-visual img.boton-imagen {
-    max-height: 45px; /* Mejor proporción */
-    padding: 2px;
+    max-height: 40px;
+    padding: 1px;
   }
 
-  /* 🔼 Nueva regla para texto en móvil */
-  .nombre, .precio, .estado {
-    font-size: 15px !important;
+  /* Textos móvil */
+  .nombre, .precio {
+    font-size: 14px !important;
+    line-height: 1.2;
+    margin-bottom: 4px;
   }
 
+  .estado {
+    font-size: 12px !important;
+  }
+
+  .img {
+    height: 160px !important;
+  }
+
+  /* Carrito flotante */
+  .boton-carrito-flotante {
+    width: 56px !important;
+    height: 56px !important;
+    font-size: 26px !important;
+    bottom: 16px;
+    right: 16px;
+  }
+
+  /* Botones */
   .boton {
-    font-size: 13px;
-    padding: 8px 12px;
+    font-size: 12px !important;
+    padding: 6px 10px;
+    margin-top: 6px;
   }
 }
 
 /* ========== AJUSTES GENERALES ========== */
-/* 🔼 Corregir overflow en textos largos */
 .nombre {
   word-break: break-word;
   padding: 0 5px;
+  max-width: 95%;
+  margin: 0 auto;
 }
 
-/* 🔼 Carrusel adaptable */
 .carrusel {
-  aspect-ratio: 2 / 1; /* Relación 2:1 (ancho/alto) */
-  max-height: unset; /* Elimina límite fijo */
+  aspect-ratio: 16/9;
+  max-height: unset;
 }
 
 .carrusel img {
-  height: 100%; /* Ocupa altura completa */
-  object-position: center 25%; /* Enfoca parte superior */
+  height: 100%;
+  object-position: center 25%;
 }
 
-/* Botón flecha al catálogo */
-.boton-ir-catalogo{text-align:center;margin-top:10px;}
-.boton-ir-catalogo a{
-  display:inline-block;
-  background:#00bcd4;
-  color:#fff;
-  width:48px;
-  height:48px;
-  border-radius:50%;
-  font-size:24px;
-  text-align:center;
-  line-height:48px;
-  text-decoration:none;
-  transition:background .3s,transform .2s;
-}
-.boton-ir-catalogo a:hover{
-  background:#0097a7;
-  transform:scale(1.1);
+/* ========== BLOQUES ADICIONALES ========== */
+.boton-ir-catalogo {
+  text-align: center;
+  margin-top: 15px;
 }
 
-/* —— bloque que estaba inline en inicio —— */
-.titulo-link{
-  color:#000;
-  text-decoration:none;
-  font-weight:bold;
-  display:inline-block;
-  transition:transform .2s ease,color .2s ease;
+.boton-ir-catalogo a {
+  display: inline-block;
+  background: #00bcd4;
+  color: #fff;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  font-size: 22px;
+  line-height: 46px;
+  transition: all 0.3s;
 }
-.titulo-link:hover{
-  transform:scale(1.05);
-  text-decoration:none;
-  color:#e91e63;
+
+.titulo-link {
+  color: #000;
+  text-decoration: none;
+  font-weight: 700;
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+.titulo-link:hover {
+  transform: scale(1.03);
+  color: #e91e63;
 }
