@@ -64,13 +64,61 @@
 #paginacion .boton.active{background:#ff9800}
 
 /* ----------  RESPONSIVE PEQUEÑOS DETALLES ---------- */
-@media (max-width:500px){
-  /* las tarjetas mantienen su estilo global; sólo ajustamos la imagen */
-  .producto .img{height:200px}
-}
+/* ========== CATÁLOGO RESPONSIVE ========== */
+@media (max-width: 500px) {
+  /* Filtros */
+  .grupo-filtro {
+    gap: 8px;
+    padding: 0 10px;
+  }
 
-/* ---------------------------------------------------------------------
-   NOTA:
-   ───── El layout `.grid` y las tarjetas `.producto`, `.agregar-carrito`,
-         etc. ya están definidos en **css/estilos.css**: NO se duplican aquí.
-   --------------------------------------------------------------------- */
+  .categoria-imagen {
+    max-height: 50px;
+    padding: 2px;
+    border-width: 1px;
+  }
+
+  /* Select de personajes */
+  #subfiltro-contenedor select {
+    width: 90%;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  /* Paginación */
+  #paginacion {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding: 0 10px;
+  }
+
+  #paginacion .boton {
+    padding: 8px;
+    font-size: 14px;
+    margin: 2px;
+  }
+
+  /* Tarjetas de producto */
+  .grid {
+    grid-template-columns: 1fr !important;
+    padding: 0 10px;
+  }
+
+  .producto {
+    margin: 0 auto 15px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .producto .img {
+    height: 220px !important;
+    border-radius: 8px;
+  }
+
+  /* Botón añadir al carrito */
+  .agregar-carrito {
+    padding: 12px 18px !important;
+    font-size: 14px !important;
+  }
+}
