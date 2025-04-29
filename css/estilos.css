@@ -362,3 +362,15 @@ img {
   background-size: cover;
   shape-margin: 1rem;
 }
+
+.notificacion-flotante {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  z-index: 10000;
+  transition: opacity 0.3s;
+}
