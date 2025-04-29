@@ -1,3 +1,4 @@
+import { CARRITO_LOCAL_KEY } from './config.js';
 /* ----------------------------------------------------------
  * js/carrito-utils.js — utilidades compartidas (inicio + catálogo)
  * ---------------------------------------------------------- */
@@ -5,7 +6,7 @@
 /* ====== API PÚBLICA (exportada) ====== */
 export function agregarAlCarrito(prod) {
   /*  prod es el objeto completo del producto  */
-  const carrito = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
+  const carrito = JSON.parse(localStorage.getItem(CARRITO_LOCAL_KEY) || '[]');
 
   carrito.push({
     nombre:  prod.nombre,
@@ -21,7 +22,7 @@ export function agregarAlCarrito(prod) {
 }
 
 export function actualizarCarritoUI() {
-  const carrito   = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
+  const carrito   = JSON.parse(localStorage.getItem(CARRITO_LOCAL_KEY) || '[]');
   const contador  = document.getElementById('contador-carrito');
   if (!contador) return;                         // la vista inicio.html no lo tiene
 
@@ -33,7 +34,7 @@ export function mostrarMiniCarrito() {
   const mini     = document.getElementById('mini-carrito');
   if (!mini) return;
 
-  const carrito  = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
+  const carrito  = JSON.parse(localStorage.getItem(CARRITO_LOCAL_KEY) || '[]');
   mini.innerHTML = '';
 
   if (!carrito.length) {
@@ -90,3 +91,18 @@ window.eliminarProductoMini = function (nombre) {
   actualizarCarritoUI();
   mostrarMiniCarrito();
 };
+
+export const carrito = {
+  obtener: () => JSON.parse(localStorage.getItem(CARRITO_LOCAL_KEY)) || [],
+  guardar: (items) => localStorage.setItem(CARRITO_LOCAL_KEY, JSON.stringify(items)),
+  limpiar: () => localStorage.removeItem(CARRITO_LOCAL_KEY)
+};
+
+export function actualizarContador() {
+  const contadores = document.querySelectorAll('#contador-carrito');
+  const cantidad = carrito.obtener().length;
+  contadores.forEach(c => {
+    c.textContent = cantidad;
+    c.style.display = cantidad ? 'inline-block' : 'none';
+  });
+}
