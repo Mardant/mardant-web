@@ -1,20 +1,27 @@
-/* js/pedidos.js (versión de diagnóstico) */
+/* js/pedidos.js */
 import { API_URL } from './config.js';
 import { actualizarCarritoUI } from './carrito-utils.js';
 
 const $ = (s) => document.querySelector(s);
 
+const escapeHtml = (t) =>
+  typeof t === 'string'
+    ? t
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+    : t;
+
 document.addEventListener('DOMContentLoaded', () => {
   console.log('📦 pedidos.js cargado');
 
-  fetch(`${API_URL}?accion=productos`)
+  // CAMBIO 1: Usar el endpoint correcto
+  fetch(`${API_URL}?accion=pedidosDisponibles`)  // ← Endpoint modificado
     .then((r) => {
-      if (!r.ok) throw new Error(`Error HTTP: ${r.status}`);
+      if (!r.ok) throw new Error('API error');
       return r.json();
-    })
-    .then(data => {
-      console.log('Respuesta cruda de la API:', data); // 1. Ver estructura real
-      return data;
     })
     .then(render)
     .catch(showErr);
@@ -22,26 +29,22 @@ document.addEventListener('DOMContentLoaded', () => {
   actualizarCarritoUI();
 });
 
+/* —————————————————————————————————————— */
 function render(lista = []) {
   const cont = $('#contenedor');
   cont.innerHTML = '';
 
+  // CAMBIO 2: Normalización mejorada
   const norm = (s) => (s || '')
     .toUpperCase()
-    .replace(/\u00A0/g, ' ')
-    .replace(/[^A-Z0-9]/g, ' ') // Eliminar caracteres especiales
-    .replace(/\s+/g, ' ')       // Unificar espacios múltiples
+    .replace(/\u00A0/g, ' ')   // NBSP a espacio
+    .replace(/\s+/g, ' ')      // Espacios múltiples a uno
     .trim();
 
-  console.log('Todos los productos:', lista); // 2. Ver todos los productos
-
-  const disponibles = lista.filter(p => {
-    const estadoNormalizado = norm(p.estado);
-    console.log('Estado normalizado:', estadoNormalizado, '| Original:', p.estado); // 3. Ver comparación
-    return estadoNormalizado.includes('PEDIDO'); // Versión sin espacios
-  });
-
-  console.log('Productos filtrados:', disponibles); // 4. Ver resultado final
+  const disponibles = lista.filter(
+    // CAMBIO 3: Comparación flexible
+    (p) => norm(p.estado) === 'DISPONIBLE A PEDIDO' || norm(p.estado).includes('PEDIDO')
+  );
 
   if (!disponibles.length) {
     cont.innerHTML = '<p>No hay productos disponibles para pedido en este momento.</p>';
@@ -57,13 +60,11 @@ function card(p) {
 
   const nombre = escapeHtml(p.nombre || '');
   const precio = parseFloat(p.precio || 0).toFixed(2);
-  const imagen = p.imagen && p.imagen.trim()
-    ? `../${escapeHtml(p.imagen)}`  // Añadido ../ para ruta correcta
+  const imagen = p.imagen?.trim() 
+    ? `../${escapeHtml(p.imagen)}` 
     : 'https://via.placeholder.com/300x300?text=Sin+imagen';
 
-  const urlWA =
-    'https://wa.me/51985135331?text=' +
-    encodeURIComponent('Hola, estoy interesado en: ' + nombre);
+  const urlWA = `https://wa.me/51985135331?text=${encodeURIComponent('Hola, estoy interesado en: ' + nombre)}`;
 
   div.innerHTML = `
     <img src="${imagen}" alt="${nombre}" class="img" loading="lazy">
@@ -76,7 +77,6 @@ function card(p) {
 }
 
 function showErr(e) {
-  $('#contenedor').innerHTML =
-    '<p style="color:red;">Error al cargar productos.</p>';
+  $('#contenedor').innerHTML = '<p style="color:red;">Error al cargar productos.</p>';
   console.error('❌ Error API:', e);
 }
