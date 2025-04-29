@@ -363,3 +363,19 @@ h1,h2{
   z-index: 10000;
   transition: opacity 0.3s;
 }
+
+/* Garantizar compatibilidad con componentes del catálogo */
+.grid-productos {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
+  padding: 0 20px;
+}
+
+#buscador {
+  margin: 20px auto;
+  max-width: 600px;
+}
+
+.orden {
+  margin-top: 25px;
+}
