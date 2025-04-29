@@ -117,7 +117,7 @@
   .categoria-imagen {
     padding: 2px;
     margin: 2px;
-    width: 60px;  /* Nuevo */
+    width: 55px;  /* Nuevo */
     height: 40px; /* Nuevo */
   }
   
@@ -135,7 +135,7 @@
   .categoria-imagen {
     flex: 1 1 30%;
     max-width: 100px;
-    width: 60px;  /* Nuevo */
+    width: 55px;  /* Nuevo */
     height: 40px; /* Nuevo */
   }
 }
