@@ -1,5 +1,4 @@
 /* catalogo.css - Estilos específicos para el catálogo */
-/* Filtros de categorías */
 #filtro-categorias {
   display: flex;
   flex-wrap: wrap;
@@ -20,9 +19,9 @@
   box-shadow: 0 0 12px rgba(255, 64, 129, 0.4);
 }
 
-/* Subfiltros */
 #subfiltro-contenedor {
   margin: 15px 0;
+  text-align: center;
 }
 
 #subcategoria-select {
@@ -31,9 +30,12 @@
   padding: 10px 15px;
   font-size: 16px;
   border-radius: 8px;
+  width: 90%;
+  max-width: 300px;
+  margin: 0 auto;
+  display: block;
 }
 
-/* Paginación mejorada */
 #paginacion {
   display: flex;
   justify-content: center;
@@ -52,7 +54,6 @@
   transform: translateY(-2px);
 }
 
-/* Efecto hover para productos */
 .producto {
   position: relative;
   overflow: hidden;
@@ -68,13 +69,18 @@
   background: linear-gradient(45deg, rgba(0, 188, 212, 0.1), transparent);
   opacity: 0;
   transition: opacity 0.3s;
+  pointer-events: none;
 }
 
 .producto:hover::after {
   opacity: 1;
 }
 
-/* Adaptación móvil */
+.agregar-carrito {
+  position: relative;
+  z-index: 1;
+}
+
 @media (max-width: 768px) {
   .categoria-imagen img {
     height: 45px;
@@ -82,10 +88,37 @@
   
   #subcategoria-select {
     width: 90%;
-    margin: 0 auto;
   }
   
   .producto {
     margin: 0 10px;
+  }
+
+  #buscador {
+    padding: 10px 12px;
+    font-size: 14px;
+    max-width: 90%;
+    margin: 10px auto;
+  }
+
+  .categoria-imagen {
+    padding: 4px;
+    margin: 2px;
+  }
+  
+  .categoria-imagen img {
+    height: 40px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #subcategoria-select {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+  
+  .categoria-imagen {
+    flex: 1 1 30%;
+    max-width: 100px;
   }
 }
