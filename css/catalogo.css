@@ -16,8 +16,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 180px;
-  height: 80px;
+  width: 140px;
+  height: 60px;
 }
 
 .categoria-imagen.selected {
@@ -27,8 +27,8 @@
 
 /* Añadir esta nueva regla después de .categoria-imagen.selected */
 .categoria-imagen img {
-  max-width: 120%;
-  max-height: 120%;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
 }
 
