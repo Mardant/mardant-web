@@ -208,6 +208,7 @@ function cardProducto(p) {
 
   card.querySelector('.agregar-carrito').onclick = () =>
     agregarAlCarrito(p);
+   actualizarContador();
 
   return card;
 }
