@@ -1,4 +1,4 @@
-/* js/catalogo.js — versión corregida */
+/* js/catalogo.js */
 import { API_URL } from './config.js';
 import { 
   agregarAlCarrito,
@@ -36,6 +36,47 @@ const fetchJSON = (accion) => fetch(`${API_URL}?accion=${accion}`)
     return r.json();
   });
 
+/* ------------- FILTROS ------------- */
+function aplicarFiltros() {
+  const texto = ($('#buscador').value || '').toLowerCase();
+  const orden = $('#orden').value;
+  const estadoFiltro = $('#estado').value;
+  const subcat = ($('#subfiltro-contenedor select')?.value || '').toLowerCase();
+
+  let lista = productosGlobal.filter((p) => {
+    const catOK = !categoriaActual || p.categoria.toUpperCase() === categoriaActual;
+    const subOK = !subcat || p.subcategoria.toLowerCase() === subcat;
+    const txtOK = p.nombre.toLowerCase().includes(texto) ||
+                  p.categoria.toLowerCase().includes(texto) ||
+                  p.subcategoria.toLowerCase().includes(texto);
+
+    const estado = (p.estado || '').toUpperCase();
+    const estadoOK = estadoFiltro === 'todos' ||
+                    (estadoFiltro === 'disponible' && !estado.includes('SIN STOCK')) ||
+                    (estadoFiltro === 'agotado' && estado.includes('SIN STOCK'));
+
+    return catOK && subOK && txtOK && estadoOK;
+  });
+
+  if (orden === 'oferta') {
+    lista = lista.filter(p => p.oferta && !isNaN(p.oferta));
+  }
+
+  const precioReal = (p) => !isNaN(parseFloat(p.oferta)) ? parseFloat(p.oferta) : parseFloat(p.precio);
+
+  switch (orden) {
+    case 'recientes':   lista.sort((a, b) => b.id - a.id); break;
+    case 'precio-asc':  lista.sort((a, b) => precioReal(a) - precioReal(b)); break;
+    case 'precio-desc': lista.sort((a, b) => precioReal(b) - precioReal(a)); break;
+    case 'nombre-az':   lista.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })); break;
+    case 'nombre-za':   lista.sort((a, b) => b.nombre.localeCompare(a.nombre, 'es', { sensitivity: 'base' })); break;
+  }
+
+  paginaActual = 1;
+  renderProductos(lista);
+}
+
+/* ---------- INICIAL --------- */
 document.addEventListener('DOMContentLoaded', () => {
   $('#orden').addEventListener('change', aplicarFiltros);
   $('#estado').addEventListener('change', aplicarFiltros);
@@ -55,7 +96,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const carritoBtn = $('.boton-carrito-flotante');
   const miniCarrito = $('#mini-carrito');
   if (carritoBtn && miniCarrito) {
-    // ... (keep existing hover logic)
+    carritoBtn.addEventListener('mouseenter', () => {
+      mostrarMiniCarrito();
+      miniCarrito.style.display = 'block';
+    });
+    carritoBtn.addEventListener('mouseleave', () =>
+      setTimeout(() => (miniCarrito.style.display = 'none'), 400)
+    );
+    miniCarrito.addEventListener('mouseenter', () => {
+      miniCarrito.style.display = 'block';
+    });
+    miniCarrito.addEventListener('mouseleave', () => {
+      miniCarrito.style.display = 'none';
+    });
   }
 
   fetchJSON('productos')
@@ -77,7 +130,50 @@ document.addEventListener('DOMContentLoaded', () => {
   actualizarCarritoUI();
 });
 
-// ... (keep fillSubcategorias and aplicarFiltros functions)
+/* ---------- SUB-CATEGORÍAS ---------- */
+function fillSubcategorias() {
+  const cont = $('#subfiltro-contenedor');
+  cont.innerHTML = '';
+
+  if (!categoriaActual) return;
+
+  const subs = [
+    ...new Set(
+      productosGlobal
+        .filter(p => p.categoria.toUpperCase() === categoriaActual)
+        .map(p => p.subcategoria)
+    ),
+  ].sort();
+
+  if (!subs.length) return;
+
+  const select = document.createElement('select');
+  select.id = 'subcategoria-select';
+  select.innerHTML = '<option value="">Todos los personajes</option>' +
+    subs.map(s => `<option value="${s}">${s}</option>`).join('');
+  select.addEventListener('change', aplicarFiltros);
+  cont.appendChild(select);
+}
+
+/* ------------- RENDER --------------- */
+function renderProductos(arr) {
+  const cont = $('#contenedor');
+  cont.innerHTML = '';
+
+  if (!arr.length) {
+    cont.innerHTML = '<p>No hay productos que coincidan.</p>';
+    $('#paginacion').innerHTML = '';
+    return;
+  }
+
+  const totalPag = Math.ceil(arr.length / productosPorPagina);
+  const desde = (paginaActual - 1) * productosPorPagina;
+  const hasta = desde + productosPorPagina;
+  const page = arr.slice(desde, hasta);
+
+  page.forEach(p => cont.appendChild(cardProducto(p)));
+  renderPaginacion(totalPag, arr);
+}
 
 function cardProducto(p) {
   const card = document.createElement('div');
@@ -126,4 +222,40 @@ function cardProducto(p) {
   return card;
 }
 
-// ... (resto del código manteniendo las mejoras de paginación)
+/* ----- PAGINACIÓN ----- */
+function renderPaginacion(total, arr) {
+  const pag = $('#paginacion');
+  pag.innerHTML = '';
+
+  const MAX_AROUND = 3;
+  const makeBtn = (txt, num, extra = '') => {
+    const b = document.createElement('button');
+    b.className = `boton ${extra}`;
+    b.textContent = txt;
+    b.setAttribute('aria-label', `Página ${num}`);
+    b.onclick = () => { 
+      paginaActual = num; 
+      renderProductos(arr);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    return b;
+  };
+
+  if (paginaActual > 1) pag.appendChild(makeBtn('«', paginaActual - 1));
+
+  if (paginaActual > MAX_AROUND + 1) {
+    pag.appendChild(makeBtn('1', 1));
+    pag.appendChild(document.createTextNode(' … '));
+  }
+
+  for (let i = Math.max(1, paginaActual - MAX_AROUND); i <= Math.min(total, paginaActual + MAX_AROUND); i++) {
+    pag.appendChild(makeBtn(i, i, i === paginaActual ? 'active' : ''));
+  }
+
+  if (paginaActual < total - MAX_AROUND) {
+    pag.appendChild(document.createTextNode(' … '));
+    pag.appendChild(makeBtn(total, total));
+  }
+
+  if (paginaActual < total) pag.appendChild(makeBtn('»', paginaActual + 1));
+}
