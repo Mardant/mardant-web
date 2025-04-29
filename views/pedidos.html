@@ -2,32 +2,32 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Productos a Pedido - Mardant</title>
-  <link rel="stylesheet" href="../css/estilos.css">
+  <meta charset="utf-8" />
+  <title>Productos a Pedido – Mardant</title>
+  <link rel="stylesheet" href="../css/estilos.css" />
 </head>
 <body>
-  <header class="seccion">
-    <img src="https://i.imgur.com/dcPrIuh.png" 
-         alt="Productos a pedido" 
-         class="banner">
-    <h1 class="titulo-seccion">Productos Disponibles a Pedido</h1>
-  </header>
+  <img src="https://i.imgur.com/dcPrIuh.png"
+       alt="Productos a Pedido"
+       style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #00bcd4;" />
 
-  <nav class="navegacion">
-    <a href="../index.html" class="boton">🏠 Inicio</a>
-    <a href="catalogo.html" class="boton">🛍️ Catálogo</a>
-  </nav>
+  <div class="contacto-centro">
+    <h2 class="titulo-seccion">Productos a Pedido</h2>
+  </div>
 
-  <main class="contenedor">
-    <div class="grid" id="contenedor">
-      <!-- Productos se cargan aquí -->
-    </div>
-  </main>
+  <div class="volver-inicio" style="margin:20px 0;">
+    <a href="../index.html"  class="boton">🏠 Volver al inicio</a>
+    <a href="catalogo.html"  class="boton">🛍️ Ir al catálogo</a>
+  </div>
 
-  <a href="carrito.html" class="boton-carrito-flotante">🛒</a>
-  
+  <div class="grid" id="contenedor">
+    <p>Cargando productos…</p>
+  </div>
+
   <script type="module" src="../js/pedidos.js"></script>
+  
+  <a href="carrito.html"
+     class="boton-carrito-flotante"
+     title="Ver carrito 🛒">🛒</a>
 </body>
 </html>
