@@ -2,118 +2,73 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mi carrito – Mardant</title>
-
-  <!-- hoja global + (opcional) extras del catálogo           -->
-  <link rel="stylesheet" href="../css/estilos.css" />
-  <link rel="stylesheet" href="../css/catalogo.css" />
+  <meta charset="utf-8">
+  <title>Carrito - Mardant</title>
+  <link rel="stylesheet" href="../css/estilos.css">
 </head>
-
 <body>
-  <!-- ------------------ CONTENIDO PRINCIPAL ------------------ -->
   <div class="carrito-container">
-    <h1>🛒 Mi carrito de compras</h1>
-
-    <!-- productos -->
+    <h1>🛒 Mi Carrito</h1>
     <div id="lista-carrito"></div>
-
-    <!-- total -->
-    <div id="total-carrito" class="total">Total: S/. 0.00</div>
-
-    <!-- botón WhatsApp -->
+    <div class="total" id="total-carrito">Total: S/. 0.00</div>
     <div class="finalizar">
-      <a id="btn-wa" href="#" target="_blank">✅ Finalizar compra por WhatsApp</a>
+      <a href="#" id="finalizar-compra" class="boton">✅ Finalizar compra por WhatsApp</a>
     </div>
   </div>
 
-  <!-- volver al inicio -->
   <div class="volver-inicio">
     <a href="./inicio.html">🏠 Volver al inicio</a>
   </div>
 
-  <!-- (opcional) botón flotante para volver al carrito desde otras vistas -->
-  <!-- lo mantenemos aquí por coherencia visual, pero se puede quitar -->
-  <div class="carrito-contenedor">
-    <a href="./carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">
-      🛒<span id="contador-carrito" class="contador-carrito" style="display:none">0</span>
-    </a>
-  </div>
-
-  <!-- ------------------ LÓGICA ------------------ -->
   <script type="module">
-    import { actualizarCarritoUI } from '../js/carrito-utils.js';
+    import { actualizarCarritoUI, mostrarMiniCarrito } from '../js/carrito-utils.js';
+    import { API_URL } from '../js/config.js';
 
-    const lista  = document.getElementById('lista-carrito');
-    const total  = document.getElementById('total-carrito');
-    const btnWA  = document.getElementById('btn-wa');
-
-    /* ------------ render -------------- */
-    function cargarCarrito() {
-      const carrito = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
-
-      lista.innerHTML = '';
-      if (!carrito.length) {
-        lista.innerHTML = '<p>Tu carrito está vacío.</p>';
-        total.textContent = 'Total: S/. 0.00';
-        btnWA.style.pointerEvents = 'none';
-        btnWA.style.opacity = '.5';
-        return;
-      }
-
-      let totalPrecio = 0;
-
-      carrito.forEach((p, idx) => {
+    const carrito = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
+    const contenedor = document.getElementById('lista-carrito');
+    const totalSpan = document.getElementById('total-carrito');
+    
+    function renderCarrito() {
+      contenedor.innerHTML = '';
+      const total = carrito.reduce((sum, item) => sum + item.precio, 0);
+      
+      carrito.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = 'carrito-item';
         div.innerHTML = `
-          <img src="${p.imagen}" alt="${p.nombre}">
+          <img src="${item.imagen}" alt="${item.nombre}">
           <div class="carrito-info">
-            <div class="nombre">${p.nombre}</div>
-            <div class="precio">S/. ${p.precio.toFixed(2)}</div>
+            <div class="nombre">${item.nombre}</div>
+            <div class="precio">S/. ${item.precio.toFixed(2)}</div>
           </div>
-          <button class="eliminar" data-i="${idx}">Eliminar</button>
+          <button class="eliminar" data-index="${index}">✕</button>
         `;
-        lista.appendChild(div);
-        totalPrecio += Number(p.precio);
+        contenedor.appendChild(div);
       });
-
-      total.textContent = 'Total (aprox.): S/. ' + totalPrecio.toFixed(2);
-      btnWA.style.pointerEvents = '';
-      btnWA.style.opacity = '';
-      btnWA.href = generarLinkWhatsApp(carrito, totalPrecio);
+      
+      totalSpan.textContent = `Total: S/. ${total.toFixed(2)}`;
     }
 
-    /* ---------- eliminar ---------- */
-    lista.addEventListener('click', (e) => {
-      if (!e.target.matches('.eliminar')) return;
-      const i = Number(e.target.dataset.i);
-      const carrito = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
-      carrito.splice(i, 1);
-      localStorage.setItem('carritoMardant', JSON.stringify(carrito));
-      cargarCarrito();
-      actualizarCarritoUI();
+    document.addEventListener('click', (e) => {
+      if(e.target.classList.contains('eliminar')) {
+        const index = e.target.dataset.index;
+        carrito.splice(index, 1);
+        localStorage.setItem('carritoMardant', JSON.stringify(carrito));
+        renderCarrito();
+        actualizarCarritoUI();
+      }
     });
 
-    /* ---------- link WA ---------- */
-    function generarLinkWhatsApp(arr, total) {
-      let msg = '📦 *Productos seleccionados para cotizar:*\n\n';
-      arr.forEach((p) => {
-        msg += `🔹 *${p.nombre}*\n💰 Precio: S/. ${Number(p.precio).toFixed(2)}\n\n`;
-      });
-      msg += `🧾 *Total aproximado:* S/. ${total.toFixed(2)}\n\n`;
-      msg += '🛍️ Estoy interesado(a) en estos productos. ¡Gracias!';
-      return (
-        'https://wa.me/51985135331?text=' + encodeURIComponent(msg)
-      );
-    }
-
-    /* ---------- init ---------- */
-    document.addEventListener('DOMContentLoaded', () => {
-      cargarCarrito();
-      actualizarCarritoUI();
+    document.getElementById('finalizar-compra').addEventListener('click', () => {
+      const mensaje = carrito.map(p => `➤ ${p.nombre} - S/.${p.precio.toFixed(2)}`).join('\n');
+      const total = carrito.reduce((sum, p) => sum + p.precio, 0);
+      const url = `https://wa.me/51985135331?text=${encodeURIComponent(
+        `¡Hola! Quiero comprar:\n${mensaje}\n\nTOTAL: S/. ${total.toFixed(2)}`
+      )}`;
+      window.open(url, '_blank');
     });
+
+    renderCarrito();
   </script>
 </body>
 </html>
