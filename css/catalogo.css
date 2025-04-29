@@ -1,6 +1,5 @@
 /* =======================================================================
    css/catalogo.css   –  estilos **exclusivos** de la vista Catálogo
-   (todo lo genérico vive en css/estilos.css)
    ======================================================================= */
 
 /* ----------  FILTROS (barra superior)  ---------- */
@@ -63,61 +62,71 @@
 #paginacion .boton:hover{background:#0097a7;transform:scale(1.05)}
 #paginacion .boton.active{background:#ff9800}
 
-/* ----------  RESPONSIVE PEQUEÑOS DETALLES ---------- */
-/* ========== CATÁLOGO RESPONSIVE ========== */
+/* ========== RESPONSIVE (VERSIÓN MEJORADA) ========== */
 @media (max-width: 500px) {
-  /* Filtros */
+  /* 🔄 Filtros más táctiles */
   .grupo-filtro {
-    gap: 8px;
-    padding: 0 10px;
+    gap: 6px;
+    padding: 0 8px;
+    margin: 15px 0;
   }
 
   .categoria-imagen {
-    max-height: 50px;
-    padding: 2px;
-    border-width: 1px;
+    max-height: 55px; /* 🔄 +5px */
+    padding: 3px;
+    border-width: 1.5px;
   }
 
-  /* Select de personajes */
+  /* 🔄 Select mejorado */
   #subfiltro-contenedor select {
-    width: 90%;
-    padding: 10px 12px;
-    font-size: 14px;
+    width: 92%;
+    max-width: 300px;
+    padding: 12px 14px;
+    font-size: 15px;
   }
 
-  /* Paginación */
+  /* 🔄 Paginación responsive */
   #paginacion {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 8px;
     padding: 0 10px;
+    margin: 25px 0;
   }
 
   #paginacion .boton {
-    padding: 8px;
-    font-size: 14px;
-    margin: 2px;
+    padding: 10px;
+    font-size: 15px;
+    margin: 0;
   }
 
-  /* Tarjetas de producto */
+  /* 🔄 Grid full-width */
   .grid {
-    gap: 15px !important;
-    padding: 0 5px !important;
+    grid-template-columns: 1fr !important;
+    gap: 18px !important; /* 🔄 Más espacio */
+    padding: 0 8px !important;
   }
-  
-  .producto .img {
-    height: 240px !important; /* Altura móvil ajustada */
-    object-position: center;
-  }
-  
+
+  /* 🔄 Tarjetas destacadas */
   .producto {
-    max-width: 100% !important; /* Ocupa todo el ancho */
-    padding: 15px !important;
+    width: 100%;
+    max-width: 100% !important;
+    margin: 0 auto 18px;
+    padding: 18px !important;
+    border-radius: 12px !important;
   }
-   
-  /* Botón añadir al carrito */
+
+  /* 🔄 Imágenes más grandes */
+  .producto .img {
+    height: 260px !important; /* 🔄 +20px */
+    object-position: center top;
+    border-radius: 10px !important;
+  }
+
+  /* 🔄 Botones más legibles */
   .agregar-carrito {
-    padding: 12px 18px !important;
-    font-size: 14px !important;
+    padding: 14px 20px !important;
+    font-size: 15px !important;
+    width: 100%;
   }
 }
