@@ -12,11 +12,24 @@
   padding: 2px;
   background: #fff;
   transition: all 0.3s ease;
+  /* Agregar estas 5 líneas */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 70px;
 }
 
 .categoria-imagen.selected {
   border-color: #ff4081;
   box-shadow: 0 0 12px rgba(255, 64, 129, 0.4);
+}
+
+/* Añadir esta nueva regla después de .categoria-imagen.selected */
+.categoria-imagen img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
 }
 
 #subfiltro-contenedor {
@@ -83,7 +96,7 @@
 
 @media (max-width: 768px) {
   .categoria-imagen img {
-    height: 45px;
+    height: auto !important; /* Modificado */
   }
   
   #subcategoria-select {
@@ -104,6 +117,8 @@
   .categoria-imagen {
     padding: 2px;
     margin: 2px;
+    width: 60px;  /* Nuevo */
+    height: 60px; /* Nuevo */
   }
   
   .categoria-imagen img {
@@ -120,5 +135,7 @@
   .categoria-imagen {
     flex: 1 1 30%;
     max-width: 100px;
+    width: 55px;  /* Nuevo */
+    height: 55px; /* Nuevo */
   }
 }
