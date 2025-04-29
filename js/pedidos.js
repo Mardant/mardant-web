@@ -61,7 +61,7 @@ function card(p) {
   const nombre = escapeHtml(p.nombre || '');
   const precio = parseFloat(p.precio || 0).toFixed(2);
   const imagen = p.imagen?.trim() 
-    ? `../${escapeHtml(p.imagen)}` 
+    ? escapeHtml(p.imagen) // ← Solo el path directo
     : 'https://via.placeholder.com/300x300?text=Sin+imagen';
 
   const urlWA = `https://wa.me/51985135331?text=${encodeURIComponent('Hola, estoy interesado en: ' + nombre)}`;
