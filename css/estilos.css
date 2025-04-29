@@ -352,17 +352,6 @@ h1,h2{
 }
 .finalizar a:hover{background:#388e3c}
 
-/* Optimización general de imágenes */
-img {
-  max-width: 100%;
-  height: auto;
-  vertical-align: middle;
-  font-style: italic; /* Texto alternativo estilizado */
-  background-repeat: no-repeat;
-  background-size: cover;
-  shape-margin: 1rem;
-}
-
 .notificacion-flotante {
   position: fixed;
   bottom: 20px;
