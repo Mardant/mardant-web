@@ -1,4 +1,4 @@
-/* js/catalogo.js */
+/* js/catalogo.js - Versión Final Corregida */
 import { API_URL } from './config.js';
 import { 
   agregarAlCarrito,
@@ -12,31 +12,9 @@ let productosGlobal = [];
 let categoriaActual = '';
 let paginaActual = 1;
 
-let timeoutBusqueda;
-
-const $ = (s) => document.querySelector(s);
-const debounce = (func, delay = 300) => (...args) => {
-  clearTimeout(timeoutBusqueda);
-  timeoutBusqueda = setTimeout(() => func.apply(this, args), delay);
-};
-
-const escapeHtml = (t) => {
-  if (typeof t !== 'string') return t;
-  return t.replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#039;')
-          .replace(/\//g, '&#x2F;');
-};
-
-const fetchJSON = (accion) => fetch(`${API_URL}?accion=${accion}`)
-  .then(r => {
-    if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
-    return r.json();
-  });
-
-/* ------------- FILTROS ------------- */
+// ---------------------------
+// FUNCIÓN PRINCIPAL DE FILTROS (DECLARADA PRIMERO)
+// ---------------------------
 function aplicarFiltros() {
   const texto = ($('#buscador').value || '').toLowerCase();
   const orden = $('#orden').value;
@@ -76,16 +54,19 @@ function aplicarFiltros() {
   renderProductos(lista);
 }
 
-/* ---------- INICIAL --------- */
+// ---------------------------
+// INICIALIZACIÓN (SE DECLARA DESPUÉS DE LAS FUNCIONES QUE USA)
+// ---------------------------
 document.addEventListener('DOMContentLoaded', () => {
+  // Configurar listeners
   $('#orden').addEventListener('change', aplicarFiltros);
   $('#estado').addEventListener('change', aplicarFiltros);
-  $('#buscador').addEventListener('input', debounce(aplicarFiltros));
+  $('#buscador').addEventListener('input', debounce(aplicarFiltros, 300));
 
+  // Configurar categorías
   document.querySelectorAll('.categoria-imagen').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.categoria-imagen')
-        .forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('.categoria-imagen').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       categoriaActual = (btn.dataset.categoria || '').toUpperCase();
       fillSubcategorias();
@@ -93,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Configurar mini-carrito
   const carritoBtn = $('.boton-carrito-flotante');
   const miniCarrito = $('#mini-carrito');
   if (carritoBtn && miniCarrito) {
@@ -100,17 +82,18 @@ document.addEventListener('DOMContentLoaded', () => {
       mostrarMiniCarrito();
       miniCarrito.style.display = 'block';
     });
-    carritoBtn.addEventListener('mouseleave', () =>
+    carritoBtn.addEventListener('mouseleave', () => 
       setTimeout(() => (miniCarrito.style.display = 'none'), 400)
     );
-    miniCarrito.addEventListener('mouseenter', () => {
-      miniCarrito.style.display = 'block';
-    });
-    miniCarrito.addEventListener('mouseleave', () => {
-      miniCarrito.style.display = 'none';
-    });
+    miniCarrito.addEventListener('mouseenter', () => 
+      miniCarrito.style.display = 'block'
+    );
+    miniCarrito.addEventListener('mouseleave', () => 
+      miniCarrito.style.display = 'none'
+    );
   }
 
+  // Cargar datos iniciales
   fetchJSON('productos')
     .then(data => {
       productosGlobal = data;
@@ -130,7 +113,35 @@ document.addEventListener('DOMContentLoaded', () => {
   actualizarCarritoUI();
 });
 
-/* ---------- SUB-CATEGORÍAS ---------- */
+// ---------------------------
+// FUNCIONES AUXILIARES
+// ---------------------------
+const $ = (s) => document.querySelector(s);
+
+const debounce = (func, delay = 300) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), delay);
+  };
+};
+
+const escapeHtml = (t) => {
+  if (typeof t !== 'string') return t;
+  return t.replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;')
+          .replace(/\//g, '&#x2F;');
+};
+
+const fetchJSON = (accion) => fetch(`${API_URL}?accion=${accion}`)
+  .then(r => {
+    if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+    return r.json();
+  });
+
 function fillSubcategorias() {
   const cont = $('#subfiltro-contenedor');
   cont.innerHTML = '';
@@ -155,7 +166,6 @@ function fillSubcategorias() {
   cont.appendChild(select);
 }
 
-/* ------------- RENDER --------------- */
 function renderProductos(arr) {
   const cont = $('#contenedor');
   cont.innerHTML = '';
@@ -222,7 +232,6 @@ function cardProducto(p) {
   return card;
 }
 
-/* ----- PAGINACIÓN ----- */
 function renderPaginacion(total, arr) {
   const pag = $('#paginacion');
   pag.innerHTML = '';
