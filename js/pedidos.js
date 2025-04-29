@@ -1,27 +1,20 @@
-/* js/pedidos.js – muestra los artículos marcados “DISPONIBLE A PEDIDO” */
-
-import { API_URL }             from './config.js';
+/* js/pedidos.js (versión de diagnóstico) */
+import { API_URL } from './config.js';
 import { actualizarCarritoUI } from './carrito-utils.js';
 
 const $ = (s) => document.querySelector(s);
-
-const escapeHtml = (t) =>
-  typeof t === 'string'
-    ? t
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;')
-    : t;
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('📦 pedidos.js cargado');
 
   fetch(`${API_URL}?accion=productos`)
     .then((r) => {
-      if (!r.ok) throw new Error('API error');
+      if (!r.ok) throw new Error(`Error HTTP: ${r.status}`);
       return r.json();
+    })
+    .then(data => {
+      console.log('Respuesta cruda de la API:', data); // 1. Ver estructura real
+      return data;
     })
     .then(render)
     .catch(showErr);
@@ -29,26 +22,29 @@ document.addEventListener('DOMContentLoaded', () => {
   actualizarCarritoUI();
 });
 
-/* —————————————————————————————————————— */
 function render(lista = []) {
   const cont = $('#contenedor');
   cont.innerHTML = '';
 
   const norm = (s) => (s || '')
-      .toUpperCase()
-      .replace(/\u00A0/g, ' ')
-      .replace(/\s+/g, ' ')  // Nuevo: elimina espacios múltiples
-      .trim();
+    .toUpperCase()
+    .replace(/\u00A0/g, ' ')
+    .replace(/[^A-Z0-9]/g, ' ') // Eliminar caracteres especiales
+    .replace(/\s+/g, ' ')       // Unificar espacios múltiples
+    .trim();
 
-  const disponibles = lista.filter(
-    (p) => norm(p.estado) === 'DISPONIBLE A PEDIDO'
-  );
+  console.log('Todos los productos:', lista); // 2. Ver todos los productos
 
-  console.log('Productos disponibles:', disponibles); // Para debug
+  const disponibles = lista.filter(p => {
+    const estadoNormalizado = norm(p.estado);
+    console.log('Estado normalizado:', estadoNormalizado, '| Original:', p.estado); // 3. Ver comparación
+    return estadoNormalizado === 'DISPONIBLEAPEDIDO'; // Versión sin espacios
+  });
+
+  console.log('Productos filtrados:', disponibles); // 4. Ver resultado final
 
   if (!disponibles.length) {
-    cont.innerHTML =
-      '<p>No hay productos disponibles para pedido en este momento.</p>';
+    cont.innerHTML = '<p>No hay productos disponibles para pedido en este momento.</p>';
     return;
   }
 
