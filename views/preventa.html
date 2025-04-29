@@ -1,0 +1,43 @@
+<!-- views/preventa.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Preventa – Mardant</title>
+
+  <!-- hoja de estilos unificada -->
+  <link rel="stylesheet" href="../css/estilos.css" />
+</head>
+<body>
+
+  <!-- Banner superior -->
+  <img src="https://i.imgur.com/ZMGeepN.png"
+       alt="Preventa Mardant"
+       style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #00bcd4;" />
+
+  <!-- Título -->
+  <div class="contacto-centro">
+    <h2 class="titulo-seccion">Productos en Preventa</h2>
+  </div>
+
+  <!-- Botones de navegación -->
+  <div class="volver-inicio" style="margin:20px 0;">
+    <a href="../index.html"  class="boton" data-vista="inicio">🏠 Volver al inicio</a>
+    <a href="catalogo.html"  class="boton" data-vista="catalogo">🛍️ Ir al catálogo</a>
+  </div>
+
+  <!-- Contenedor de productos -->
+  <div id="contenedor" class="grid">
+    <p>Cargando productos…</p>
+  </div>
+
+  <!-- Lógica de la página -->
+  <script type="module" src="../js/preventa.js"></script>
+
+  <!-- Carrito flotante -->
+  <a href="carrito.html"
+     class="boton-carrito-flotante"
+     title="Ver carrito 🛒"
+     data-vista="carrito">🛒</a>
+</body>
+</html>
