@@ -363,3 +363,19 @@ h1,h2{
   z-index: 10000;
   transition: opacity 0.3s;
 }
+
+/* === Guía “Cómo comprar” ============================== */
+.contenedor-guia{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:20px;
+  max-width:1200px;
+  margin:0 auto 40px;
+  padding:0 20px;
+}
+
+.ir-catalogo{
+  text-align:center;
+  margin:40px auto;
+}
+
