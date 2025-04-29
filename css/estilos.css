@@ -230,16 +230,36 @@ h1,h2{
 .subtexto-contacto{text-align:center;color:#444;font-size:18px;font-weight:500;margin:0 auto 30px;max-width:800px;line-height:1.6}
 
 /* ----------  MEDIA QUERIES MÓVIL ---------- */
-@media(max-width:480px){
-  .producto img{height:280px}
-  .nombre{font-size:20px}
-  .categoria,.estado{font-size:17px}
-  .precio{font-size:18px}
-  .categoria-imagen{height:50px}
-  #buscador{font-size:20px;padding:16px 20px}
-  .orden label,.orden select,#subfiltro-contenedor select,#estado{font-size:18px;padding:16px 20px}
-  .boton,.agregar-carrito{font-size:18px;padding:14px 20px}
-  .boton-carrito-flotante{font-size:42px;width:78px;height:78px;bottom:16px;right:16px}
+@media (max-width: 768px) {
+  .grid-productos {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+  }
+  
+  .producto {
+    padding: 10px;
+  }
+  
+  .menu-visual {
+    gap: 10px;
+    padding: 10px;
+  }
+  
+  .carrusel img {
+    height: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .seccion h2 {
+    font-size: 1.5rem;
+  }
+  
+  .boton-carrito-flotante {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+  }
 }
 
 /* --- NOTIFICACIÓN FLOTANTE --- */
@@ -331,3 +351,14 @@ h1,h2{
   transition:background .3s;
 }
 .finalizar a:hover{background:#388e3c}
+
+/* Optimización general de imágenes */
+img {
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+  font-style: italic; /* Texto alternativo estilizado */
+  background-repeat: no-repeat;
+  background-size: cover;
+  shape-margin: 1rem;
+}
