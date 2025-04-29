@@ -9,7 +9,7 @@
 
 .categoria-imagen {
   border: 2px solid #00bcd4;
-  padding: 8px;
+  padding: 2px;
   background: #fff;
   transition: all 0.3s ease;
 }
@@ -102,12 +102,12 @@
   }
 
   .categoria-imagen {
-    padding: 4px;
+    padding: 2px;
     margin: 2px;
   }
   
   .categoria-imagen img {
-    height: 30px !important;
+    height: 35px !important;
   }
 }
 
