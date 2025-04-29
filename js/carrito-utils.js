@@ -69,16 +69,24 @@ export function mostrarMiniCarrito() {
 }
 
 /* ====== API PRIVADA (helpers internos) ====== */
-function mostrarNotificacion(msg) {
-  const noti = document.getElementById('notificacion-carrito');
-  if (!noti) return;
-  noti.textContent  = msg;
-  noti.style.display = 'block';
-  noti.style.opacity = '1';
+export function notificar(mensaje, tipo = 'success') {
+  const tipos = {
+    success: '#4CAF50',
+    error: '#F44336',
+    warning: '#FFC107'
+  };
+  
+  const noti = document.createElement('div');
+  noti.className = 'notificacion-flotante';
+  noti.textContent = mensaje;
+  noti.style.backgroundColor = tipos[tipo] || tipos.success;
+  
+  document.body.appendChild(noti);
+  
   setTimeout(() => {
     noti.style.opacity = '0';
-    setTimeout(() => (noti.style.display = 'none'), 300);
-  }, 2000);
+    setTimeout(() => noti.remove(), 300);
+  }, 3000);
 }
 
 /* ====== helpers globales (window.*) ====== */
