@@ -325,6 +325,13 @@ body{
   .banner img {
     height: 180px;
   }
+  .boton-carrito-flotante {
+    width: 58px !important;
+    height: 58px !important;
+    font-size: 28px !important;
+    bottom: 18px;
+    right: 18px;
+}
 }
 
 /* Botón flecha al catálogo */
