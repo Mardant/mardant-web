@@ -3,7 +3,7 @@ estilos_inicio.html
 
 /* —— estilos_inicio.css (copia literal de tu Apps Script) —— */
 @import url('https://fonts.googleapis.com/css2?family=Carter+One&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap');
 
 body{
   margin:0;
@@ -138,7 +138,8 @@ body{
   margin:auto;
 }
 .seccion h2{
-  font-family:'Carter One',cursive;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
   text-align:center;
   font-size:40px;
   margin-bottom:30px;
