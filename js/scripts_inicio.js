@@ -45,14 +45,22 @@ fetchJSON('pedidosDisponibles')
   .then(lista=>{
     const c=$("#pedidos-disponibles"); c.innerHTML='';
     lista.forEach(p=>{
+      /* — precios aéreo / barco — */
+      const precA = parseFloat(p.precioAereo ?? p.precio ?? 0).toFixed(2);   // ✈️
+      const precB = parseFloat(p.precioBarco ?? p.precio ?? 0).toFixed(2);   // 🚢
+
       const div=document.createElement('div');
       div.className='producto'+(p.soloDesktop?' mostrar-solo-desktop':'');
       div.innerHTML=`
         <img src="${p.imagen}" alt="${escapeHtml(p.nombre)}" class="img" loading="lazy">
         <div class="nombre">${escapeHtml(p.nombre)}</div>
-        <div class="precio">S/. ${parseFloat(p.precio).toFixed(2)}</div>
+        <div class="precio">
+          ✈️ S/. ${precA}<br>
+          🚢 S/. ${precB}
+        </div>
         <div class="estado">${escapeHtml(p.estado)}</div>
-        <a href="https://wa.me/51985135331?text=${encodeURIComponent('Hola, me interesa el producto: '+p.nombre)}" class="boton" target="_blank">📩 Pedir por WhatsApp</a>`;
+        <a href="https://wa.me/51985135331?text=${encodeURIComponent('Hola, me interesa el producto: '+p.nombre)}"
+           class="boton" target="_blank">📩 Pedir por WhatsApp</a>`;
       c.appendChild(div);
     });
   })
