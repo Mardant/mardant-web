@@ -367,11 +367,17 @@ h1,h2{
 /* === Guía “Cómo comprar” ============================== */
 .contenedor-guia{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-  gap:20px;
+  grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+  gap:24px;
   max-width:1200px;
   margin:0 auto 40px;
   padding:0 20px;
+}
+
+.paso img{
+  width:100%;      /* la imagen se adapta al ancho real de la tarjeta */
+  height:auto;
+  border-radius:8px;
 }
 
 .ir-catalogo{
