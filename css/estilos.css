@@ -372,6 +372,7 @@ h1,h2{
   max-width:1200px;
   margin:0 auto 40px;
   padding:0 20px;
+  justify-content: center;
 }
 
 .paso img{
@@ -382,6 +383,11 @@ h1,h2{
 
 .ir-catalogo{
   text-align:center;
-  margin:40px auto;
+  margin: 40px auto 0;
 }
 
+.ir-catalogo .boton-catalogo-img{
+  display: inline-block;
+  width: 100%;
+  max-width: 260px;                         /* tamaño del botón */
+}
