@@ -398,3 +398,12 @@ h1,h2{
   width:100%;
   max-width:260px;
 }
+
+/* --- BREAKPOINT extra para “Cómo comprar” en móviles -------- */
+@media (max-width: 600px){                 /*  ≤ 600 px ≈ móviles  */
+  .contenedor-guia{
+    grid-template-columns: 1fr;            /* 1 tarjeta por fila   */
+    max-width: 100%;                       /* que use todo el ancho*/
+    padding: 0 10px;                       /* respiro lateral      */
+  }
+}
