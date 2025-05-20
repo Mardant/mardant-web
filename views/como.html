@@ -8,6 +8,29 @@
 
   <!-- hoja de estilos unificada -->
   <link rel="stylesheet" href="../css/estilos.css" />
+
+  <!-- ajustes específicos para esta vista -->
+  <style>
+    /* centra grid + botón catálogo */
+    .contenedor-guia{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:24px;
+      max-width:1200px;
+      margin:0 auto 40px;
+      padding:0 20px;
+      justify-content:center;
+    }
+    .ir-catalogo{
+      text-align:center;
+      margin:40px auto 0;
+    }
+    .ir-catalogo .boton-catalogo-img{
+      display:inline-block;
+      width:100%;
+      max-width:260px;
+    }
+  </style>
 </head>
 <body>
 
@@ -35,7 +58,7 @@
       <h2>3. Finaliza tu compra por WhatsApp</h2>
       <p>Haz clic en el carrito (parte inferior izquierda) y pulsa “Finalizar compra por WhatsApp”. ¡Te atenderemos personalmente!</p>
     </div>
-
+  </div> <!-- ← CIERRE añadido de .contenedor-guia -->
 
   <!-- Botón de acceso directo al catálogo -->
   <div class="ir-catalogo">
@@ -55,7 +78,8 @@
   <a href="carrito.html"
      class="boton-carrito-flotante"
      title="Ver carrito 🛒">🛒</a>
+
   <!-- Tracking (FB Pixel + GA4 + eventos) -->
-<script type="module" src="../js/tracking.js"></script>
+  <script type="module" src="../js/tracking.js"></script>
 </body>
 </html>
