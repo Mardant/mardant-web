@@ -372,22 +372,29 @@ h1,h2{
   max-width:1200px;
   margin:0 auto 40px;
   padding:0 20px;
-  justify-content: center;
+  justify-content:center;
 }
 
 .paso img{
-  width:100%;      /* la imagen se adapta al ancho real de la tarjeta */
+  width:100%;
   height:auto;
   border-radius:8px;
 }
 
+/* → NUEVO: asegura legibilidad del párrafo */
+.paso p{
+  color:#cfcfcf;          /* gris claro sobre fondo #1a1a1a */
+  line-height:1.4;
+  font-size:.95rem;
+}
+
 .ir-catalogo{
   text-align:center;
-  margin: 40px auto 0;
+  margin:40px auto 0;
 }
 
 .ir-catalogo .boton-catalogo-img{
-  display: inline-block;
-  width: 100%;
-  max-width: 260px;                         /* tamaño del botón */
+  display:inline-block;
+  width:100%;
+  max-width:260px;
 }
