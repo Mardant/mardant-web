@@ -36,6 +36,47 @@ fetchJSON('productos')
   })
   .catch(console.error);
 
+fetchJSON('preventas')
+
+  .then(limitarProductos)
+
+  .then(lista => {
+
+    const c=$("#productos-preventa"); c.innerHTML="";
+
+    lista.forEach(p=>{
+
+      const img = p.imagen?.trim() ? escapeHtml(p.imagen)
+
+        : 'https://via.placeholder.com/300x300?text=Sin+imagen';
+
+      const urlWA = 'https://wa.me/51985135331?text='+
+
+                    encodeURIComponent('Hola, estoy interesado en la preventa: '+p.nombre);
+
+      const div=document.createElement('div');
+
+      div.className='producto'+(p.soloDesktop?' mostrar-solo-desktop':'');
+
+      div.innerHTML=`
+
+        <img src="${img}" alt="${escapeHtml(p.nombre)}" class="img" loading="lazy">
+
+        <div class="nombre">${escapeHtml(p.nombre)}</div>
+
+        <div class="precio">S/. ${(+p.precio||0).toFixed(2)}</div>
+
+        <a href="${urlWA}" target="_blank" class="boton">📩 Pedir por WhatsApp</a>`;
+
+      c.appendChild(div);
+
+    });
+
+  })
+
+  .catch(console.error);
+
+
 /* ====== Disponibles a pedido ====== */
 fetchJSON('pedidosDisponibles')
   .then(lista => lista
