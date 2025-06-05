@@ -53,6 +53,7 @@ function card(p) {
     <div class="nombre">${escapeHtml(p.nombre)}</div>
     <div class="categoria">${escapeHtml(p.categoria)}${p.subcategoria ? ' – ' + escapeHtml(p.subcategoria) : ''}</div>
     <div class="precio">S/. ${(+p.precio||0).toFixed(2)}</div>
+    <div class="estado">📦 Llega: ${escapeHtml(p['fecha aprox llegada peru'] || 'Próximamente')}</div>
     <a href="${urlWA}" target="_blank" class="boton">📩 Pedir por WhatsApp</a>`;
   return div;
 }
