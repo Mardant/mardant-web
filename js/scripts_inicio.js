@@ -66,6 +66,8 @@ fetchJSON('preventas')
 
         <div class="precio">S/. ${(+p.precio||0).toFixed(2)}</div>
 
+        <div class="estado">📦 Llega: ${escapeHtml(p['fecha aprox llegada peru'] || 'Próximamente')}</div>
+
         <a href="${urlWA}" target="_blank" class="boton">📩 Pedir por WhatsApp</a>`;
 
       c.appendChild(div);
