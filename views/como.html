@@ -3,38 +3,52 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cómo Comprar – Mardant</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
   <!-- hoja de estilos unificada -->
   <link rel="stylesheet" href="../css/estilos.css" />
 
-  <!-- ajustes específicos para esta vista -->
+  <!-- ajustes ligeros propios de esta vista -->
   <style>
-    /* centra grid + botón catálogo */
-    .contenedor-guia{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-      gap:24px;
-      max-width:1200px;
-      margin:0 auto 40px;
-      padding:0 20px;
+    /* CTA con botones tipo “píldora”, coherentes con Preventa/Pedidos/Contacto */
+    .cta-como{
+      display:flex;
       justify-content:center;
+      flex-wrap:wrap;
+      gap:14px;
+      margin: 10px auto 28px;
+      padding: 0 12px;
     }
-    .ir-catalogo{
-      text-align:center;
-      margin:40px auto 0;
+    .btn-pill{
+      display:inline-flex; align-items:center; gap:10px;
+      color:#fff; font-weight:800; line-height:1;
+      padding:14px 22px;
+      border-radius:9999px;
+      text-decoration:none;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
+        #00bcd4;
+      box-shadow:0 10px 24px rgba(0,188,212,.25);
+      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
     }
-    .ir-catalogo .boton-catalogo-img{
-      display:inline-block;
-      width:100%;
-      max-width:260px;
+    .btn-pill:hover{ transform:translateY(-1px); box-shadow:0 14px 28px rgba(0,188,212,.32); filter:saturate(1.05); }
+    .btn-pill.alt{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
+        #31c48d;
+      box-shadow:0 10px 24px rgba(49,196,141,.25);
     }
+
+    /* micro-ajustes de tipografía para los pasos */
+    .paso h2{ font-size:1.15rem; margin:12px 0 6px; }
+    .paso p { margin:0; }
   </style>
 </head>
 <body>
 
-  <!-- Encabezado -->
+  <!-- Título -->
   <div class="contacto-centro">
     <h2 class="titulo-seccion">Cómo Comprar</h2>
   </div>
@@ -42,42 +56,32 @@
   <!-- Pasos de la guía -->
   <div class="contenedor-guia">
     <div class="paso">
-      <img src="https://i.imgur.com/0apS5FN.png" alt="Paso 1" />
+      <img src="https://i.imgur.com/0apS5FN.png" alt="Paso 1: Explora el catálogo" />
       <h2>1. Explora todo nuestro catálogo</h2>
       <p>Entra a “Catálogo” o “Productos a Pedido” para ver figuras, peluches, accesorios y más. ¡Todo 100 % original desde Japón!</p>
     </div>
 
     <div class="paso">
-      <img src="https://i.imgur.com/U40x9Da.png" alt="Paso 2" />
+      <img src="https://i.imgur.com/U40x9Da.png" alt="Paso 2: Busca tu personaje" />
       <h2>2. Busca tu anime o personaje favorito</h2>
-      <p>Usa el buscador o selecciona una categoría como Pokémon, Naruto o Jujutsu Kaisen. ¡Añade lo que te guste al carrito!</p>
+      <p>Usa el buscador o filtra por categorías como Pokémon, Naruto o Jujutsu Kaisen. Añade lo que te guste al carrito.</p>
     </div>
 
     <div class="paso">
-      <img src="https://i.imgur.com/254fLYY.png" alt="Paso 3" />
+      <img src="https://i.imgur.com/254fLYY.png" alt="Paso 3: Finaliza por WhatsApp" />
       <h2>3. Finaliza tu compra por WhatsApp</h2>
-      <p>Haz clic en el carrito (parte inferior izquierda) y pulsa “Finalizar compra por WhatsApp”. ¡Te atenderemos personalmente!</p>
+      <p>Toca el carrito (abajo a la derecha) y pulsa <em>“Finalizar compra por WhatsApp”</em>. ¡Te atendemos al toque!</p>
     </div>
-  </div> <!-- ← CIERRE añadido de .contenedor-guia -->
-
-  <!-- Botón de acceso directo al catálogo -->
-  <div class="ir-catalogo">
-    <a href="catalogo.html">
-      <img src="https://i.imgur.com/B5T6n58.png"
-           alt="Ir al Catálogo"
-           class="boton-catalogo-img" />
-    </a>
   </div>
 
-  <!-- Botón volver -->
-  <div class="volver-inicio">
-    <a href="../index.html" class="boton">🏠 Volver al inicio</a>
+  <!-- CTAs -->
+  <div class="cta-como">
+    <a href="catalogo.html" class="btn-pill alt">🛍️ <span>Ver catálogo</span></a>
+    <a href="../index.html" class="btn-pill">🏠 <span>Volver al inicio</span></a>
   </div>
 
   <!-- Carrito flotante -->
-  <a href="carrito.html"
-     class="boton-carrito-flotante"
-     title="Ver carrito 🛒">🛒</a>
+  <a href="carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">🛒</a>
 
   <!-- Tracking (FB Pixel + GA4 + eventos) -->
   <script type="module" src="../js/tracking.js"></script>
