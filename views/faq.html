@@ -73,7 +73,7 @@
         <p>Depende del destino y del método de envío. Escríbenos para informarte tiempos y costos.</p>
       </div>
 
-      <div class="faq-card" style="grid-column: span 2;">
+      <div class="faq-card span-2">
         <h3>¿Aceptan devoluciones o reembolsos?</h3>
         <p>Solo si el producto llega dañado. Contáctanos dentro de las 24 h con fotos y video. No aceptamos devoluciones de productos abiertos o usados.</p>
       </div>
@@ -81,7 +81,7 @@
     </div>
   </div>
 
-  <!-- CTAs redondeados (consistentes con Contacto/Nosotros) -->
+  <!-- CTAs redondeados -->
   <div class="cta-row" style="margin-top: 10px;">
     <a href="./catalogo.html" class="cta-btn cta--primary" aria-label="Ir al catálogo">
       <span class="cta-ico">🛒</span> Ver catálogo
@@ -94,7 +94,61 @@
   <!-- Botón flotante carrito -->
   <a href="./carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">🛒</a>
 
-  <!-- Tracking (FB Pixel + GA4 + eventos) -->
+  <!-- Ajustes específicos / fixes mobile de esta página -->
+  <style>
+    /* Banner consistente */
+    .banner-top{
+      width:100%;
+      max-height:220px;
+      object-fit:cover;
+      display:block;
+      border-bottom:3px solid #00bcd4;
+    }
+
+    /* Pequeño respiro lateral en móvil */
+    .faq-container{ padding: 0 16px; }
+
+    /* Si alguna tarjeta usa "span 2", dale una clase (span-2) mejor que inline style */
+    .span-2{ grid-column: span 2; }
+
+    /* ======= MOBILE FIXES ======= */
+    @media (max-width: 680px){
+      .faq-grid{
+        display:grid;
+        grid-template-columns: 1fr;   /* una columna */
+        gap: 14px;
+      }
+      /* Obliga cualquier tarjeta a ocupar 1 col en móvil */
+      .faq-grid .faq-card{
+        grid-column: auto !important;
+        min-height: unset;
+        padding: 16px;
+      }
+      .faq-card h3{ font-size: 16px; }
+      .faq-card p{ font-size: 14px; line-height: 1.55; }
+
+      /* CTAs apiladas tipo pastilla */
+      .cta-row{
+        display:flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 0 12px;
+      }
+      .cta-btn{
+        width: 92%;
+        max-width: 360px;
+        font-size: 16px;
+        padding: 14px 18px;
+        border-radius: 999px;
+        display:flex;
+        justify-content: center;
+        align-items: center;
+      }
+    }
+  </style>
+
+  <!-- Tracking -->
   <script type="module" src="../js/tracking.js"></script>
 </body>
 </html>
