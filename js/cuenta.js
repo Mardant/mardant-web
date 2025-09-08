@@ -1,8 +1,11 @@
-// --- Helpers globales
-const { TOKEN, CLIENT, NAME } = window.AUTH_KEYS || { TOKEN:'mardant_token', CLIENT:'mardant_client', NAME:'mardant_name' };
-const PEN = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
+// js/cuenta.js
+import { API_URL, AUTH_KEYS } from './config.js';
 
-const $ = (s)=>document.querySelector(s);
+const BASE_API = API_URL;
+const { TOKEN, CLIENT, NAME } = AUTH_KEYS;
+
+const PEN = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
+const $  = (s)=>document.querySelector(s);
 const $$ = (s)=>document.querySelectorAll(s);
 
 const loginSection  = $('#loginSection');
@@ -109,7 +112,7 @@ async function loadStatus(){
   preTbody.innerHTML     = '';
 
   try{
-    const res = await fetch(window.BASE_API + '?route=status&token=' + encodeURIComponent(token));
+    const res = await fetch(BASE_API + '?route=status&token=' + encodeURIComponent(token));
     const data = await res.json();
     if (!data.ok){
       if (data.error === 'invalid_token'){ clearAuth(); showLogin(); return; }
@@ -122,9 +125,8 @@ async function loadStatus(){
     diasRestantesEl.textContent = data.dias_restantes;
     diasExcedidosEl.textContent = data.dias_excedidos;
 
-    // Avisos (7 días)
+    // Avisos (≤7 días)
     if (Array.isArray(data.avisos) && data.avisos.length){
-      // ejemplo: “ID PKM-0001: solo te quedan 7 días de almacenaje…”
       showToast(data.avisos.join('  •  '), 'warn');
     }
 
@@ -181,7 +183,7 @@ loginForm.addEventListener('submit', async (ev)=>{
   const client_id = $('#clientId').value.trim();
   const password  = $('#password').value;
   try{
-    const res  = await fetch(window.BASE_API + '?route=login', {
+    const res  = await fetch(BASE_API + '?route=login', {
       method:'POST',
       headers:{ 'Content-Type':'text/plain;charset=utf-8' },
       body: JSON.stringify({ client_id, password })
@@ -207,7 +209,4 @@ loginForm.addEventListener('submit', async (ev)=>{
 logoutBtn.addEventListener('click', ()=>{ clearAuth(); showLogin(); });
 
 // Entrada
-(function init(){
-  // Si vienes desde el botón del home, directo al estado si hay token
-  getToken() ? loadStatus() : showLogin();
-})();
+getToken() ? loadStatus() : showLogin();
