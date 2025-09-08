@@ -84,9 +84,24 @@
       width:100% !important;
       max-width:100% !important;
       height:auto !important;           /* anula altos forzados */
-      object-fit:contain !important;     /* evita cortes; cambia a cover si quisieras “llenar” */
+      object-fit:contain !important;     /* evita cortes */
       border-radius:10px;
       cursor: zoom-in;                   /* pista del lightbox */
+    }
+
+    /* ====== MÁS ESPACIO BAJO EL CTA DE WHATSAPP ====== */
+    .grid-pedidos .producto{
+      padding-bottom: 22px;                 /* colchón inferior de la card */
+    }
+    .grid-pedidos .producto .agregar-carrito,
+    .grid-pedidos .producto a.boton,
+    .grid-pedidos .producto a[href*="whatsapp"],
+    .grid-pedidos .producto a[href*="wa.me"]{
+      display:block;
+      margin-bottom: 10px;                  /* extra bajo el botón */
+    }
+    @media (max-width:720px){
+      .grid-pedidos .producto{ padding-bottom: 26px; }
     }
 
     /* Lightbox coherente con catálogo */
