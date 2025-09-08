@@ -8,9 +8,14 @@
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
   <!-- hoja global de estilos (cache-buster) -->
-  <link rel="stylesheet" href="../css/estilos.css?v=3" />
+  <link rel="stylesheet" href="../css/estilos.css?v=4" />
 </head>
 <body>
+
+  <!-- Banner superior -->
+  <img src="https://i.imgur.com/wfOe9n4.png"
+       alt="Banner Mardant"
+       class="banner-top" />
 
   <!-- título + intro -->
   <div class="contacto-centro">
@@ -64,17 +69,14 @@
     </a>
   </div>
 
-  <!-- CTA al catálogo (compacto) -->
-  <div class="cta-centro">
-    <a href="./catalogo.html" data-vista="catalogo" class="cta-catalogo" aria-label="Ir al catálogo">
-      <span class="cta-ico">🛒</span>
-      Ver catálogo
+  <!-- CTAs centrados (mismo estilo para ambos) -->
+  <div class="cta-row">
+    <a href="./catalogo.html" data-vista="catalogo" class="cta-btn cta--primary" aria-label="Ir al catálogo">
+      <span class="cta-ico">🛒</span> Ver catálogo
     </a>
-  </div>
-
-  <!-- volver -->
-  <div class="volver-inicio">
-    <a href="./inicio.html">🏠 Volver al inicio</a>
+    <a href="./inicio.html" data-vista="inicio" class="cta-btn cta--primary" aria-label="Volver al inicio">
+      <span class="cta-ico">🏠</span> Volver al inicio
+    </a>
   </div>
 
   <!-- botón flotante carrito -->
