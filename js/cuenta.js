@@ -1,64 +1,54 @@
-// js/cuenta.js
+// === js/cuenta.js ===
 import { API_URL, AUTH_KEYS } from './config.js';
 
-const BASE_API = API_URL;
-const { TOKEN, CLIENT, NAME } = AUTH_KEYS;
-
+// Storage helpers
+const TOKEN_KEY  = AUTH_KEYS?.TOKEN  || 'mardant_token';
+const CLIENT_KEY = AUTH_KEYS?.CLIENT || 'mardant_client';
+const NAME_KEY   = AUTH_KEYS?.NAME   || 'mardant_name';
 const PEN = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
-const $  = (s)=>document.querySelector(s);
-const $$ = (s)=>document.querySelectorAll(s);
 
-const loginSection  = $('#loginSection');
-const statusSection = $('#statusSection');
-const loginForm     = $('#loginForm');
-const loginMsg      = $('#loginMsg');
-const togglePassBtn = $('#togglePass');
+// Elements
+const loginSection  = document.getElementById('loginSection');
+const statusSection = document.getElementById('statusSection');
+const loginForm     = document.getElementById('loginForm');
+const loginMsg      = document.getElementById('loginMsg');
+const togglePassBtn = document.getElementById('togglePass');
 
-const clientNameEl    = $('#clientName');
-const clientCodeEl    = $('#clientCode');
+const clientNameEl    = document.getElementById('clientName');
+const clientCodeEl    = document.getElementById('clientCode');
 
-const diasGratisEl    = $('#diasGratis');
-const diasUsadosEl    = $('#diasUsados');
-const diasRestantesEl = $('#diasRestantes');
-const diasExcedidosEl = $('#diasExcedidos');
+const diasGratisEl    = document.getElementById('diasGratis');
+const diasUsadosEl    = document.getElementById('diasUsados');
+const diasRestantesEl = document.getElementById('diasRestantes');
+const diasExcedidosEl = document.getElementById('diasExcedidos');
 
 const itemsTbody      = document.querySelector('#itemsTable tbody');
 const preTbody        = document.querySelector('#preTable tbody');
 
-const almacenMsg      = $('#almacenMsg');
-const preMsg          = $('#preMsg');
+const almacenMsg      = document.getElementById('almacenMsg');
+const preMsg          = document.getElementById('preMsg');
 
-const logoutBtn       = $('#logoutBtn');
+const logoutBtn       = document.getElementById('logoutBtn');
 
-const tabBtns         = $$('.tab-btn');
-const tabAlmacen      = $('#tab-almacen');
-const tabPreventas    = $('#tab-preventas');
+const tabBtns         = document.querySelectorAll('.tab-btn');
+const tabAlmacen      = document.getElementById('tab-almacen');
+const tabPreventas    = document.getElementById('tab-preventas');
 
-const toast           = $('#toast');
-
-// --- UI helpers
-const getToken = () => localStorage.getItem(TOKEN);
-const setAuth  = (t,id,name)=>{ localStorage.setItem(TOKEN,t); localStorage.setItem(CLIENT,id||''); localStorage.setItem(NAME,name||''); };
-const clearAuth= ()=>{ localStorage.removeItem(TOKEN); localStorage.removeItem(CLIENT); localStorage.removeItem(NAME); };
+// UI helpers
+const getToken = () => localStorage.getItem(TOKEN_KEY);
+const setAuth  = (t,id,name)=>{ localStorage.setItem(TOKEN_KEY,t); localStorage.setItem(CLIENT_KEY,id||''); localStorage.setItem(NAME_KEY,name||''); };
+const clearAuth= ()=>{ localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(CLIENT_KEY); localStorage.removeItem(NAME_KEY); };
 const showLogin= ()=>{ statusSection.style.display='none'; loginSection.style.display='block'; };
 const showPanel= ()=>{ loginSection.style.display='none'; statusSection.style.display='block'; };
 
-function showToast(msg, variant='warn') {
-  if (!toast) return;
-  toast.textContent = msg;
-  toast.className = `toast ${variant}`;
-  toast.hidden = false;
-  requestAnimationFrame(()=> toast.classList.add('show'));
-  setTimeout(()=> toast.classList.remove('show'), 6000);
-  setTimeout(()=> toast.hidden = true, 6500);
-}
-
 // Uppercase clientId
-$('#clientId').addEventListener('input', (e)=>{ e.target.value = e.target.value.toUpperCase().trim(); });
+document.getElementById('clientId').addEventListener('input', (e)=>{
+  e.target.value = e.target.value.toUpperCase().trim();
+});
 
-// Toggle password
+// Toggle password visibility
 togglePassBtn.addEventListener('click', ()=>{
-  const input = $('#password');
+  const input = document.getElementById('password');
   const to = input.type === 'password' ? 'text' : 'password';
   input.type = to;
   togglePassBtn.textContent = (to === 'text') ? 'Ocultar' : 'Mostrar';
@@ -70,8 +60,8 @@ tabBtns.forEach(btn=>{
     tabBtns.forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
     const t = btn.dataset.tab;
-    tabAlmacen.style.display  = (t === 'almacen')  ? 'block' : 'none';
-    tabPreventas.style.display= (t === 'preventas')? 'block' : 'none';
+    tabAlmacen.style.display   = (t === 'almacen')   ? 'block' : 'none';
+    tabPreventas.style.display = (t === 'preventas') ? 'block' : 'none';
   });
 });
 
@@ -90,30 +80,31 @@ function stateBadge(text){
   else cls += 'en-almacen';
   return `<span class="${cls}">${text||'-'}</span>`;
 }
-
 function thumb(url){
   const u = (url||'').trim();
   if (!u) return `<div class="thumb"><span class="muted">–</span></div>`;
   return `<a class="thumb" href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="foto"/></a>`;
 }
 
-// --- Carga de estado
+// Load status
 async function loadStatus(){
   const token = getToken();
   if (!token){ showLogin(); return; }
 
   showPanel();
-  clientCodeEl.textContent = localStorage.getItem(CLIENT)||'';
-  clientNameEl.textContent = localStorage.getItem(NAME)||'';
+  clientCodeEl.textContent = localStorage.getItem(CLIENT_KEY)||'';
+  clientNameEl.textContent = localStorage.getItem(NAME_KEY)||'';
 
+  // placeholders
   almacenMsg.textContent = 'Cargando…';
   preMsg.textContent     = 'Cargando…';
   itemsTbody.innerHTML   = '';
   preTbody.innerHTML     = '';
 
   try{
-    const res = await fetch(BASE_API + '?route=status&token=' + encodeURIComponent(token));
+    const res = await fetch(`${API_URL}?route=status&token=${encodeURIComponent(token)}`);
     const data = await res.json();
+
     if (!data.ok){
       if (data.error === 'invalid_token'){ clearAuth(); showLogin(); return; }
       throw new Error(data.error||'error');
@@ -124,11 +115,6 @@ async function loadStatus(){
     diasUsadosEl.textContent    = data.dias_usados;
     diasRestantesEl.textContent = data.dias_restantes;
     diasExcedidosEl.textContent = data.dias_excedidos;
-
-    // Avisos (≤7 días)
-    if (Array.isArray(data.avisos) && data.avisos.length){
-      showToast(data.avisos.join('  •  '), 'warn');
-    }
 
     // ALMACÉN
     const items = data.almacen || data.items || [];
@@ -170,22 +156,22 @@ async function loadStatus(){
     });
     preMsg.textContent = prevs.length ? '' : 'No tienes preventas registradas.';
   }catch(err){
-    almacenMsg.textContent = 'No se pudo cargar el estado ('+(err.message||err)+')';
-    preMsg.textContent     = 'No se pudo cargar el estado ('+(err.message||err)+')';
+    const msg = 'No se pudo cargar el estado ('+(err.message||err)+')';
+    almacenMsg.textContent = msg;
+    preMsg.textContent     = msg;
   }
 }
 
-// --- Login
+// Submit login
 loginForm.addEventListener('submit', async (ev)=>{
   ev.preventDefault();
   loginMsg.textContent = 'Verificando…';
 
-  const client_id = $('#clientId').value.trim();
-  const password  = $('#password').value;
+  const client_id = document.getElementById('clientId').value.trim();
+  const password  = document.getElementById('password').value;
   try{
-    const res  = await fetch(BASE_API + '?route=login', {
-      method:'POST',
-      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+    const res  = await fetch(`${API_URL}?route=login`, {
+      method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' },
       body: JSON.stringify({ client_id, password })
     });
     const data = await res.json();
@@ -205,8 +191,7 @@ loginForm.addEventListener('submit', async (ev)=>{
   }
 });
 
-// --- Logout
 logoutBtn.addEventListener('click', ()=>{ clearAuth(); showLogin(); });
 
-// Entrada
+// Init
 getToken() ? loadStatus() : showLogin();
