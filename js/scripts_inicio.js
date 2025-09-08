@@ -1,5 +1,5 @@
 // === js/scripts_inicio.js ===
-import { API_URL } from './config.js';
+import { API_URL, AUTH_KEYS } from './config.js';
 
 /* Utilidades */
 const $ = sel => document.querySelector(sel);
@@ -8,6 +8,41 @@ const escapeHtml = t => typeof t === 'string'
       .replace(/"/g,'&quot;').replace(/'/g,'&#039;')
   : t;
 const limitarProductos = arr => arr.slice(0,4).map((p,i)=>({...p,soloDesktop:i===3}));
+
+/* ====== Botón "Mi cuenta" ====== */
+const KEYS = {
+  TOKEN:  (AUTH_KEYS && AUTH_KEYS.TOKEN)  || 'mardant_token',
+  NAME:   (AUTH_KEYS && AUTH_KEYS.NAME)   || 'mardant_name',
+  CLIENT: (AUTH_KEYS && AUTH_KEYS.CLIENT) || 'mardant_client'
+};
+
+function ensureCuentaButton() {
+  // Si el HTML ya trae el botón (con id="btnCuenta"), lo usamos; si no, lo creamos.
+  let btn = document.getElementById('btnCuenta');
+  if (!btn) {
+    btn = document.createElement('a');
+    btn.id = 'btnCuenta';
+    btn.className = 'boton-cuenta-flotante';
+    btn.href = './cuenta.html';
+    btn.innerHTML = `<span class="emoji">👤</span><span class="texto">Entrar</span>`;
+    document.body.appendChild(btn);
+  }
+
+  const hasToken = !!localStorage.getItem(KEYS.TOKEN);
+  const name = (localStorage.getItem(KEYS.NAME) || '').trim();
+  const short = name ? (name.split(' ')[0]) : '';
+
+  const texto = hasToken
+    ? (short ? `Mi cuenta / ${short}` : 'Mi cuenta')
+    : 'Entrar';
+
+  btn.innerHTML = `<span class="emoji">👤</span><span class="texto">${texto}</span>`;
+  btn.title = hasToken ? 'Ver mi cuenta' : 'Iniciar sesión';
+  btn.href = './cuenta.html';
+}
+
+// Corre apenas el DOM esté listo (este archivo se carga al final, pero por si acaso)
+document.addEventListener('DOMContentLoaded', ensureCuentaButton);
 
 /* Helpers de red */
 const fetchJSON = accion =>
@@ -28,56 +63,36 @@ fetchJSON('productos')
       div.innerHTML=`
         <img src="${p.imagen}" alt="${escapeHtml(p.nombre)}" class="img" loading="lazy">
         <div class="nombre">${escapeHtml(p.nombre)}</div>
-        <div class="precio">S/. ${parseFloat(p.precio).toFixed(2)}</div>
+        <div class="precio">S/. ${parseFloat(p.precio).toFixed(2)}</div>
         <div class="${estadoClase}">${estado}</div>
-        <a href="https://wa.me/51985135331?text=${encodeURIComponent('Hola, me interesa el producto: '+p.nombre)}" class="boton" target="_blank">📢 Pedir por WhatsApp</a>`;
+        <a href="https://wa.me/51985135331?text=${encodeURIComponent('Hola, me interesa el producto: '+p.nombre)}" class="boton" target="_blank">📢 Pedir por WhatsApp</a>`;
       c.appendChild(div);
     });
   })
   .catch(console.error);
 
+/* ====== Preventas (home) ====== */
 fetchJSON('preventas')
-
   .then(limitarProductos)
-
   .then(lista => {
-
     const c=$("#productos-preventa"); c.innerHTML="";
-
     lista.forEach(p=>{
-
       const img = p.imagen?.trim() ? escapeHtml(p.imagen)
-
         : 'https://via.placeholder.com/300x300?text=Sin+imagen';
-
       const urlWA = 'https://wa.me/51985135331?text='+
-
                     encodeURIComponent('Hola, estoy interesado en la preventa: '+p.nombre);
-
       const div=document.createElement('div');
-
       div.className='producto'+(p.soloDesktop?' mostrar-solo-desktop':'');
-
       div.innerHTML=`
-
         <img src="${img}" alt="${escapeHtml(p.nombre)}" class="img" loading="lazy">
-
         <div class="nombre">${escapeHtml(p.nombre)}</div>
-
         <div class="precio">S/. ${(+p.precio||0).toFixed(2)}</div>
-
         <div class="estado">📦 Llega: ${escapeHtml(p['fecha aprox llegada peru'] || 'Próximamente')}</div>
-
         <a href="${urlWA}" target="_blank" class="boton">📩 Pedir por WhatsApp</a>`;
-
       c.appendChild(div);
-
     });
-
   })
-
   .catch(console.error);
-
 
 /* ====== Disponibles a pedido ====== */
 fetchJSON('pedidosDisponibles')
@@ -88,7 +103,6 @@ fetchJSON('pedidosDisponibles')
   .then(lista=>{
     const c=$("#pedidos-disponibles"); c.innerHTML='';
     lista.forEach(p=>{
-      /* — precios aéreo / barco — */
       const precA = parseFloat(p.precioAereo ?? p.precio ?? 0).toFixed(2);   // ✈️
       const precB = parseFloat(p.precioBarco ?? p.precio ?? 0).toFixed(2);   // 🚢
 
@@ -98,12 +112,12 @@ fetchJSON('pedidosDisponibles')
         <img src="${p.imagen}" alt="${escapeHtml(p.nombre)}" class="img" loading="lazy">
         <div class="nombre">${escapeHtml(p.nombre)}</div>
         <div class="precio">
-          ✈️ S/. ${precA}<br>
-          🚢 S/. ${precB}
+          ✈️ S/. ${precA}<br>
+          🚢 S/. ${precB}
         </div>
         <div class="estado">${escapeHtml(p.estado)}</div>
         <a href="https://wa.me/51985135331?text=${encodeURIComponent('Hola, me interesa el producto: '+p.nombre)}"
-           class="boton" target="_blank">📩 Pedir por WhatsApp</a>`;
+           class="boton" target="_blank">📩 Pedir por WhatsApp</a>`;
       c.appendChild(div);
     });
   })
@@ -121,11 +135,11 @@ fetchJSON('productos')
         <img src="${p.imagen}" alt="${nombre}" class="img" loading="lazy">
         <div class="nombre">${nombre}</div>
         <div class="precio">
-          <span style="text-decoration:line-through;color:#bbb;">S/. ${parseFloat(p.precio).toFixed(2)}</span><br>
-          <span style="color:#ffee58;font-weight:bold;font-size:22px;">S/. ${parseFloat(p.oferta).toFixed(2)}</span>
+          <span style="text-decoration:line-through;color:#bbb;">S/. ${parseFloat(p.precio).toFixed(2)}</span><br>
+          <span style="color:#ffee58;font-weight:bold;font-size:22px;">S/. ${parseFloat(p.oferta).toFixed(2)}</span>
         </div>
         <div class="estado en-stock">OFERTA</div>
-        <a href="https://wa.me/51985135331?text=${encodeURIComponent('Hola, me interesa el producto: '+nombre)}" class="boton" target="_blank">🔥 Pedir por WhatsApp</a>`;
+        <a href="https://wa.me/51985135331?text=${encodeURIComponent('Hola, me interesa el producto: '+nombre)}" class="boton" target="_blank">🔥 Pedir por WhatsApp</a>`;
       const div=document.createElement('div');
       div.className='producto'+(p.soloDesktop?' mostrar-solo-desktop':'');
       div.innerHTML=html;
@@ -151,3 +165,10 @@ const show=()=>{
 };
 setInterval(()=>{idx=(idx+1)%slides.length;show();},8000);
 show();
+
+/* Por si el usuario inicia/cierra sesión en otra pestaña,
+   actualizamos el botón cuando cambie localStorage */
+window.addEventListener('storage', (ev)=>{
+  if ([KEYS.TOKEN, KEYS.NAME].includes(ev.key)) ensureCuentaButton();
+});
+
