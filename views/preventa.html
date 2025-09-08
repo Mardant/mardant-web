@@ -52,7 +52,7 @@
   <!-- Lógica de la página -->
   <script type="module" src="../js/preventa.js"></script>
 
-  <!-- Mejora UX: abrir lightbox al tocar/clickear cualquier imagen de la card -->
+  <!-- Lightbox: abrir al tocar cualquier imagen -->
   <script>
     (function () {
       const cont = document.getElementById('contenedor');
@@ -74,8 +74,7 @@
       };
       lb.addEventListener('click', close);
       lb.querySelector('.lb-close').addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        close();
+        ev.stopPropagation(); close();
       });
       document.addEventListener('keydown', (ev) => {
         if (!lb.hidden && ev.key === 'Escape') close();
@@ -83,32 +82,45 @@
     })();
   </script>
 
-  <!-- Ajustes de layout específicos de esta vista -->
+  <!-- Ajustes de layout + estilo de botones -->
   <style>
     :root{
-      /* ancho máximo de una tarjeta en móvil */
-      --card-max-mobile: 380px;
+      --card-max-mobile: 380px;          /* ancho máx de una card en móvil */
+      --pill-radius: 9999px;             /* cápsula totalmente redondeada  */
     }
 
-    /* Botones “píldora” iguales a Contacto */
+    /* Botones “píldora” (mismo look que Contacto/FAQ) */
     .btn-pill{
       display:inline-flex; align-items:center; gap:10px;
-      background:#00bcd4; color:#fff; font-weight:800;
-      padding:14px 18px; border-radius:14px; text-decoration:none;
-      box-shadow:0 8px 22px rgba(0,188,212,.25);
-      transition:transform .15s ease, box-shadow .15s ease;
+      color:#fff; font-weight:800; line-height:1;
+      padding:14px 22px;
+      border-radius: var(--pill-radius);
+      text-decoration:none;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)) ,
+        #00bcd4;                           /* cian principal */
+      box-shadow:0 10px 24px rgba(0,188,212,.25);
+      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
     }
-    .btn-pill:hover{ transform:translateY(-1px); box-shadow:0 12px 26px rgba(0,188,212,.32); }
-    .btn-pill.alt{ background:#31c48d; }
+    .btn-pill:hover{
+      transform:translateY(-1px);
+      box-shadow:0 14px 28px rgba(0,188,212,.32);
+      filter:saturate(1.05);
+    }
+    .btn-pill.alt{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)) ,
+        #31c48d;                           /* verde catálogo */
+      box-shadow:0 10px 24px rgba(49,196,141,.25);
+    }
 
     .cta-preventa{
       display:flex; justify-content:center; flex-wrap:wrap; gap:14px;
-      /* más aire con las tarjetas de abajo */
-      margin: 10px auto 28px;
+      margin: 12px auto 30px;
       padding: 0 12px;
     }
 
-    /* Grid de productos para esta vista (en lugar del flex global) */
+    /* Grid de productos para esta vista */
     .grid-preventa{
       display:grid;
       grid-template-columns: repeat(3, minmax(260px, 1fr));
@@ -117,21 +129,19 @@
       margin:0 auto 60px;
       padding:0 16px;
     }
-    /* Que las cards ocupen su celda */
     .grid-preventa .producto{ width:100%; }
 
     /* --------- Responsivo --------- */
-    @media (max-width: 1100px){
+    @media (max-width:1100px){
       .grid-preventa{ grid-template-columns: repeat(2, minmax(260px, 1fr)); }
     }
-    @media (max-width: 720px){
-      /* Una sola columna y cada card centrada y con ancho limitado */
+    @media (max-width:720px){
       .grid-preventa{ grid-template-columns: 1fr; gap:18px; }
       .grid-preventa .producto{
         max-width: var(--card-max-mobile);
-        margin: 0 auto;           /* centra la tarjeta */
+        margin: 0 auto;
       }
-      .cta-preventa{ margin-bottom: 20px; gap:10px; }
+      .cta-preventa{ margin-bottom: 22px; gap:10px; }
     }
 
     /* ------- Lightbox ------- */
@@ -157,3 +167,4 @@
   <script type="module" src="../js/tracking.js"></script>
 </body>
 </html>
+
