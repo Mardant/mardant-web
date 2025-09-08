@@ -341,3 +341,25 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
 @media (max-width: 600px){
   .contenedor-guia{grid-template-columns:1fr;max-width:100%;padding:0 10px}
 }
+
+/* CTA compacto al catálogo */
+.cta-centro{ text-align:center; margin: 26px 0 8px; }
+.cta-catalogo{
+  display:inline-flex; align-items:center; gap:.6rem;
+  padding:12px 18px;
+  background: linear-gradient(135deg,#00bcd4 0%, #008fb9 100%);
+  color:#fff; font-weight:800; letter-spacing:.2px;
+  border-radius: 9999px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.18);
+  text-decoration:none;
+  transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+.cta-catalogo:hover{ transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,.25); }
+.cta-catalogo:active{ transform: translateY(0); opacity:.92; }
+.cta-ico{ font-size: 1.2rem; line-height: 1; }
+
+/* tamaño un pelín mayor en pantallas anchas */
+@media (min-width: 900px){
+  .cta-catalogo{ padding:13px 22px; font-size:1.05rem; }
+  .cta-ico{ font-size:1.25rem; }
+}
