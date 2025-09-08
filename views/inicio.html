@@ -65,12 +65,11 @@
     🛒<span id="contador-carrito" class="contador-carrito"></span>
   </a>
 
-  <!-- Lightbox (para ampliar imágenes de productos) -->
-  <div id="lb" class="lightbox" hidden>
+  <!-- Lightbox portada -->
+  <div id="lb-inicio" class="lightbox" hidden>
     <img alt="Vista ampliada">
     <button class="lb-close" aria-label="Cerrar">×</button>
   </div>
-
 </section>
 
 <!-- Estilos exclusivos -->
@@ -79,14 +78,13 @@
 <!-- Lógica de la portada -->
 <script type="module" src="../js/scripts_inicio.js"></script>
 
-<!-- Abrir lightbox al tocar cualquier imagen de las cards -->
+<!-- Abrir imágenes en lightbox (delegado en toda la portada) -->
 <script>
   (function () {
     const root = document.getElementById('vista-inicio');
-    const lb   = document.getElementById('lb');
+    const lb   = document.getElementById('lb-inicio');
     const img  = lb.querySelector('img');
 
-    // Delegación: cualquier <img> dentro de .grid-productos abre el lightbox
     root.addEventListener('click', (e) => {
       const el = e.target;
       if (el && el.tagName === 'IMG' && el.closest('.grid-productos')) {
