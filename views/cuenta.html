@@ -4,20 +4,19 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Mi Cuenta - Mardant</title>
-  <link rel="stylesheet" href="../css/cuenta.css" />
-  <link rel="icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="../css/cuenta.css">
 </head>
 <body>
   <div class="container">
-    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
 
-    <div class="hero">
+    <header class="topbar">
+      <a href="./inicio.html" class="home">← Volver al inicio</a>
       <h1>Mi Cuenta</h1>
-      <p>Consulta tus días de almacenaje y haz seguimiento a tus preventas.</p>
-    </div>
+      <p class="sub">Consulta tus días de almacenaje y haz seguimiento a tus preventas.</p>
+    </header>
 
     <!-- LOGIN -->
-    <section id="loginSection" class="card" style="display:none;">
+    <section id="loginSection" class="card" style="display:none">
       <form id="loginForm" autocomplete="on">
         <div class="row cols-2">
           <div>
@@ -38,11 +37,14 @@
     </section>
 
     <!-- PANEL -->
-    <section id="statusSection" class="card" style="display:none;">
-      <div class="row cols-2">
+    <section id="statusSection" class="card" style="display:none">
+      <div class="row cols-2 headrow">
         <div>
           <div class="label">Cliente</div>
-          <div class="client-title"><span id="clientName"></span> <span class="muted">(<span id="clientCode"></span>)</span></div>
+          <div class="client">
+            <span id="clientName" class="strong"></span>
+            <span class="muted">(<span id="clientCode"></span>)</span>
+          </div>
         </div>
         <div class="right">
           <button id="logoutBtn" class="btn secondary">Cerrar sesión</button>
@@ -61,13 +63,15 @@
         <button class="tab-btn" data-tab="preventas">Preventas</button>
       </div>
 
-      <!-- ALMACEN -->
+      <!-- TAB: ALMACEN -->
       <div id="tab-almacen">
         <h3>Ítems en almacén</h3>
         <div class="table-wrap">
           <table id="itemsTable">
             <thead>
-              <tr><th>Foto</th><th>ID</th><th>Descripción</th><th>Ingreso</th><th>Estado</th><th class="right">Días</th></tr>
+              <tr>
+                <th>Foto</th><th>ID</th><th>Descripción</th><th>Ingreso</th><th>Estado</th><th class="right">Días</th>
+              </tr>
             </thead>
             <tbody></tbody>
           </table>
@@ -75,8 +79,8 @@
         <div class="msg" id="almacenMsg"></div>
       </div>
 
-      <!-- PREVENTAS -->
-      <div id="tab-preventas" style="display:none;">
+      <!-- TAB: PREVENTAS -->
+      <div id="tab-preventas" style="display:none">
         <h3>Mis preventas</h3>
         <div class="table-wrap">
           <table id="preTable">
@@ -94,9 +98,9 @@
         <div class="msg" id="preMsg"></div>
       </div>
     </section>
+
   </div>
 
-  <!-- Módulo principal de la vista -->
   <script type="module" src="../js/cuenta.js"></script>
 </body>
 </html>
