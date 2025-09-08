@@ -1,22 +1,29 @@
-/* —— estilos_inicio.css —— */
+/* —— estilos_inicio.css (responsive pulido para móvil) —— */
 @import url('https://fonts.googleapis.com/css2?family=Carter+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap');
 
-/* Fixes globales para evitar “borde blanco” y desbordes */
-*,
-*::before,
-*::after { box-sizing: border-box; }
-html, body { overflow-x: hidden; }
-img { max-width: 100%; height: auto; display: block; }
+:root{
+  /* Escalas fluidas para títulos y textos de cards */
+  --fs-h2:        clamp(22px, 5.4vw, 36px);
+  --fs-name:      clamp(14px, 4.2vw, 18px);
+  --fs-price:     clamp(13px, 3.8vw, 16px);
+  --fs-status:    clamp(12px, 3.4vw, 14px);
+  --fs-button:    clamp(12px, 3.6vw, 14px);
 
-body{
+  --card-pad:     14px;
+  --card-radius:  12px;
+  --grid-gap:     20px;
+}
+
+html, body{
   margin:0;
+  overflow-x:hidden;       /* sin scroll lateral */
   font-family:'Nunito Sans',sans-serif;
   background-color:#fafafa;
   color:#111;
 }
 
-/* Banner */
+/* =================== Banner =================== */
 .banner{
   position:relative;
   background:#000;
@@ -25,6 +32,7 @@ body{
 .banner img{
   width:100%;
   height:250px;
+  max-width:1920px;
   display:block;
   object-fit:cover;
   object-position:center;
@@ -50,10 +58,10 @@ body{
   margin-top:10px;
 }
 
-/* Menú visual */
+/* =================== Menú visual =================== */
 .menu-visual{
-  background-color:transparent;
-  padding:20px 16px; /* respiración lateral estable */
+  background:transparent;
+  padding:20px 10px;
   display:flex;
   flex-wrap:wrap;
   justify-content:center;
@@ -61,23 +69,18 @@ body{
 }
 .menu-visual img.boton-imagen{
   max-height:60px;
-  height:auto;
   border-radius:10px;
   background:#fff;
   padding:4px 6px;
   box-shadow:0 4px 10px rgba(0,0,0,.3);
-  transition:transform .3s ease,box-shadow .3s ease;
-  will-change: transform;
+  transition:transform .3s ease, box-shadow .3s ease;
 }
-/* Animaciones sólo en dispositivos con hover real (evita empujes en móvil) */
-@media (hover:hover){
-  .menu-visual img.boton-imagen:hover{
-    transform:scale(1.06);
-    box-shadow:0 8px 16px rgba(0,0,0,.35);
-  }
+.menu-visual img.boton-imagen:hover{
+  transform:scale(1.1);
+  box-shadow:0 8px 16px rgba(0,0,0,.4);
 }
 
-/* Carrusel */
+/* =================== Carrusel =================== */
 .carrusel{
   position:relative;
   width:100%;
@@ -95,8 +98,8 @@ body{
   display:none;
   border-radius:12px;
 }
-.carrusel img.activo{display:block;}
-.carrusel-botones{display:none;}
+.carrusel img.activo{ display:block; }
+.carrusel-botones{ display:none; }
 .carrusel-indicadores{
   position:absolute;
   bottom:10px;
@@ -106,149 +109,104 @@ body{
   gap:10px;
 }
 .carrusel-indicadores .punto{
-  width:12px;
-  height:12px;
-  border-radius:50%;
+  width:12px; height:12px; border-radius:50%;
   background:rgba(255,255,255,.6);
-  cursor:pointer;
-  transition:background .3s ease;
+  cursor:pointer; transition:background .3s ease;
 }
-.carrusel-indicadores .punto.activo{background:#00bcd4;}
+.carrusel-indicadores .punto.activo{ background:#00bcd4; }
 
-/* Botón carrito flotante */
-.boton-carrito-flotante{
-  position:fixed;
-  bottom:24px;
-  right:24px;
-  background:#00bcd4;
-  color:#fff;
-  font-size:36px;
-  width:70px;
-  height:70px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-decoration:none;
-  box-shadow:0 4px 16px rgba(0,0,0,.5);
-  z-index:9999;
-  transition:background .3s,transform .2s;
-}
-.boton-carrito-flotante:hover{
-  background:#0097a7;
-  transform:scale(1.07);
-}
-
-/* ===== Botón "Mi cuenta" ===== */
-.boton-cuenta-flotante{
-  position:fixed;
-  top:16px;
-  right:16px;
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:10px 14px;
-  background:rgba(0,0,0,.65);
-  color:#fff;
-  text-decoration:none;
-  border:1px solid #00bcd4;
-  border-radius:999px;
-  font-weight:700;
-  box-shadow:0 6px 16px rgba(0,0,0,.35);
-  backdrop-filter:blur(6px);
-  z-index:10000;
-  transition:transform .2s, box-shadow .2s, background .2s;
-}
-.boton-cuenta-flotante:hover{
-  transform:translateY(-1px);
-  box-shadow:0 10px 20px rgba(0,0,0,.45);
-  background:rgba(0,0,0,.82);
-}
-.boton-cuenta-flotante .emoji{font-size:18px; line-height:1;}
-.boton-cuenta-flotante .texto{font-size:14px; white-space:nowrap;}
-
-/* Secciones */
+/* =================== Secciones =================== */
 .seccion{
   padding:40px 20px;
   max-width:1200px;
   margin:auto;
 }
 .seccion h2{
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
+  font-family:'Montserrat', sans-serif;
+  font-weight:700;
   text-align:center;
-  font-size:40px;
+  font-size:var(--fs-h2);
   margin-bottom:30px;
   color:#00bcd4;
   border-bottom:2px solid #778DA9;
   padding-bottom:10px;
 }
 
+/* =================== Grid + Cards =================== */
 .grid-productos{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-  gap:20px;
+  gap:var(--grid-gap);
 }
+
 .producto{
   background:#1a1a1a;
-  border-radius:12px;
-  padding:15px;
+  border-radius:var(--card-radius);
+  padding:var(--card-pad);
   text-align:center;
   box-shadow:0 0 15px rgba(0,0,0,.3);
   transition:transform .3s ease;
 }
-.producto:hover{
-  transform:scale(1.03);
-  box-shadow:0 0 20px rgba(0,0,0,.4);
-}
+.producto:hover{ transform:scale(1.03); box-shadow:0 0 20px rgba(0,0,0,.4); }
+
+/* Imagen uniforme (misma altura visual) */
 .img{
   width:100%;
-  height:280px;
+  aspect-ratio: 4 / 3;           /* mantiene proporción */
   object-fit:cover;
   border-radius:10px;
   margin-bottom:10px;
 }
+
+/* Tipos de texto de la card (colores y tamaños sobrios) */
 .nombre{
-  font-weight:900;
-  font-size:16px;
+  font-weight:800;
   color:#ffc107;
-  margin-bottom:6px;
+  font-size:var(--fs-name) !important;
+  line-height:1.25;
+  margin:6px 0 4px;
+  display:-webkit-box;
+  -webkit-line-clamp:2;          /* máximo 2 líneas */
+  -webkit-box-orient:vertical;
+  overflow:hidden;
 }
 .categoria{
-  font-size:14px;
+  font-size:13px;
   color:#bbb;
   margin-bottom:6px;
 }
 .precio{
-  font-size:16px;
+  font-size:var(--fs-price) !important;
   color:#fff;
   margin-bottom:6px;
-  font-weight:bold;
+  font-weight:800;
 }
 .estado{
-  font-size:13px;
+  font-size:var(--fs-status) !important;
   color:#81c784;
   margin-bottom:10px;
 }
-.estado.disponible-a-pedido{color:#81c784;font-weight:bold;}
-.estado.en-stock{color:#81c784;}
+.estado.disponible-a-pedido{ color:#81c784; font-weight:800; }
+.estado.en-stock{ color:#81c784; }
 
+/* Botón de acción en la card */
 .boton{
   background:#00bcd4;
   color:#fff;
   border:none;
   padding:8px 14px;
   border-radius:8px;
-  font-weight:bold;
+  font-weight:800;
   cursor:pointer;
   text-decoration:none;
   display:inline-block;
   margin-top:10px;
   transition:background .3s ease;
+  font-size:var(--fs-button);
 }
-.boton:hover{background:#0097a7;}
+.boton:hover{ background:#0097a7; }
 
-/* Historia */
+/* =================== Sobre nosotros =================== */
 .sobre-nosotros{
   text-align:center;
   padding:40px 20px;
@@ -268,7 +226,7 @@ body{
   line-height:1.6;
 }
 
-/* Footer */
+/* =================== Footer =================== */
 .pie{
   background:#000;
   color:#888;
@@ -277,126 +235,97 @@ body{
   font-size:14px;
 }
 
-/* ========== RESPONSIVE ========== */
+/* =================== Botones flotantes =================== */
+.boton-carrito-flotante{
+  position:fixed;
+  bottom:24px; right:24px;
+  background:#00bcd4; color:#fff;
+  font-size:36px; width:70px; height:70px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  text-decoration:none;
+  box-shadow:0 4px 16px rgba(0,0,0,.5);
+  z-index:9999;
+  transition:background .3s, transform .2s;
+}
+.boton-carrito-flotante:hover{ background:#0097a7; transform:scale(1.1); }
+
+/* "Mi cuenta" */
+.boton-cuenta-flotante{
+  position:fixed; top:16px; right:16px;
+  display:inline-flex; align-items:center; gap:8px;
+  padding:10px 14px;
+  background:rgba(0,0,0,.65); color:#fff; text-decoration:none;
+  border:1px solid #00bcd4; border-radius:999px;
+  font-weight:700;
+  box-shadow:0 6px 16px rgba(0,0,0,.35);
+  backdrop-filter:blur(6px);
+  z-index:10000;
+  transition:transform .2s, box-shadow .2s, background .2s;
+}
+.boton-cuenta-flotante:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 20px rgba(0,0,0,.45);
+  background:rgba(0,0,0,.82);
+}
+.boton-cuenta-flotante .emoji{ font-size:18px; line-height:1; }
+.boton-cuenta-flotante .texto{ font-size:14px; white-space:nowrap; }
+
+/* =================== Responsive =================== */
+/* Tablets/ teléfonos grandes: fuerza 1 columna para dar aire */
 @media (max-width: 768px){
-  .boton-cuenta-flotante{
-    top:10px;
-    right:10px;
-    padding:8px 10px;
+  .grid-productos{
+    grid-template-columns: 1fr !important;
+    gap:16px;
   }
+  .producto{
+    width:92%;
+    margin:0 auto;
+    padding:12px;
+  }
+  .img{ aspect-ratio: 16 / 11; }  /* un pelín más panorámica */
+  .bienvenida h1{ font-size:28px; }
 }
 
-@media (max-width: 480px) {
-  .bienvenida h1 {
-    font-size: 22px !important;
-    padding: 0 10px;
-  }
+/* Teléfonos pequeños */
+@media (max-width: 480px){
+  .bienvenida h1{ font-size:22px !important; padding:0 10px; }
 
-  .menu-visual {
-    gap: 8px;
-    padding: 12px 10px; /* un poco más de aire que antes */
-  }
+  .menu-visual{ gap:8px; padding:12px 5px; }
+  .menu-visual img.boton-imagen{ max-height:40px; padding:2px; }
 
-  .menu-visual img.boton-imagen {
-    max-height: 40px;
-    padding: 2px;
-  }
+  .carrusel{ max-height:140px; margin:15px auto; border-radius:8px; }
+  .carrusel img{ height:140px; object-position:center 30%; }
 
-  .carrusel {
-    max-height: 140px;
-    margin: 15px auto;
-    border-radius: 8px;
-  }
+  .seccion{ padding:25px 10px !important; }
+  .seccion h2{ font-size:24px !important; padding-bottom:6px; margin-bottom:20px; }
 
-  .carrusel img {
-    height: 140px;
-    object-position: center 30%;
-  }
+  .producto{ width:92%; margin:0 auto 14px; padding:12px; }
+  .img{ aspect-ratio: 4 / 3; margin-bottom:8px; }
 
-  .seccion {
-    padding: 25px 10px !important;
-  }
-
-  .seccion h2 {
-    font-size: 24px !important;
-    padding-bottom: 6px;
-    margin-bottom: 20px;
-  }
-
-  .grid-productos {
-    grid-template-columns: 1fr !important;
-    gap: 12px;
-  }
-
-  .producto {
-    width: 90%;
-    margin: 0 auto 15px;
-    padding: 12px;
-  }
-
-  .img {
-    height: 160px !important;
-    margin-bottom: 8px;
-  }
-
-  .nombre { font-size: 12px !important; line-height: 1.25; }
-  .precio { font-size: 12px !important; }
-  .estado { font-size: 11px !important; }
-
-  .boton {
-    font-size: 13px !important;
-    padding: 8px 12px;
-    margin-top: 8px;
-  }
-
-  .boton-carrito-flotante {
-    width: 58px !important;
-    height: 58px !important;
-    font-size: 28px !important;
-    bottom: 18px;
-    right: 18px;
-  }
-
-  .banner img { height: 180px; }
-
-  /* Mi cuenta en móvil: solo ícono para no tapar el banner */
-  .boton-cuenta-flotante{
-    border-radius:50%;
-    padding:10px;
-  }
+  /* En móviles, el botón de cuenta solo ícono para no tapar el banner */
+  .boton-cuenta-flotante{ border-radius:50%; padding:10px; }
   .boton-cuenta-flotante .texto{ display:none; }
+
+  .boton-carrito-flotante{
+    width:58px !important; height:58px !important;
+    font-size:28px !important; bottom:18px; right:18px;
+  }
 }
 
 /* Botón flecha al catálogo */
-.boton-ir-catalogo{text-align:center;margin-top:10px;}
+.boton-ir-catalogo{ text-align:center; margin-top:10px; }
 .boton-ir-catalogo a{
-  display:inline-block;
-  background:#00bcd4;
-  color:#fff;
-  width:48px;
-  height:48px;
-  border-radius:50%;
-  font-size:24px;
-  text-align:center;
-  line-height:48px;
-  text-decoration:none;
-  transition:background .3s,transform .2s;
+  display:inline-block; background:#00bcd4; color:#fff;
+  width:48px; height:48px; border-radius:50%;
+  font-size:24px; text-align:center; line-height:48px;
+  text-decoration:none; transition:background .3s, transform .2s;
 }
-.boton-ir-catalogo a:hover{
-  background:#0097a7;
-  transform:scale(1.1);
-}
+.boton-ir-catalogo a:hover{ background:#0097a7; transform:scale(1.1); }
 
-/* —— bloque que estaba inline en inicio —— */
+/* Enlaces título */
 .titulo-link{
-  color:#000;
-  text-decoration:none;
-  font-weight:bold;
-  display:inline-block;
-  transition:transform .2s ease,color .2s ease;
+  color:#000; font-weight:bold; text-decoration:none;
+  display:inline-block; transition:transform .2s ease, color .2s ease;
 }
-.titulo-link:hover{
-  transform:scale(1.05);
-  text-decoration:none;
-  color:#e91e63;
-}
+.titulo-link:hover{ transform:scale(1.05); text-decoration:none; color:#e91e63; }
