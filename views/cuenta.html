@@ -4,14 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Mi Cuenta - Mardant</title>
-
   <link rel="stylesheet" href="../css/cuenta.css" />
   <link rel="icon" href="/favicon.ico" />
 </head>
 <body>
   <div class="container">
-
-    <!-- Toast avisos -->
     <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
 
     <div class="hero">
@@ -99,9 +96,7 @@
     </section>
   </div>
 
-  <!-- Config global (BASE_API / AUTH_KEYS) -->
-  <script src="../js/config.js"></script>
-  <!-- Lógica de la vista -->
-  <script src="../js/cuenta.js"></script>
+  <!-- Módulo principal de la vista -->
+  <script type="module" src="../js/cuenta.js"></script>
 </body>
 </html>
