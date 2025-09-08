@@ -1,4 +1,6 @@
-/* catalogo.css - Estilos específicos para el catálogo */
+/* =========================================================
+   catalogo.css - Estilos específicos para el catálogo
+   ========================================================= */
 
 /* ------- CATEGORÍAS (fila de logos) ------- */
 #filtro-categorias {
@@ -22,12 +24,10 @@
   height: 60px;
   border-radius: 10px;
 }
-
 .categoria-imagen.selected {
   border-color: #ff4081;
   box-shadow: 0 0 12px rgba(255, 64, 129, 0.35);
 }
-
 /* Imagen contenida dentro de la “tarjeta” */
 .categoria-imagen img {
   max-width: 100%;
@@ -40,7 +40,6 @@
   margin: 15px 0;
   text-align: center;
 }
-
 #subcategoria-select {
   background: #f8f9fa;
   border: 2px solid #00bcd4;
@@ -60,7 +59,6 @@
   gap: 8px;
   margin: 30px 0;
 }
-
 #paginacion .boton {
   min-width: 40px;
   padding: 8px 12px;
@@ -75,7 +73,6 @@
   overflow: hidden;
   border-radius: 14px;
 }
-
 .producto::after {
   content: "";
   position: absolute;
@@ -86,14 +83,11 @@
   pointer-events: none;
 }
 .producto:hover::after { opacity: 1; }
-
 .agregar-carrito { position: relative; z-index: 1; }
 
-/* ------- REFINES DE LAYOUT (también afectan móvil) ------- */
+/* ------- REFINES DE LAYOUT ------- */
 /* Dar un pelín de aire al buscador */
-#buscador {
-  margin-top: 6px;
-}
+#buscador { margin-top: 6px; }
 
 /* Ordenar / disponibilidad: centrar y dar flujo sano */
 .orden {
@@ -108,8 +102,7 @@
 
 /* ------- RESPONSIVE ------- */
 @media (max-width: 1024px) {
-  /* Aumentamos el espacio entre cards en desktop chico */
-  .grid { gap: 24px; }
+  .grid { gap: 24px; }          /* separa un poco más las cards */
 }
 
 /* MOBILE: carrusel horizontal de categorías SIN scrollbar visible */
@@ -123,15 +116,12 @@
     gap: 10px;
     padding: 8px 12px 6px;
     margin: 10px 0 6px;
-    /* ocultar scrollbar en todos los navegadores */
-    scrollbar-width: none;       /* Firefox */
-    -ms-overflow-style: none;    /* IE/Edge */
+    scrollbar-width: none;         /* Firefox */
+    -ms-overflow-style: none;      /* IE/Edge */
   }
   #filtro-categorias::-webkit-scrollbar { /* Chrome/Safari */
     display: none;
-    height: 0;
-    width: 0;
-    background: transparent;
+    height: 0; width: 0; background: transparent;
   }
 
   .categoria-imagen {
@@ -160,16 +150,40 @@
   /* cards centradas y con respiración */
   .grid { gap: 18px; }
   .producto { max-width: 520px; margin: 0 auto; }
+
+  /* ===== FIX imagen recortada en móvil ===== */
+  .grid .producto img{
+    width: 100%;
+    height: auto !important;       /* anula max-height global */
+    max-height: none !important;
+    object-fit: contain !important;/* se ve completa */
+  }
+
+  /* ===== Limitar título para que no rompa el layout ===== */
+  .grid .producto .nombre{
+    display: -webkit-box;
+    -webkit-line-clamp: 2;         /* máximo 2 líneas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.25;
+    min-height: calc(1.25em * 2);
+    word-break: break-word;
+    hyphens: auto;
+  }
 }
 
 /* extra-small */
 @media (max-width: 480px) {
-  #subcategoria-select {
-    font-size: 14px;
-    padding: 8px 12px;
-  }
-  .categoria-imagen {
-    width: 80px;
-    height: 42px;
-  }
+  #subcategoria-select { font-size: 14px; padding: 8px 12px; }
+  .categoria-imagen { width: 80px; height: 42px; }
 }
+
+/* ====== FIX: eliminar cualquier “barra/píldora” de fondo en la CTA ====== */
+.cta-catalogo{
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  position: relative;
+}
+.cta-catalogo::before,
+.cta-catalogo::after{ content: none !important; }
