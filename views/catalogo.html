@@ -12,14 +12,30 @@
   <!-- extras del catálogo -->
   <link rel="stylesheet" href="../css/catalogo.css" />
 
-  <!-- ajustes visuales propios de esta vista -->
   <style>
-    /* CTA superior (píldoras) */
+    /* ====== AJUSTES LOCALES (sólo esta vista) ====== */
+
+    /* Contenedor central con respiración lateral en todo el flujo */
+    .page-wrap{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;          /* aire estable a los lados */
+    }
+
+    /* CTA superior en píldoras */
     .cta-catalogo{
       display:flex; justify-content:center; flex-wrap:wrap; gap:14px;
-      margin: 12px auto 18px; padding: 0 12px;
-      background: transparent; /* importante: no fondo extraño */
+      margin: 12px auto 16px;
+      padding: 0;               /* sin fondo ni cápsulas detrás */
+      background: none !important;
+      box-shadow: none !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      position: relative;
     }
+    .cta-catalogo::before,
+    .cta-catalogo::after{ content:none !important; } /* por si algún global inyecta algo */
+
     .btn-pill{
       display:inline-flex; align-items:center; gap:10px;
       color:#fff; font-weight:800; line-height:1;
@@ -40,32 +56,13 @@
       box-shadow:0 10px 24px rgba(49,196,141,.25);
     }
 
-    /* Buscador centrado con aire */
-    #buscador{ margin-top: 6px; }
+    /* Buscador centrado con aire vertical */
+    #buscador{ margin: 6px auto 0; }
 
-    /* En móvil, categorías con scroll horizontal suave */
-    @media (max-width: 680px){
-      .filtros{ padding: 6px 0 0; }
-      #filtro-categorias.grupo-filtro{
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        justify-content: flex-start;
-        gap: 10px;
-        padding: 8px 12px 12px;
-      }
-      #filtro-categorias .categoria-imagen{ flex: 0 0 auto; }
-    }
-
-    /* Grid un poco más suelto en escritorio */
-    @media (min-width: 1024px){
-      .grid{ gap: 28px; }
-    }
-
-    /* Cursor de zoom sobre las imágenes del listado */
+    /* Cursor de zoom sobre imágenes del listado (para abrir lightbox) */
     #contenedor img{ cursor: zoom-in; }
 
-    /* ------- Lightbox (igual que en preventa/pedidos) ------- */
+    /* Lightbox (igual al de preventa/pedidos) */
     .lightbox{
       position:fixed; inset:0; background:rgba(0,0,0,.92);
       display:flex; align-items:center; justify-content:center;
@@ -82,6 +79,11 @@
       font-size:36px; line-height:1; cursor:pointer; opacity:.9;
     }
     .lb-close:hover{ opacity:1; }
+
+    /* ====== RESPONSIVE ====== */
+    @media (max-width:680px){
+      .page-wrap{ padding: 0 14px; }      /* un pelín menos en móvil */
+    }
   </style>
 </head>
 
@@ -91,112 +93,116 @@
        alt="Catálogo Mardant"
        style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #00bcd4" />
 
-  <!-- CTA superior (píldoras) -->
-  <div class="cta-catalogo">
-    <a href="./inicio.html" class="btn-pill">🏠 <span>Volver al inicio</span></a>
-    <a href="./preventa.html" class="btn-pill alt">📦 <span>Ver preventas</span></a>
-  </div>
+  <div class="page-wrap"><!-- abre contenedor central -->
 
-  <!-- Buscador -->
-  <input id="buscador" type="text" placeholder="Buscar producto…" autocomplete="off" />
-
-  <!-- Filtros de Categoría -->
-  <div class="filtros" id="filtros">
-    <div id="filtro-categorias" class="grupo-filtro">
-      <button type="button" class="categoria-imagen" data-categoria="">
-        <img src="https://i.imgur.com/gy6LkfG.png" alt="Todos" height="60">
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="POKEMON">
-        <img src="https://i.imgur.com/z7fPTus.png" alt="Pokemon" height="60">
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="MY HERO ACADEMIA">
-        <img src="https://i.imgur.com/PB85qrv.png" alt="My Hero Academia" height="60">
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="DRAGON BALL">
-        <img src="https://i.imgur.com/UUtpYIJ.png" alt="Dragon Ball" height="60">
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="JUJUTSU KAISEN">
-        <img src="https://i.imgur.com/WklTLco.png" alt="Jujutsu Kaisen" height="60">
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="DEMON SLAYER">
-        <img src="https://i.imgur.com/4teP5Jy.png" alt="Demon Slayer" height="60">
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="SAILOR MOON">
-        <img src="https://i.imgur.com/BbxtzzD.png" alt="Sailor Moon" height="60">
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="DR. STONE">
-        <img src="https://i.imgur.com/4gX4Ews.png" alt="Dr. Stone" height="60">
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="KAIJU NO 8">
-        <img src="https://i.imgur.com/VQdQJAa.png" alt="Kaiju no 8" height="60">
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="NARUTO">
-        <img src="https://i.imgur.com/UXZCDIm.png" alt="Naruto" height="60">
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="ONE PIECE">
-        <img src="https://i.imgur.com/phbUt2h.png" alt="One Piece" height="60">
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="OVERLORD">
-        <img src="https://i.imgur.com/imABoHo.png" alt="Overlord" height="60">
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="THAT TIME I GOT REINCARNATED AS A SLIME">
-        <img src="https://i.imgur.com/q0Ya6vQ.png" alt="That time i got reincarnated as a slime" height="60">
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="TOKYO REVENGERS">
-        <img src="https://i.imgur.com/uDP1bDn.png" alt="Tokyo revengers" height="60">
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="GUNDAM">
-        <img src="https://i.imgur.com/eV0ZYQm.png" alt="Gundam" height="60">
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="SPY X FAMILY">
-        <img src="https://i.imgur.com/QLyUTVz.png" alt="Spy x Family" height="60">
-      </button>
-      <button type="button" class="categoria-imagen" data-categoria="HATSUNE MIKU">
-        <img src="https://i.imgur.com/TVdbddi.png" alt="Hatsune miku" height="60">
-      </button>
+    <!-- CTA superior -->
+    <div class="cta-catalogo">
+      <a href="./inicio.html" class="btn-pill">🏠 <span>Volver al inicio</span></a>
+      <a href="./preventa.html" class="btn-pill alt">📦 <span>Ver preventas</span></a>
     </div>
-  </div>
 
-  <!-- Sub-categorías (JS las pinta aquí) -->
-  <div id="subfiltro-contenedor"></div>
+    <!-- Buscador -->
+    <input id="buscador" type="text" placeholder="Buscar producto…" autocomplete="off" />
 
-  <!-- Orden / disponibilidad -->
-  <div class="orden">
-    <label for="orden">Ordenar por:</label>
-    <select id="orden">
-      <option value="recientes">Lo más nuevo</option>
-      <option value="default">Por defecto</option>
-      <option value="oferta">Sólo ofertas</option>
-      <option value="precio-asc">Precio (↑)</option>
-      <option value="precio-desc">Precio (↓)</option>
-      <option value="nombre-az">Nombre A-Z</option>
-      <option value="nombre-za">Nombre Z-A</option>
-    </select>
+    <!-- Filtros de Categoría -->
+    <div class="filtros" id="filtros">
+      <div id="filtro-categorias" class="grupo-filtro">
+        <button type="button" class="categoria-imagen" data-categoria="">
+          <img src="https://i.imgur.com/gy6LkfG.png" alt="Todos" height="60">
+        </button>
+        <button type="button" class="categoria-imagen" data-categoria="POKEMON">
+          <img src="https://i.imgur.com/z7fPTus.png" alt="Pokemon" height="60">
+        </button>
+        <button type="button" class="categoria-imagen" data-categoria="MY HERO ACADEMIA">
+          <img src="https://i.imgur.com/PB85qrv.png" alt="My Hero Academia" height="60">
+        </button>
+        <button type="button" class="categoria-imagen" data-categoria="DRAGON BALL">
+          <img src="https://i.imgur.com/UUtpYIJ.png" alt="Dragon Ball" height="60">
+        </button>
+        <button type="button" class="categoria-imagen" data-categoria="JUJUTSU KAISEN">
+          <img src="https://i.imgur.com/WklTLco.png" alt="Jujutsu Kaisen" height="60">
+        </button>
+        <button type="button" class="categoria-imagen" data-categoria="DEMON SLAYER">
+          <img src="https://i.imgur.com/4teP5Jy.png" alt="Demon Slayer" height="60">
+        </button>
+        <button type="button" class="categoria-imagen" data-categoria="SAILOR MOON">
+          <img src="https://i.imgur.com/BbxtzzD.png" alt="Sailor Moon" height="60">
+        </button>
+        <button type="button" class="categoria-imagen" data-categoria="DR. STONE">
+          <img src="https://i.imgur.com/4gX4Ews.png" alt="Dr. Stone" height="60">
+        </button>
+        <button type="button" class="categoria-imagen" data-categoria="KAIJU NO 8">
+          <img src="https://i.imgur.com/VQdQJAa.png" alt="Kaiju no 8" height="60">
+        </button>
+        <button type="button" class="categoria-imagen" data-categoria="NARUTO">
+          <img src="https://i.imgur.com/UXZCDIm.png" alt="Naruto" height="60">
+        </button>
+        <button type="button" class="categoria-imagen" data-categoria="ONE PIECE">
+          <img src="https://i.imgur.com/phbUt2h.png" alt="One Piece" height="60">
+        </button>
+        <button type="button" class="categoria-imagen" data-categoria="OVERLORD">
+          <img src="https://i.imgur.com/imABoHo.png" alt="Overlord" height="60">
+        </button>
+        <button type="button" class="categoria-imagen" data-categoria="THAT TIME I GOT REINCARNATED AS A SLIME">
+          <img src="https://i.imgur.com/q0Ya6vQ.png" alt="That time i got reincarnated as a slime" height="60">
+        </button>
+        <button type="button" class="categoria-imagen" data-categoria="TOKYO REVENGERS">
+          <img src="https://i.imgur.com/uDP1bDn.png" alt="Tokyo revengers" height="60">
+        </button>
+        <button type="button" class="categoria-imagen" data-categoria="GUNDAM">
+          <img src="https://i.imgur.com/eV0ZYQm.png" alt="Gundam" height="60">
+        </button>
+        <button type="button" class="categoria-imagen" data-categoria="SPY X FAMILY">
+          <img src="https://i.imgur.com/QLyUTVz.png" alt="Spy x Family" height="60">
+        </button>
+        <button type="button" class="categoria-imagen" data-categoria="HATSUNE MIKU">
+          <img src="https://i.imgur.com/TVdbddi.png" alt="Hatsune miku" height="60">
+        </button>
+      </div>
+    </div>
 
-    <label for="estado" style="margin-left:20px">Disponibilidad:</label>
-    <select id="estado">
-      <option value="todos">Todos</option>
-      <option value="disponible">Sólo disponibles</option>
-      <option value="agotado">Sólo agotados</option>
-    </select>
-  </div>
+    <!-- Sub-categorías (JS las pinta aquí) -->
+    <div id="subfiltro-contenedor"></div>
 
-  <!-- Productos + paginación -->
-  <div id="contenedor" class="grid"></div>
-  <div id="paginacion"></div>
+    <!-- Orden / disponibilidad -->
+    <div class="orden">
+      <label for="orden">Ordenar por:</label>
+      <select id="orden">
+        <option value="recientes">Lo más nuevo</option>
+        <option value="default">Por defecto</option>
+        <option value="oferta">Sólo ofertas</option>
+        <option value="precio-asc">Precio (↑)</option>
+        <option value="precio-desc">Precio (↓)</option>
+        <option value="nombre-az">Nombre A-Z</option>
+        <option value="nombre-za">Nombre Z-A</option>
+      </select>
 
-  <!-- Mini-carrito + contador -->
-  <div class="carrito-contenedor">
-    <a href="./carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">
-      🛒<span id="contador-carrito" class="contador-carrito">0</span>
-    </a>
-    <div id="mini-carrito" class="mini-carrito"></div>
-  </div>
+      <label for="estado" style="margin-left:20px">Disponibilidad:</label>
+      <select id="estado">
+        <option value="todos">Todos</option>
+        <option value="disponible">Sólo disponibles</option>
+        <option value="agotado">Sólo agotados</option>
+      </select>
+    </div>
 
-  <!-- Notificación flotante -->
-  <div id="notificacion-carrito" class="noti-carrito">✅ Producto añadido al carrito</div>
+    <!-- Productos + paginación -->
+    <div id="contenedor" class="grid"></div>
+    <div id="paginacion"></div>
 
-  <!-- ========== Lightbox (overlay) ========== -->
+    <!-- Mini-carrito + contador -->
+    <div class="carrito-contenedor">
+      <a href="./carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">
+        🛒<span id="contador-carrito" class="contador-carrito">0</span>
+      </a>
+      <div id="mini-carrito" class="mini-carrito"></div>
+    </div>
+
+    <!-- Notificación flotante -->
+    <div id="notificacion-carrito" class="noti-carrito">✅ Producto añadido al carrito</div>
+
+  </div><!-- /page-wrap -->
+
+  <!-- Lightbox -->
   <div id="lb" class="lightbox" hidden>
     <img alt="Vista ampliada">
     <button class="lb-close" aria-label="Cerrar">×</button>
@@ -237,7 +243,7 @@
     })();
   </script>
 
-  <!-- Tracking (FB Pixel + GA4 + eventos) -->
+  <!-- Tracking -->
   <script type="module" src="../js/tracking.js"></script>
 </body>
 </html>
