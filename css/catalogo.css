@@ -139,3 +139,45 @@
     height: 40px; /* Nuevo */
   }
 }
+
+/* ==== FIX: barra cian fantasma detrás de los botones ==== */
+
+/* Contenedor de los CTA arriba del catálogo */
+.cta-catalogo{
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  position: relative;
+  z-index: 1;
+  /* espacio coherente con el diseño */
+  margin: 12px auto 18px;
+  padding: 0 12px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+/* Si algún pseudo-elemento era el que pintaba la barra, lo matamos */
+.cta-catalogo::before,
+.cta-catalogo::after{
+  content: none !important;
+  display: none !important;
+}
+
+/* Forzamos el look “píldora” de los botones, por si hay overrides */
+.cta-catalogo .btn-pill{
+  border-radius: 9999px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
+    #00bcd4;
+  box-shadow: 0 10px 24px rgba(0,188,212,.25);
+}
+.cta-catalogo .btn-pill.alt{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
+    #31c48d;
+  box-shadow: 0 10px 24px rgba(49,196,141,.25);
+}
+
