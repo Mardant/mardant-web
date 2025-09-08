@@ -3,46 +3,137 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Preventa – Mardant</title>
 
-  <!-- favicon -->
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
-
   <!-- hoja de estilos unificada -->
-  <link rel="stylesheet" href="../css/estilos.css" />
+  <link rel="stylesheet" href="../css/estilos.css?v=5" />
 </head>
 <body>
 
-  <!-- Banner superior -->
-  <img src="https://i.imgur.com/ZMGeepN.png"
-       alt="Preventa Mardant"
-       style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #00bcd4;" />
+  <!-- Banner superior coherente -->
+  <img
+    class="banner-top"
+    src="https://i.imgur.com/ZMGeepN.png"
+    alt="Preventa Mardant"
+  />
 
   <!-- Título -->
-  <div class="contacto-centro">
+  <div class="contacto-centro" style="margin-top: 6px;">
     <h2 class="titulo-seccion">Productos en Preventa</h2>
+    <p class="subtexto-contacto" style="max-width:860px">
+      Reserva tus figuras y coleccionables antes del lanzamiento. Cuando
+      llegue tu pedido te avisaremos para coordinar la entrega. ✨
+    </p>
   </div>
 
-  <!-- Botones de navegación -->
-  <div class="volver-inicio" style="margin:20px 0;">
-    <a href="../index.html"  class="boton" data-vista="inicio">🏠 Volver al inicio</a>
-    <a href="catalogo.html"  class="boton" data-vista="catalogo">🛍️ Ir al catálogo</a>
+  <!-- CTAs redondeados -->
+  <div class="cta-row">
+    <a href="./catalogo.html" class="cta-btn cta--primary" aria-label="Ir al catálogo">
+      <span class="cta-ico">🛒</span> Ver catálogo
+    </a>
+    <a href="../index.html" class="cta-btn cta--primary" aria-label="Volver al inicio" data-vista="inicio">
+      <span class="cta-ico">🏠</span> Volver al inicio
+    </a>
   </div>
 
   <!-- Contenedor de productos -->
-  <div id="contenedor" class="grid">
-    <p>Cargando productos…</p>
+  <div id="contenedor" class="grid" style="margin-top:12px">
+    <p style="opacity:.7">Cargando productos…</p>
   </div>
+
+  <!-- separador para que nada quede cortado al fondo en desktop -->
+  <div class="page-bottom-spacer"></div>
 
   <!-- Lógica de la página -->
   <script type="module" src="../js/preventa.js"></script>
 
-  <!-- Carrito flotante -->
+  <!-- Botón flotante carrito -->
   <a href="carrito.html"
      class="boton-carrito-flotante"
      title="Ver carrito 🛒"
      data-vista="carrito">🛒</a>
-  <!-- Tracking (FB Pixel + GA4 + eventos) -->
-<script type="module" src="../js/tracking.js"></script>
+
+  <!-- Ajustes visuales específicos de esta vista -->
+  <style>
+    /* Banner consistente con el resto */
+    .banner-top{
+      width:100%;
+      max-height:220px;
+      object-fit:cover;
+      display:block;
+      border-bottom:3px solid #00bcd4;
+    }
+
+    /* CTAs tipo “pastilla” */
+    .cta-row{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:12px;
+      margin: 14px auto 6px;
+      padding: 0 16px;
+      width:100%;
+      max-width:900px;
+    }
+    .cta-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding: 12px 20px;
+      border-radius:999px;
+      text-decoration:none;
+      font-weight:800;
+      background:#00bcd4;
+      color:#fff;
+      box-shadow:0 8px 20px rgba(0,0,0,.15);
+      transition: transform .15s ease, box-shadow .15s ease, background .2s ease;
+    }
+    .cta-btn:hover{ transform:translateY(-2px); box-shadow:0 12px 26px rgba(0,0,0,.18); background:#0097a7; }
+    .cta-ico{ font-size:18px; }
+
+    /* separador inferior para que no se pegue al borde (desktop) */
+    .page-bottom-spacer{
+      height: calc(90px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* Micro-ajustes a cards de preventa (siempre se ven vivas) */
+    .grid .producto .estado{
+      color:#ffca28;            /* “PREVENTA” se ve dorado */
+      font-weight:800;
+    }
+    /* Si tu preventa.js coloca “fecha aprox”, resáltala si viene dentro de .estado o similar */
+    .grid .producto .precio{ color:#ffee58; } /* resalta precio en preventa */
+
+    /* ======= MOBILE / TABLET ======= */
+    @media (max-width: 680px){
+      /* CTAs STICKY, siempre visibles sobre el contenido */
+      .cta-row{
+        position: sticky;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        z-index: 50;
+        background: rgba(250,250,250,.75);
+        backdrop-filter: blur(6px);
+        border-radius: 999px;
+        padding: 10px 12px;
+        gap:10px;
+        max-width: min(560px, 94vw);
+        margin: 12px auto;
+      }
+      .cta-btn{
+        flex:1 1 auto;
+        min-width:0;
+        padding:12px 14px;
+        font-size:15px;
+      }
+      /* al ser sticky, reduce el separador */
+      .page-bottom-spacer{ height: calc(50px + env(safe-area-inset-bottom, 0px)); }
+    }
+  </style>
+
+  <!-- Tracking -->
+  <script type="module" src="../js/tracking.js"></script>
 </body>
 </html>
