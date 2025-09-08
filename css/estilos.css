@@ -363,3 +363,63 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
   .cta-catalogo{ padding:13px 22px; font-size:1.05rem; }
   .cta-ico{ font-size:1.25rem; }
 }
+
+/* Banner superior genérico */
+.banner-top{
+  width:100%;
+  max-height:200px;
+  object-fit:cover;
+  border-bottom:3px solid #00bcd4;
+  display:block;
+}
+
+/* Fila de CTAs centrados */
+.cta-row{
+  display:flex;
+  gap:14px;
+  justify-content:center;
+  align-items:center;
+  margin: 18px 0 6px;
+  flex-wrap:wrap;
+}
+
+/* Botón redondeado reutilizable (y compatibilidad con .cta-catalogo) */
+.cta-btn,
+.cta-catalogo{
+  display:inline-flex;
+  align-items:center;
+  gap:.6rem;
+  padding:12px 18px;
+  border-radius:9999px;
+  font-weight:800;
+  letter-spacing:.2px;
+  text-decoration:none;
+  box-shadow:0 6px 16px rgba(0,0,0,.18);
+  transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+
+/* Variante principal (teal degradado) */
+.cta--primary,
+.cta-catalogo{
+  background: linear-gradient(135deg,#00bcd4 0%, #008fb9 100%);
+  color:#fff;
+}
+.cta-btn:hover,
+.cta-catalogo:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0,0,0,.25);
+}
+.cta-btn:active,
+.cta-catalogo:active{
+  transform: translateY(0);
+  opacity:.92;
+}
+
+/* Icono dentro del CTA */
+.cta-ico{ font-size: 1.2rem; line-height: 1; }
+
+@media (min-width: 900px){
+  .cta-btn,
+  .cta-catalogo{ padding:13px 22px; font-size:1.05rem; }
+  .cta-ico{ font-size:1.25rem; }
+}
