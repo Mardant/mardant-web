@@ -1,4 +1,6 @@
 /* catalogo.css - Estilos específicos para el catálogo */
+
+/* ------- CATEGORÍAS (fila de logos) ------- */
 #filtro-categorias {
   display: flex;
   flex-wrap: wrap;
@@ -7,31 +9,33 @@
   margin: 20px 0;
 }
 
+/* Botón tarjeta de cada categoría */
 .categoria-imagen {
   border: 2px solid #00bcd4;
   padding: 2px;
   background: #fff;
   transition: all 0.3s ease;
-  /* Agregar estas 5 líneas */
   display: flex;
   align-items: center;
   justify-content: center;
   width: 140px;
   height: 60px;
+  border-radius: 10px;
 }
 
 .categoria-imagen.selected {
   border-color: #ff4081;
-  box-shadow: 0 0 12px rgba(255, 64, 129, 0.4);
+  box-shadow: 0 0 12px rgba(255, 64, 129, 0.35);
 }
 
-/* Añadir esta nueva regla después de .categoria-imagen.selected */
+/* Imagen contenida dentro de la “tarjeta” */
 .categoria-imagen img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
 }
 
+/* ------- SUB-CATEGORÍAS ------- */
 #subfiltro-contenedor {
   margin: 15px 0;
   text-align: center;
@@ -49,6 +53,7 @@
   display: block;
 }
 
+/* ------- PAGINACIÓN ------- */
 #paginacion {
   display: flex;
   justify-content: center;
@@ -59,125 +64,112 @@
 #paginacion .boton {
   min-width: 40px;
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: 8px;
   transition: transform 0.2s;
 }
+#paginacion .boton:hover { transform: translateY(-2px); }
 
-#paginacion .boton:hover {
-  transform: translateY(-2px);
-}
-
+/* ------- TARJETA DE PRODUCTO ------- */
 .producto {
   position: relative;
   overflow: hidden;
+  border-radius: 14px;
 }
 
 .producto::after {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(45deg, rgba(0, 188, 212, 0.1), transparent);
+  inset: 0;
+  background: linear-gradient(45deg, rgba(0, 188, 212, 0.10), transparent);
   opacity: 0;
   transition: opacity 0.3s;
   pointer-events: none;
 }
+.producto:hover::after { opacity: 1; }
 
-.producto:hover::after {
-  opacity: 1;
+.agregar-carrito { position: relative; z-index: 1; }
+
+/* ------- REFINES DE LAYOUT (también afectan móvil) ------- */
+/* Dar un pelín de aire al buscador */
+#buscador {
+  margin-top: 6px;
 }
 
-.agregar-carrito {
-  position: relative;
-  z-index: 1;
+/* Ordenar / disponibilidad: centrar y dar flujo sano */
+.orden {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 14px;
+  margin: 6px 0 10px;
+}
+.orden label { font-weight: 700; color: #1976d2; }
+
+/* ------- RESPONSIVE ------- */
+@media (max-width: 1024px) {
+  /* Aumentamos el espacio entre cards en desktop chico */
+  .grid { gap: 24px; }
 }
 
-@media (max-width: 768px) {
-  .categoria-imagen img {
-    height: auto !important; /* Modificado */
+/* MOBILE: carrusel horizontal de categorías SIN scrollbar visible */
+@media (max-width: 680px) {
+  /* convertimos la fila de logos en carrusel horizontal */
+  #filtro-categorias {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 8px 12px 6px;
+    margin: 10px 0 6px;
+    /* ocultar scrollbar en todos los navegadores */
+    scrollbar-width: none;       /* Firefox */
+    -ms-overflow-style: none;    /* IE/Edge */
   }
-  
-  #subcategoria-select {
-    width: 90%;
-  }
-  
-  .producto {
-    margin: 0 10px;
-  }
-
-  #buscador {
-    padding: 10px 12px;
-    font-size: 14px;
-    max-width: 90%;
-    margin: 10px auto;
+  #filtro-categorias::-webkit-scrollbar { /* Chrome/Safari */
+    display: none;
+    height: 0;
+    width: 0;
+    background: transparent;
   }
 
   .categoria-imagen {
+    width: 90px;
+    height: 46px;
     padding: 2px;
-    margin: 2px;
-    width: 55px;  /* Nuevo */
-    height: 40px; /* Nuevo */
+    margin: 0;
   }
-  
-  .categoria-imagen img {
-    height: 35px !important;
+
+  /* apilar y centrar “orden / disponibilidad” */
+  .orden {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 6px;
+    margin: 8px 0 12px;
   }
+  .orden select {
+    width: 92vw;
+    max-width: 420px;
+    font-size: 15px;
+    padding: 10px 12px;
+    border-radius: 10px;
+  }
+
+  /* cards centradas y con respiración */
+  .grid { gap: 18px; }
+  .producto { max-width: 520px; margin: 0 auto; }
 }
 
+/* extra-small */
 @media (max-width: 480px) {
   #subcategoria-select {
     font-size: 14px;
     padding: 8px 12px;
   }
-  
   .categoria-imagen {
-    flex: 1 1 30%;
-    max-width: 100px;
-    width: 55px;  /* Nuevo */
-    height: 40px; /* Nuevo */
+    width: 80px;
+    height: 42px;
   }
 }
-
-/* ==== FIX: barra cian fantasma detrás de los botones ==== */
-
-/* Contenedor de los CTA arriba del catálogo */
-.cta-catalogo{
-  background: transparent !important;
-  box-shadow: none !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  position: relative;
-  z-index: 1;
-  /* espacio coherente con el diseño */
-  margin: 12px auto 18px;
-  padding: 0 12px;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 14px;
-}
-
-/* Si algún pseudo-elemento era el que pintaba la barra, lo matamos */
-.cta-catalogo::before,
-.cta-catalogo::after{
-  content: none !important;
-  display: none !important;
-}
-
-/* Forzamos el look “píldora” de los botones, por si hay overrides */
-.cta-catalogo .btn-pill{
-  border-radius: 9999px !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
-    #00bcd4;
-  box-shadow: 0 10px 24px rgba(0,188,212,.25);
-}
-.cta-catalogo .btn-pill.alt{
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
-    #31c48d;
-  box-shadow: 0 10px 24px rgba(49,196,141,.25);
-}
-
