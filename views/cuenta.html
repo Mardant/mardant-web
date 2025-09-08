@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mi Cuenta - Mardant</title>
+
+  <link rel="stylesheet" href="../css/cuenta.css" />
+  <link rel="icon" href="/favicon.ico" />
+</head>
+<body>
+  <div class="container">
+
+    <!-- Toast avisos -->
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+
+    <div class="hero">
+      <h1>Mi Cuenta</h1>
+      <p>Consulta tus días de almacenaje y haz seguimiento a tus preventas.</p>
+    </div>
+
+    <!-- LOGIN -->
+    <section id="loginSection" class="card" style="display:none;">
+      <form id="loginForm" autocomplete="on">
+        <div class="row cols-2">
+          <div>
+            <div class="label">Cliente ID</div>
+            <input id="clientId" required placeholder="Ej: ALEX001" autocomplete="username" />
+          </div>
+          <div>
+            <div class="label">Contraseña</div>
+            <div class="input-wrap">
+              <input id="password" type="password" required placeholder="••••••••" autocomplete="current-password"/>
+              <button type="button" class="toggle-pass" id="togglePass">Mostrar</button>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn">Ingresar</button>
+        <div class="msg" id="loginMsg"></div>
+      </form>
+    </section>
+
+    <!-- PANEL -->
+    <section id="statusSection" class="card" style="display:none;">
+      <div class="row cols-2">
+        <div>
+          <div class="label">Cliente</div>
+          <div class="client-title"><span id="clientName"></span> <span class="muted">(<span id="clientCode"></span>)</span></div>
+        </div>
+        <div class="right">
+          <button id="logoutBtn" class="btn secondary">Cerrar sesión</button>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi"><div class="label">Días gratis</div><div class="val" id="diasGratis">–</div></div>
+        <div class="kpi"><div class="label">Usados</div><div class="val" id="diasUsados">–</div></div>
+        <div class="kpi"><div class="label">Restantes</div><div class="val" id="diasRestantes">–</div></div>
+        <div class="kpi"><div class="label">Excedidos</div><div class="val" id="diasExcedidos">–</div></div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="almacen">Almacén</button>
+        <button class="tab-btn" data-tab="preventas">Preventas</button>
+      </div>
+
+      <!-- ALMACEN -->
+      <div id="tab-almacen">
+        <h3>Ítems en almacén</h3>
+        <div class="table-wrap">
+          <table id="itemsTable">
+            <thead>
+              <tr><th>Foto</th><th>ID</th><th>Descripción</th><th>Ingreso</th><th>Estado</th><th class="right">Días</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="msg" id="almacenMsg"></div>
+      </div>
+
+      <!-- PREVENTAS -->
+      <div id="tab-preventas" style="display:none;">
+        <h3>Mis preventas</h3>
+        <div class="table-wrap">
+          <table id="preTable">
+            <thead>
+              <tr>
+                <th>Foto</th><th>ID</th><th>Descripción</th>
+                <th class="right">Total</th><th class="right">Depósito</th>
+                <th class="right">Pagado</th><th class="right">Saldo</th>
+                <th>Pedido</th><th>F. aprox</th><th>Estado</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="msg" id="preMsg"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Config global (BASE_API / AUTH_KEYS) -->
+  <script src="../js/config.js"></script>
+  <!-- Lógica de la vista -->
+  <script src="../js/cuenta.js"></script>
+</body>
+</html>
