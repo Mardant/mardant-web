@@ -1,13 +1,7 @@
 // === js/cuenta.js ===
 import { API_URL, AUTH_KEYS } from './config.js';
 
-// Storage helpers
-const TOKEN_KEY  = AUTH_KEYS?.TOKEN  || 'mardant_token';
-const CLIENT_KEY = AUTH_KEYS?.CLIENT || 'mardant_client';
-const NAME_KEY   = AUTH_KEYS?.NAME   || 'mardant_name';
-const PEN = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
-
-// Elements
+/* ---- Elements ---- */
 const loginSection  = document.getElementById('loginSection');
 const statusSection = document.getElementById('statusSection');
 const loginForm     = document.getElementById('loginForm');
@@ -34,19 +28,18 @@ const tabBtns         = document.querySelectorAll('.tab-btn');
 const tabAlmacen      = document.getElementById('tab-almacen');
 const tabPreventas    = document.getElementById('tab-preventas');
 
-// UI helpers
-const getToken = () => localStorage.getItem(TOKEN_KEY);
-const setAuth  = (t,id,name)=>{ localStorage.setItem(TOKEN_KEY,t); localStorage.setItem(CLIENT_KEY,id||''); localStorage.setItem(NAME_KEY,name||''); };
-const clearAuth= ()=>{ localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(CLIENT_KEY); localStorage.removeItem(NAME_KEY); };
+/* ---- Helpers ---- */
+const PEN = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
+const getToken = () => localStorage.getItem(AUTH_KEYS.TOKEN);
+const setAuth  = (t,id,name)=>{ localStorage.setItem(AUTH_KEYS.TOKEN,t); localStorage.setItem(AUTH_KEYS.CLIENT,id||''); localStorage.setItem(AUTH_KEYS.NAME,name||''); };
+const clearAuth= ()=>{ localStorage.removeItem(AUTH_KEYS.TOKEN); localStorage.removeItem(AUTH_KEYS.CLIENT); localStorage.removeItem(AUTH_KEYS.NAME); };
 const showLogin= ()=>{ statusSection.style.display='none'; loginSection.style.display='block'; };
 const showPanel= ()=>{ loginSection.style.display='none'; statusSection.style.display='block'; };
 
-// Uppercase clientId
 document.getElementById('clientId').addEventListener('input', (e)=>{
   e.target.value = e.target.value.toUpperCase().trim();
 });
 
-// Toggle password visibility
 togglePassBtn.addEventListener('click', ()=>{
   const input = document.getElementById('password');
   const to = input.type === 'password' ? 'text' : 'password';
@@ -54,18 +47,16 @@ togglePassBtn.addEventListener('click', ()=>{
   togglePassBtn.textContent = (to === 'text') ? 'Ocultar' : 'Mostrar';
 });
 
-// Tabs
 tabBtns.forEach(btn=>{
   btn.addEventListener('click', ()=>{
     tabBtns.forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
     const t = btn.dataset.tab;
-    tabAlmacen.style.display   = (t === 'almacen')   ? 'block' : 'none';
-    tabPreventas.style.display = (t === 'preventas') ? 'block' : 'none';
+    tabAlmacen.style.display  = (t === 'almacen')  ? 'block' : 'none';
+    tabPreventas.style.display= (t === 'preventas')? 'block' : 'none';
   });
 });
 
-// Badges
 function stateBadge(text){
   const t = (text||'').toUpperCase();
   let cls = 'badge state ';
@@ -80,20 +71,20 @@ function stateBadge(text){
   else cls += 'en-almacen';
   return `<span class="${cls}">${text||'-'}</span>`;
 }
+
 function thumb(url){
   const u = (url||'').trim();
   if (!u) return `<div class="thumb"><span class="muted">–</span></div>`;
   return `<a class="thumb" href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="foto"/></a>`;
 }
 
-// Load status
 async function loadStatus(){
   const token = getToken();
   if (!token){ showLogin(); return; }
 
   showPanel();
-  clientCodeEl.textContent = localStorage.getItem(CLIENT_KEY)||'';
-  clientNameEl.textContent = localStorage.getItem(NAME_KEY)||'';
+  clientCodeEl.textContent = localStorage.getItem(AUTH_KEYS.CLIENT)||'';
+  clientNameEl.textContent = localStorage.getItem(AUTH_KEYS.NAME)||'';
 
   // placeholders
   almacenMsg.textContent = 'Cargando…';
@@ -102,7 +93,7 @@ async function loadStatus(){
   preTbody.innerHTML     = '';
 
   try{
-    const res = await fetch(`${API_URL}?route=status&token=${encodeURIComponent(token)}`);
+    const res = await fetch(API_URL + '?route=status&token=' + encodeURIComponent(token));
     const data = await res.json();
 
     if (!data.ok){
@@ -162,7 +153,6 @@ async function loadStatus(){
   }
 }
 
-// Submit login
 loginForm.addEventListener('submit', async (ev)=>{
   ev.preventDefault();
   loginMsg.textContent = 'Verificando…';
@@ -170,7 +160,7 @@ loginForm.addEventListener('submit', async (ev)=>{
   const client_id = document.getElementById('clientId').value.trim();
   const password  = document.getElementById('password').value;
   try{
-    const res  = await fetch(`${API_URL}?route=login`, {
+    const res  = await fetch(API_URL + '?route=login', {
       method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' },
       body: JSON.stringify({ client_id, password })
     });
@@ -192,6 +182,4 @@ loginForm.addEventListener('submit', async (ev)=>{
 });
 
 logoutBtn.addEventListener('click', ()=>{ clearAuth(); showLogin(); });
-
-// Init
 getToken() ? loadStatus() : showLogin();
