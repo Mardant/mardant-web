@@ -2,32 +2,44 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mi Cuenta - Mardant</title>
   <link rel="stylesheet" href="../css/cuenta.css">
 </head>
 <body>
-  <div class="container">
+  <header class="topbar">
+    <div class="wrap">
+      <a class="brand" href="../index.html">Mardant Perú</a>
+      <nav class="nav">
+        <a href="./catalogo.html">Catálogo</a>
+        <a href="./preventa.html">Preventas</a>
+        <a href="./pedidos.html">A pedido</a>
+        <a class="active" href="./cuenta.html">Mi cuenta</a>
+      </nav>
+    </div>
+  </header>
 
-    <header class="topbar">
-      <a href="./inicio.html" class="home">← Volver al inicio</a>
-      <h1>Mi Cuenta</h1>
-      <p class="sub">Consulta tus días de almacenaje y haz seguimiento a tus preventas.</p>
-    </header>
+  <main class="container">
+    <section class="hero card">
+      <div class="hero-copy">
+        <h1>Mi Cuenta</h1>
+        <p>Consulta tus días de almacenaje y sigue el estado de tus preventas.</p>
+      </div>
+    </section>
 
     <!-- LOGIN -->
-    <section id="loginSection" class="card" style="display:none">
-      <form id="loginForm" autocomplete="on">
-        <div class="row cols-2">
-          <div>
-            <div class="label">Cliente ID</div>
+    <section id="loginSection" class="card" style="display:none;">
+      <form id="loginForm" class="form">
+        <div class="row">
+          <div class="field">
+            <label class="label">Cliente ID</label>
             <input id="clientId" required placeholder="Ej: ALEX001" autocomplete="username" />
           </div>
-          <div>
-            <div class="label">Contraseña</div>
+          <div class="field">
+            <label class="label">Contraseña</label>
             <div class="input-wrap">
               <input id="password" type="password" required placeholder="••••••••" autocomplete="current-password"/>
-              <button type="button" class="toggle-pass" id="togglePass">Mostrar</button>
+              <button type="button" class="toggle-pass" id="togglePass" aria-label="Mostrar/ocultar contraseña">Mostrar</button>
             </div>
           </div>
         </div>
@@ -37,18 +49,16 @@
     </section>
 
     <!-- PANEL -->
-    <section id="statusSection" class="card" style="display:none">
-      <div class="row cols-2 headrow">
-        <div>
+    <section id="statusSection" class="card" style="display:none;">
+      <div class="panel-head">
+        <div class="who">
           <div class="label">Cliente</div>
-          <div class="client">
-            <span id="clientName" class="strong"></span>
+          <div class="who-name">
+            <span id="clientName"></span>
             <span class="muted">(<span id="clientCode"></span>)</span>
           </div>
         </div>
-        <div class="right">
-          <button id="logoutBtn" class="btn secondary">Cerrar sesión</button>
-        </div>
+        <button id="logoutBtn" class="btn secondary">Cerrar sesión</button>
       </div>
 
       <div class="kpis">
@@ -63,7 +73,7 @@
         <button class="tab-btn" data-tab="preventas">Preventas</button>
       </div>
 
-      <!-- TAB: ALMACEN -->
+      <!-- TAB: ALMACÉN -->
       <div id="tab-almacen">
         <h3>Ítems en almacén</h3>
         <div class="table-wrap">
@@ -76,11 +86,11 @@
             <tbody></tbody>
           </table>
         </div>
-        <div class="msg" id="almacenMsg"></div>
+        <div class="msg small" id="almacenMsg"></div>
       </div>
 
       <!-- TAB: PREVENTAS -->
-      <div id="tab-preventas" style="display:none">
+      <div id="tab-preventas" style="display:none;">
         <h3>Mis preventas</h3>
         <div class="table-wrap">
           <table id="preTable">
@@ -95,11 +105,14 @@
             <tbody></tbody>
           </table>
         </div>
-        <div class="msg" id="preMsg"></div>
+        <div class="msg small" id="preMsg"></div>
       </div>
     </section>
+  </main>
 
-  </div>
+  <footer class="site-footer">
+    © 2025 Mardant Perú
+  </footer>
 
   <script type="module" src="../js/cuenta.js"></script>
 </body>
