@@ -1,135 +1,73 @@
-/* —— estilos_inicio.css (responsive pulido para móvil) —— */
+/* —— estilos_inicio.css (responsive pulido y lightbox) —— */
 @import url('https://fonts.googleapis.com/css2?family=Carter+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap');
 
 :root{
-  /* Escalas fluidas para títulos y textos de cards */
-  --fs-h2:        clamp(22px, 5.4vw, 36px);
-  --fs-name:      clamp(14px, 4.2vw, 18px);
-  --fs-price:     clamp(13px, 3.8vw, 16px);
-  --fs-status:    clamp(12px, 3.4vw, 14px);
-  --fs-button:    clamp(12px, 3.6vw, 14px);
+  /* Escalas fluidas sobrias (móvil → desktop) */
+  --fs-h2:        clamp(22px, 5vw, 36px);
+  --fs-name:      clamp(13px, 3.8vw, 17px);
+  --fs-price:     clamp(13px, 3.6vw, 16px);
+  --fs-status:    clamp(12px, 3.2vw, 14px);
+  --fs-button:    clamp(12px, 3.4vw, 14px);
 
   --card-pad:     14px;
   --card-radius:  12px;
-  --grid-gap:     20px;
+  --grid-gap:     clamp(12px, 2vw, 20px);
 }
 
 html, body{
   margin:0;
-  overflow-x:hidden;       /* sin scroll lateral */
+  overflow-x:hidden;                /* sin scroll lateral */
   font-family:'Nunito Sans',sans-serif;
-  background-color:#fafafa;
+  background:#fafafa;
   color:#111;
 }
 
 /* =================== Banner =================== */
-.banner{
-  position:relative;
-  background:#000;
-  overflow:hidden;
-}
+.banner{ position:relative; background:#000; overflow:hidden; }
 .banner img{
-  width:100%;
-  height:250px;
-  max-width:1920px;
-  display:block;
-  object-fit:cover;
-  object-position:center;
-  margin:0 auto;
+  width:100%; height:250px; max-width:1920px; display:block;
+  object-fit:cover; object-position:center; margin:0 auto;
 }
-.bienvenida{
-  position:absolute;
-  top:20%;
-  width:100%;
-  text-align:center;
-  color:#fff;
-  text-shadow:2px 2px 4px #000;
-}
-.bienvenida h1{
-  font-family:'Changa',sans-serif;
-  font-size:32px;
-  color:#00e5ff;
-  margin:0;
-}
-.bienvenida p{
-  font-size:16px;
-  color:#fff;
-  margin-top:10px;
-}
+.bienvenida{ position:absolute; top:20%; width:100%; text-align:center; color:#fff; text-shadow:2px 2px 4px #000; }
+.bienvenida h1{ font-family:'Changa',sans-serif; font-size:32px; color:#00e5ff; margin:0; }
+.bienvenida p{ font-size:16px; color:#fff; margin-top:10px; }
 
 /* =================== Menú visual =================== */
 .menu-visual{
-  background:transparent;
-  padding:20px 10px;
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:20px;
+  background:transparent; padding:20px 10px;
+  display:flex; flex-wrap:wrap; justify-content:center; gap:20px;
 }
 .menu-visual img.boton-imagen{
-  max-height:60px;
-  border-radius:10px;
-  background:#fff;
-  padding:4px 6px;
+  max-height:60px; border-radius:10px; background:#fff; padding:4px 6px;
   box-shadow:0 4px 10px rgba(0,0,0,.3);
   transition:transform .3s ease, box-shadow .3s ease;
 }
-.menu-visual img.boton-imagen:hover{
-  transform:scale(1.1);
-  box-shadow:0 8px 16px rgba(0,0,0,.4);
-}
+.menu-visual img.boton-imagen:hover{ transform:scale(1.1); box-shadow:0 8px 16px rgba(0,0,0,.4); }
 
 /* =================== Carrusel =================== */
 .carrusel{
-  position:relative;
-  width:100%;
-  max-width:1000px;
-  margin:30px auto;
-  overflow:hidden;
-  border-radius:12px;
-  box-shadow:0 4px 12px rgba(0,0,0,.2);
-  max-height:180px;
+  position:relative; width:100%; max-width:1000px; margin:30px auto;
+  overflow:hidden; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,.2); max-height:180px;
 }
-.carrusel img{
-  width:100%;
-  height:180px;
-  object-fit:cover;
-  display:none;
-  border-radius:12px;
-}
+.carrusel img{ width:100%; height:180px; object-fit:cover; display:none; border-radius:12px; }
 .carrusel img.activo{ display:block; }
 .carrusel-botones{ display:none; }
 .carrusel-indicadores{
-  position:absolute;
-  bottom:10px;
-  width:100%;
-  display:flex;
-  justify-content:center;
-  gap:10px;
+  position:absolute; bottom:10px; width:100%; display:flex; justify-content:center; gap:10px;
 }
 .carrusel-indicadores .punto{
-  width:12px; height:12px; border-radius:50%;
-  background:rgba(255,255,255,.6);
+  width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,.6);
   cursor:pointer; transition:background .3s ease;
 }
 .carrusel-indicadores .punto.activo{ background:#00bcd4; }
 
 /* =================== Secciones =================== */
-.seccion{
-  padding:40px 20px;
-  max-width:1200px;
-  margin:auto;
-}
+.seccion{ padding:40px 20px; max-width:1200px; margin:auto; }
 .seccion h2{
-  font-family:'Montserrat', sans-serif;
-  font-weight:700;
-  text-align:center;
-  font-size:var(--fs-h2);
-  margin-bottom:30px;
-  color:#00bcd4;
-  border-bottom:2px solid #778DA9;
-  padding-bottom:10px;
+  font-family:'Montserrat', sans-serif; font-weight:700; text-align:center;
+  font-size:var(--fs-h2); margin-bottom:30px; color:#00bcd4;
+  border-bottom:2px solid #778DA9; padding-bottom:10px;
 }
 
 /* =================== Grid + Cards =================== */
@@ -140,192 +78,142 @@ html, body{
 }
 
 .producto{
-  background:#1a1a1a;
-  border-radius:var(--card-radius);
-  padding:var(--card-pad);
-  text-align:center;
+  background:#1a1a1a; border-radius:var(--card-radius);
+  padding:var(--card-pad); text-align:center;
   box-shadow:0 0 15px rgba(0,0,0,.3);
   transition:transform .3s ease;
 }
 .producto:hover{ transform:scale(1.03); box-shadow:0 0 20px rgba(0,0,0,.4); }
 
-/* Imagen uniforme (misma altura visual) */
+/* Imágenes uniformes SIN recortes (contain) y clickables */
+.grid-productos img,
 .img{
   width:100%;
-  aspect-ratio: 4 / 3;           /* mantiene proporción */
-  object-fit:cover;
+  aspect-ratio: 4 / 3;                  /* altura consistente */
+  object-fit:contain;                   /* no corta la foto */
+  background:#0e0e0e;                   /* “letterbox” elegante */
   border-radius:10px;
   margin-bottom:10px;
+  cursor:zoom-in;
 }
 
-/* Tipos de texto de la card (colores y tamaños sobrios) */
-.nombre{
-  font-weight:800;
-  color:#ffc107;
-  font-size:var(--fs-name) !important;
-  line-height:1.25;
+/* Tipografía sobria en cards */
+.grid-productos .producto h1,
+.grid-productos .producto h2,
+.grid-productos .producto h3,
+.grid-productos .producto h4,
+.grid-productos .producto h5{           /* por si el JS usa headings */
+  font-size:var(--fs-name);
   margin:6px 0 4px;
-  display:-webkit-box;
-  -webkit-line-clamp:2;          /* máximo 2 líneas */
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-}
-.categoria{
-  font-size:13px;
-  color:#bbb;
-  margin-bottom:6px;
-}
-.precio{
-  font-size:var(--fs-price) !important;
-  color:#fff;
-  margin-bottom:6px;
+  color:#ffc107;
   font-weight:800;
+  line-height:1.25;
 }
-.estado{
-  font-size:var(--fs-status) !important;
-  color:#81c784;
-  margin-bottom:10px;
+
+.nombre{
+  font-weight:800; color:#ffc107;
+  font-size:var(--fs-name) !important;
+  line-height:1.25; margin:6px 0 4px;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
 }
+.categoria{ font-size:13px; color:#bbb; margin-bottom:6px; }
+.precio{ font-size:var(--fs-price) !important; color:#fff; margin-bottom:6px; font-weight:800; }
+.estado{ font-size:var(--fs-status) !important; color:#81c784; margin-bottom:10px; }
 .estado.disponible-a-pedido{ color:#81c784; font-weight:800; }
 .estado.en-stock{ color:#81c784; }
 
-/* Botón de acción en la card */
+/* Botón acción */
 .boton{
-  background:#00bcd4;
-  color:#fff;
-  border:none;
-  padding:8px 14px;
-  border-radius:8px;
-  font-weight:800;
-  cursor:pointer;
-  text-decoration:none;
-  display:inline-block;
-  margin-top:10px;
-  transition:background .3s ease;
+  background:#00bcd4; color:#fff; border:none; padding:8px 14px;
+  border-radius:8px; font-weight:800; cursor:pointer; text-decoration:none;
+  display:inline-block; margin-top:10px; transition:background .3s ease;
   font-size:var(--fs-button);
 }
 .boton:hover{ background:#0097a7; }
 
 /* =================== Sobre nosotros =================== */
-.sobre-nosotros{
-  text-align:center;
-  padding:40px 20px;
-  background:#111;
-  margin-top:30px;
-}
-.sobre-nosotros h2{
-  font-size:22px;
-  color:#00bcd4;
-  margin-bottom:20px;
-}
-.sobre-nosotros p{
-  font-size:16px;
-  color:#ccc;
-  max-width:800px;
-  margin:auto;
-  line-height:1.6;
-}
+.sobre-nosotros{ text-align:center; padding:40px 20px; background:#111; margin-top:30px; }
+.sobre-nosotros h2{ font-size:22px; color:#00bcd4; margin-bottom:20px; }
+.sobre-nosotros p{ font-size:16px; color:#ccc; max-width:800px; margin:auto; line-height:1.6; }
 
 /* =================== Footer =================== */
-.pie{
-  background:#000;
-  color:#888;
-  text-align:center;
-  padding:20px 10px;
-  font-size:14px;
-}
+.pie{ background:#000; color:#888; text-align:center; padding:20px 10px; font-size:14px; }
 
 /* =================== Botones flotantes =================== */
 .boton-carrito-flotante{
-  position:fixed;
-  bottom:24px; right:24px;
-  background:#00bcd4; color:#fff;
-  font-size:36px; width:70px; height:70px;
-  border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  text-decoration:none;
-  box-shadow:0 4px 16px rgba(0,0,0,.5);
-  z-index:9999;
-  transition:background .3s, transform .2s;
+  position:fixed; bottom:24px; right:24px; background:#00bcd4; color:#fff;
+  font-size:36px; width:70px; height:70px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; text-decoration:none;
+  box-shadow:0 4px 16px rgba(0,0,0,.5); z-index:9999; transition:background .3s, transform .2s;
 }
 .boton-carrito-flotante:hover{ background:#0097a7; transform:scale(1.1); }
 
-/* "Mi cuenta" */
 .boton-cuenta-flotante{
-  position:fixed; top:16px; right:16px;
-  display:inline-flex; align-items:center; gap:8px;
-  padding:10px 14px;
-  background:rgba(0,0,0,.65); color:#fff; text-decoration:none;
-  border:1px solid #00bcd4; border-radius:999px;
-  font-weight:700;
-  box-shadow:0 6px 16px rgba(0,0,0,.35);
-  backdrop-filter:blur(6px);
-  z-index:10000;
-  transition:transform .2s, box-shadow .2s, background .2s;
+  position:fixed; top:16px; right:16px; display:inline-flex; align-items:center; gap:8px;
+  padding:10px 14px; background:rgba(0,0,0,.65); color:#fff; text-decoration:none;
+  border:1px solid #00bcd4; border-radius:999px; font-weight:700;
+  box-shadow:0 6px 16px rgba(0,0,0,.35); backdrop-filter:blur(6px);
+  z-index:10000; transition:transform .2s, box-shadow .2s, background .2s;
 }
-.boton-cuenta-flotante:hover{
-  transform:translateY(-1px);
-  box-shadow:0 10px 20px rgba(0,0,0,.45);
-  background:rgba(0,0,0,.82);
-}
+.boton-cuenta-flotante:hover{ transform:translateY(-1px); box-shadow:0 10px 20px rgba(0,0,0,.45); background:rgba(0,0,0,.82); }
 .boton-cuenta-flotante .emoji{ font-size:18px; line-height:1; }
 .boton-cuenta-flotante .texto{ font-size:14px; white-space:nowrap; }
 
+/* =================== Lightbox =================== */
+.lightbox{
+  position:fixed; inset:0; background:rgba(0,0,0,.92);
+  display:flex; align-items:center; justify-content:center;
+  z-index:10000; padding:16px;
+}
+.lightbox[hidden]{ display:none !important; }
+.lightbox img{
+  max-width:94vw; max-height:88vh; border-radius:12px; box-shadow:0 20px 40px rgba(0,0,0,.5);
+}
+.lb-close{
+  position:absolute; top:10px; right:14px; background:transparent; border:none; color:#fff;
+  font-size:36px; line-height:1; cursor:pointer; opacity:.9;
+}
+.lb-close:hover{ opacity:1; }
+
 /* =================== Responsive =================== */
-/* Tablets/ teléfonos grandes: fuerza 1 columna para dar aire */
-@media (max-width: 768px){
-  .grid-productos{
-    grid-template-columns: 1fr !important;
-    gap:16px;
-  }
-  .producto{
-    width:92%;
-    margin:0 auto;
-    padding:12px;
-  }
-  .img{ aspect-ratio: 16 / 11; }  /* un pelín más panorámica */
-  .bienvenida h1{ font-size:28px; }
+@media (max-width: 900px){
+  .grid-productos{ grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
 
-/* Teléfonos pequeños */
+@media (max-width: 768px){
+  .grid-productos{ grid-template-columns: 1fr !important; gap:16px; }
+  .producto{ width:92%; margin:0 auto; padding:12px; }
+  .bienvenida h1{ font-size:28px; }
+  .grid-productos img, .img{ aspect-ratio: 16 / 11; }
+}
+
 @media (max-width: 480px){
   .bienvenida h1{ font-size:22px !important; padding:0 10px; }
-
   .menu-visual{ gap:8px; padding:12px 5px; }
   .menu-visual img.boton-imagen{ max-height:40px; padding:2px; }
-
   .carrusel{ max-height:140px; margin:15px auto; border-radius:8px; }
   .carrusel img{ height:140px; object-position:center 30%; }
-
   .seccion{ padding:25px 10px !important; }
   .seccion h2{ font-size:24px !important; padding-bottom:6px; margin-bottom:20px; }
-
   .producto{ width:92%; margin:0 auto 14px; padding:12px; }
-  .img{ aspect-ratio: 4 / 3; margin-bottom:8px; }
-
-  /* En móviles, el botón de cuenta solo ícono para no tapar el banner */
+  .grid-productos img, .img{ aspect-ratio: 4 / 3; margin-bottom:8px; }
   .boton-cuenta-flotante{ border-radius:50%; padding:10px; }
   .boton-cuenta-flotante .texto{ display:none; }
-
-  .boton-carrito-flotante{
-    width:58px !important; height:58px !important;
-    font-size:28px !important; bottom:18px; right:18px;
-  }
+  .boton-carrito-flotante{ width:58px !important; height:58px !important; font-size:28px !important; bottom:18px; right:18px; }
 }
 
 /* Botón flecha al catálogo */
 .boton-ir-catalogo{ text-align:center; margin-top:10px; }
 .boton-ir-catalogo a{
-  display:inline-block; background:#00bcd4; color:#fff;
-  width:48px; height:48px; border-radius:50%;
-  font-size:24px; text-align:center; line-height:48px;
-  text-decoration:none; transition:background .3s, transform .2s;
+  display:inline-block; background:#00bcd4; color:#fff; width:48px; height:48px;
+  border-radius:50%; font-size:24px; text-align:center; line-height:48px; text-decoration:none;
+  transition:background .3s, transform .2s;
 }
 .boton-ir-catalogo a:hover{ background:#0097a7; transform:scale(1.1); }
 
-/* Enlaces título */
+/* Título link */
 .titulo-link{
-  color:#000; font-weight:bold; text-decoration:none;
-  display:inline-block; transition:transform .2s ease, color .2s ease;
+  color:#000; font-weight:bold; text-decoration:none; display:inline-block;
+  transition:transform .2s ease, color .2s ease;
 }
 .titulo-link:hover{ transform:scale(1.05); text-decoration:none; color:#e91e63; }
