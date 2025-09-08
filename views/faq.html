@@ -8,7 +8,7 @@
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
   <!-- hoja de estilos global -->
-  <link rel="stylesheet" href="../css/estilos.css?v=4" />
+  <link rel="stylesheet" href="../css/estilos.css?v=5" />
 </head>
 <body>
 
@@ -82,7 +82,7 @@
   </div>
 
   <!-- CTAs redondeados -->
-  <div class="cta-row" style="margin-top: 10px;">
+  <div class="cta-row">
     <a href="./catalogo.html" class="cta-btn cta--primary" aria-label="Ir al catálogo">
       <span class="cta-ico">🛒</span> Ver catálogo
     </a>
@@ -91,10 +91,13 @@
     </a>
   </div>
 
+  <!-- separador para que nada quede cortado al fondo en desktop -->
+  <div class="page-bottom-spacer"></div>
+
   <!-- Botón flotante carrito -->
   <a href="./carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">🛒</a>
 
-  <!-- Ajustes específicos / fixes mobile de esta página -->
+  <!-- Ajustes específicos / fixes de esta página -->
   <style>
     /* Banner consistente */
     .banner-top{
@@ -105,11 +108,44 @@
       border-bottom:3px solid #00bcd4;
     }
 
-    /* Pequeño respiro lateral en móvil */
+    /* Pequeño respiro lateral */
     .faq-container{ padding: 0 16px; }
 
-    /* Si alguna tarjeta usa "span 2", dale una clase (span-2) mejor que inline style */
+    /* Si alguna tarjeta usa "span 2", mejor como clase */
     .span-2{ grid-column: span 2; }
+
+    /* CTA row por defecto (desktop/tablet) */
+    .cta-row{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:12px;
+      margin: 24px auto 16px;
+      padding: 0 16px;
+      width: 100%;
+      max-width: 900px;
+    }
+    .cta-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding: 12px 20px;
+      border-radius: 999px;
+      text-decoration:none;
+      font-weight: 800;
+      background:#00bcd4;
+      color:#fff;
+      box-shadow: 0 8px 20px rgba(0,0,0,.15);
+      transition: transform .15s ease, box-shadow .15s ease, background .2s ease;
+    }
+    .cta-btn:hover{ transform: translateY(-2px); box-shadow: 0 12px 26px rgba(0,0,0,.18); background:#0097a7; }
+    .cta-ico{ font-size:18px; }
+
+    /* espacio adicional al fondo para que nada quede “contra el borde” */
+    .page-bottom-spacer{
+      height: calc(90px + env(safe-area-inset-bottom, 0px));
+    }
 
     /* ======= MOBILE FIXES ======= */
     @media (max-width: 680px){
@@ -118,7 +154,6 @@
         grid-template-columns: 1fr;   /* una columna */
         gap: 14px;
       }
-      /* Obliga cualquier tarjeta a ocupar 1 col en móvil */
       .faq-grid .faq-card{
         grid-column: auto !important;
         min-height: unset;
@@ -127,24 +162,27 @@
       .faq-card h3{ font-size: 16px; }
       .faq-card p{ font-size: 14px; line-height: 1.55; }
 
-      /* CTAs apiladas tipo pastilla */
+      /* CTAs STICKY: siempre visibles y con safe-area */
       .cta-row{
-        display:flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        padding: 0 12px;
+        position: sticky;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        z-index: 50;
+        background: rgba(250,250,250,.75);
+        backdrop-filter: blur(6px);
+        border-radius: 999px;
+        padding: 10px 12px;
+        gap:10px;
+        max-width: min(560px, 94vw);
+        margin: 18px auto;
       }
       .cta-btn{
-        width: 92%;
-        max-width: 360px;
-        font-size: 16px;
-        padding: 14px 18px;
-        border-radius: 999px;
-        display:flex;
-        justify-content: center;
-        align-items: center;
+        flex:1 1 auto;
+        min-width: 0;
+        padding: 12px 14px;
+        font-size: 15px;
       }
+      /* al ser sticky, reduce el separador */
+      .page-bottom-spacer{ height: calc(50px + env(safe-area-inset-bottom, 0px)); }
     }
   </style>
 
