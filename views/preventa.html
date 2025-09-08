@@ -3,84 +3,39 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Preventa – Mardant</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+  <!-- hoja de estilos global -->
   <link rel="stylesheet" href="../css/estilos.css" />
 </head>
 <body>
 
-  <!-- Banner superior -->
-  <header class="banner">
-    <img src="https://i.imgur.com/ZMGeepN.png"
-         alt="Preventa Mardant"
-         style="max-height:220px" />
-  </header>
+  <!-- Banner superior (opcional) -->
+  <img src="https://i.imgur.com/ZMGeepN.png"
+       alt="Preventa Mardant"
+       style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #00bcd4;" />
 
   <!-- Título -->
   <div class="contacto-centro">
     <h2 class="titulo-seccion">Productos en Preventa</h2>
   </div>
 
-  <!-- Botones de navegación -->
-  <div class="volver-inicio" style="margin:18px 0 10px;">
-    <a href="../index.html"  class="boton" data-vista="inicio">🏠 Volver al inicio</a>
-    <a href="catalogo.html"  class="boton" data-vista="catalogo">🛍️ Ir al catálogo</a>
+  <!-- Botones superiores -->
+  <div class="cta-preventa">
+    <a href="../index.html" class="btn-pill">
+      🏠 <span>Volver al inicio</span>
+    </a>
+    <a href="catalogo.html" class="btn-pill alt">
+      🛍️ <span>Ir al catálogo</span>
+    </a>
   </div>
 
   <!-- Contenedor de productos -->
-  <section id="vista-preventa">
-    <div id="contenedor" class="grid cards-preventa">
-      <p>Cargando productos…</p>
-    </div>
-  </section>
-
-  <!-- Lightbox para ampliar imágenes -->
-  <div id="lb-preventa" class="lightbox-overlay" aria-hidden="true">
-    <img id="lb-img" alt="Vista ampliada" />
-    <button id="lb-close" class="lightbox-close" aria-label="Cerrar">×</button>
+  <div id="contenedor" class="grid-preventa">
+    <p style="text-align:center;width:100%;">Cargando productos…</p>
   </div>
-
-  <!-- Lógica de la página (tu script actual) -->
-  <script type="module" src="../js/preventa.js"></script>
-
-  <!-- Zoom de imágenes (no toca tu preventa.js) -->
-  <script>
-    (function () {
-      const cont = document.getElementById('contenedor');
-      const lb   = document.getElementById('lb-preventa');
-      const img  = document.getElementById('lb-img');
-      const cls  = document.getElementById('lb-close');
-
-      // Delegación: cualquier <img> dentro de una tarjeta abre el lightbox
-      cont.addEventListener('click', (e) => {
-        const target = e.target.closest('img');
-        if (!target) return;
-        // ignora iconos/chips muy pequeños si quisieras (opcional)
-        if (target.width < 60 && target.height < 60) return;
-
-        img.src = target.src;
-        lb.classList.add('show');
-        lb.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden';
-      });
-
-      function closeLB() {
-        lb.classList.remove('show');
-        lb.setAttribute('aria-hidden', 'true');
-        img.src = '';
-        document.body.style.overflow = '';
-      }
-      cls.addEventListener('click', closeLB);
-      lb.addEventListener('click', (e) => {
-        if (e.target === lb) closeLB();
-      });
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeLB();
-      });
-    })();
-  </script>
 
   <!-- Carrito flotante -->
   <a href="carrito.html"
@@ -88,72 +43,117 @@
      title="Ver carrito 🛒"
      data-vista="carrito">🛒</a>
 
-  <!-- Ajustes visuales propios de esta vista -->
+  <!-- ========== Lightbox (overlay) ========== -->
+  <div id="lb" class="lightbox" hidden>
+    <img alt="Vista ampliada">
+    <button class="lb-close" aria-label="Cerrar">×</button>
+  </div>
+
+  <!-- Lógica de la página -->
+  <script type="module" src="../js/preventa.js"></script>
+
+  <!-- Mejora UX: abrir lightbox al tocar/clickear cualquier imagen de la card -->
+  <script>
+    (function () {
+      const cont = document.getElementById('contenedor');
+      const lb   = document.getElementById('lb');
+      const img  = lb.querySelector('img');
+
+      cont.addEventListener('click', (e) => {
+        const el = e.target;
+        if (el && el.tagName === 'IMG') {
+          img.src = el.src;
+          lb.hidden = false;
+          document.body.style.overflow = 'hidden';
+        }
+      });
+      const close = () => {
+        lb.hidden = true;
+        img.src = '';
+        document.body.style.overflow = '';
+      };
+      lb.addEventListener('click', close);
+      lb.querySelector('.lb-close').addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        close();
+      });
+      document.addEventListener('keydown', (ev) => {
+        if (!lb.hidden && ev.key === 'Escape') close();
+      });
+    })();
+  </script>
+
+  <!-- Ajustes de layout específicos de esta vista -->
   <style>
-    /* Grid responsive solo para esta página */
-    #vista-preventa .cards-preventa{
-      display:grid; 
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 22px;
-      max-width: 1200px;
-      margin: 0 auto 26px;
-      padding: 0 16px;
+    :root{
+      /* ancho máximo de una tarjeta en móvil */
+      --card-max-mobile: 380px;
     }
 
-    /* Compactar tarjetas en móvil y permitir zoom */
-    #vista-preventa .producto{
-      margin: 0;              /* quita márgenes extra si los hubiera */
+    /* Botones “píldora” iguales a Contacto */
+    .btn-pill{
+      display:inline-flex; align-items:center; gap:10px;
+      background:#00bcd4; color:#fff; font-weight:800;
+      padding:14px 18px; border-radius:14px; text-decoration:none;
+      box-shadow:0 8px 22px rgba(0,188,212,.25);
+      transition:transform .15s ease, box-shadow .15s ease;
     }
-    #vista-preventa .producto img{
-      width: 100%;
-      height: 240px;          /* altura cómoda en móvil */
-      object-fit: cover;
-      border-radius: 10px;
-      cursor: zoom-in;
-      display: block;
+    .btn-pill:hover{ transform:translateY(-1px); box-shadow:0 12px 26px rgba(0,188,212,.32); }
+    .btn-pill.alt{ background:#31c48d; }
+
+    .cta-preventa{
+      display:flex; justify-content:center; flex-wrap:wrap; gap:14px;
+      /* más aire con las tarjetas de abajo */
+      margin: 10px auto 28px;
+      padding: 0 12px;
     }
 
-    /* Un poco más de altura en pantallas medianas/grandes */
-    @media (min-width: 768px){
-      #vista-preventa .producto img{ height: 280px; }
+    /* Grid de productos para esta vista (en lugar del flex global) */
+    .grid-preventa{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(260px, 1fr));
+      gap:28px;
+      max-width:1200px;
+      margin:0 auto 60px;
+      padding:0 16px;
     }
-    @media (min-width: 1024px){
-      #vista-preventa .producto img{ height: 320px; }
+    /* Que las cards ocupen su celda */
+    .grid-preventa .producto{ width:100%; }
+
+    /* --------- Responsivo --------- */
+    @media (max-width: 1100px){
+      .grid-preventa{ grid-template-columns: repeat(2, minmax(260px, 1fr)); }
+    }
+    @media (max-width: 720px){
+      /* Una sola columna y cada card centrada y con ancho limitado */
+      .grid-preventa{ grid-template-columns: 1fr; gap:18px; }
+      .grid-preventa .producto{
+        max-width: var(--card-max-mobile);
+        margin: 0 auto;           /* centra la tarjeta */
+      }
+      .cta-preventa{ margin-bottom: 20px; gap:10px; }
     }
 
-    /* Lightbox reutilizable */
-    .lightbox-overlay{
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.9);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-      padding: 20px;
+    /* ------- Lightbox ------- */
+    .lightbox{
+      position:fixed; inset:0; background:rgba(0,0,0,.92);
+      display:flex; align-items:center; justify-content:center;
+      z-index:10000; padding:16px;
     }
-    .lightbox-overlay.show{ display:flex; }
-    .lightbox-overlay img{
-      max-width: 92vw;
-      max-height: 88vh;
-      border-radius: 12px;
-      box-shadow: 0 20px 40px rgba(0,0,0,.5);
+    .lightbox[hidden]{ display:none !important; }
+    .lightbox img{
+      max-width:94vw; max-height:88vh; border-radius:12px;
+      box-shadow:0 20px 40px rgba(0,0,0,.5);
     }
-    .lightbox-close{
-      position: absolute;
-      top: 12px; right: 16px;
-      color: #fff;
-      font-size: 36px;
-      line-height: 1;
-      background: transparent;
-      border: 0;
-      cursor: pointer;
-      opacity: .9;
+    .lb-close{
+      position:absolute; top:10px; right:14px;
+      background:transparent; border:none; color:#fff;
+      font-size:36px; line-height:1; cursor:pointer; opacity:.9;
     }
-    .lightbox-close:hover{ opacity: 1; }
+    .lb-close:hover{ opacity:1; }
   </style>
 
-  <!-- Tracking -->
+  <!-- Tracking (FB Pixel + GA4 + eventos) -->
   <script type="module" src="../js/tracking.js"></script>
 </body>
 </html>
