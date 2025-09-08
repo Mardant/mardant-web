@@ -65,6 +65,12 @@
     🛒<span id="contador-carrito" class="contador-carrito"></span>
   </a>
 
+  <!-- Lightbox (para ampliar imágenes de productos) -->
+  <div id="lb" class="lightbox" hidden>
+    <img alt="Vista ampliada">
+    <button class="lb-close" aria-label="Cerrar">×</button>
+  </div>
+
 </section>
 
 <!-- Estilos exclusivos -->
@@ -72,6 +78,38 @@
 
 <!-- Lógica de la portada -->
 <script type="module" src="../js/scripts_inicio.js"></script>
+
+<!-- Abrir lightbox al tocar cualquier imagen de las cards -->
+<script>
+  (function () {
+    const root = document.getElementById('vista-inicio');
+    const lb   = document.getElementById('lb');
+    const img  = lb.querySelector('img');
+
+    // Delegación: cualquier <img> dentro de .grid-productos abre el lightbox
+    root.addEventListener('click', (e) => {
+      const el = e.target;
+      if (el && el.tagName === 'IMG' && el.closest('.grid-productos')) {
+        img.src = el.src;
+        lb.hidden = false;
+        document.body.style.overflow = 'hidden';
+      }
+    });
+
+    const close = () => {
+      lb.hidden = true;
+      img.src = '';
+      document.body.style.overflow = '';
+    };
+    lb.addEventListener('click', close);
+    lb.querySelector('.lb-close').addEventListener('click', (ev) => {
+      ev.stopPropagation(); close();
+    });
+    document.addEventListener('keydown', (ev) => {
+      if (!lb.hidden && ev.key === 'Escape') close();
+    });
+  })();
+</script>
 
 <!-- Tracking (FB Pixel + GA4 + eventos) -->
 <script type="module" src="../js/tracking.js"></script>
