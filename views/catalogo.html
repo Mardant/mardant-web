@@ -15,18 +15,21 @@
   <style>
     /* ====== AJUSTES LOCALES (sólo esta vista) ====== */
 
+    /* Evita cualquier scroll horizontal fantasma */
+    html, body { overflow-x: hidden; }
+
     /* Contenedor central con respiración lateral en todo el flujo */
     .page-wrap{
       max-width: 1200px;
       margin: 0 auto;
-      padding: 0 16px;          /* aire estable a los lados */
+      padding: 0 16px;
     }
 
-    /* CTA superior en píldoras */
+    /* CTA superior en píldoras (sin “pastilla” de fondo detrás) */
     .cta-catalogo{
       display:flex; justify-content:center; flex-wrap:wrap; gap:14px;
       margin: 12px auto 16px;
-      padding: 0;               /* sin fondo ni cápsulas detrás */
+      padding: 0;
       background: none !important;
       box-shadow: none !important;
       border: 0 !important;
@@ -34,7 +37,7 @@
       position: relative;
     }
     .cta-catalogo::before,
-    .cta-catalogo::after{ content:none !important; } /* por si algún global inyecta algo */
+    .cta-catalogo::after{ content:none !important; }
 
     .btn-pill{
       display:inline-flex; align-items:center; gap:10px;
@@ -82,7 +85,7 @@
 
     /* ====== RESPONSIVE ====== */
     @media (max-width:680px){
-      .page-wrap{ padding: 0 14px; }      /* un pelín menos en móvil */
+      .page-wrap{ padding: 0 14px; }
     }
   </style>
 </head>
