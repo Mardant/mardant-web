@@ -152,3 +152,35 @@
   #subcategoria-select{ font-size:14px; padding:8px 12px; }
   .categoria-imagen{ width:86px; height:42px; }
 }
+
+/* ====== FIX DEFINITIVO: imágenes de producto sin recortes ====== */
+/* Cubre varios posibles wrappers que usa el JS (img directo, picture, figure, etc.) */
+.producto img,
+.producto picture img,
+.producto figure img,
+.producto .media img,
+.grid .producto img {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;          /* anula altos forzados */
+  object-fit: contain !important;    /* evita cortes; si prefieres “llenar”, cambia a cover */
+  display: block !important;
+  border-radius: 10px;
+}
+
+/* Mantén las cards elegantes y centradas en móvil */
+@media (max-width: 680px){
+  .grid { gap: 18px; }
+  .producto{ max-width: 520px; margin: 0 auto; }
+}
+
+/* Pills superiores SIN fondo detrás (por si algún global reaparece) */
+.cta-catalogo{ background: transparent !important; box-shadow: none !important; }
+
+@media (max-width: 680px){
+  #buscador{
+    width: calc(100% - 24px);
+    margin-left: 12px;
+    margin-right: 12px;
+  }
+}
