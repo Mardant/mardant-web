@@ -3,20 +3,22 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sobre Nosotros – Mardant</title>
 
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
-
-  <!-- hoja de estilos unificada -->
   <link rel="stylesheet" href="../css/estilos.css" />
-  
 </head>
 <body>
 
   <!-- Banner superior -->
-  <img src="https://i.imgur.com/bXMSQ3E.png"
-       alt="Sobre Nosotros Mardant"
-       style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #00bcd4;" />
+  <header class="banner">
+    <img
+      src="https://i.imgur.com/bXMSQ3E.png"
+      alt="Sobre Nosotros Mardant"
+      style="max-height:220px"
+    />
+  </header>
 
   <section class="seccion sobre-nosotros">
 
@@ -24,41 +26,96 @@
     <div class="contacto-centro">
       <h2 class="titulo-seccion">¿Quiénes Somos?</h2>
     </div>
-    <p><strong>Mardant</strong> es una <strong>tienda online peruana</strong> fundada en 2022,
-       dedicada a <strong>importar productos auténticos de Japón</strong> relacionados con el
-       <strong>mundo del anime</strong>. Desde figuras hasta llaveros, traemos a los fans en Perú
-       artículos <strong>exclusivos</strong> que reflejan nuestra <strong>pasión</strong> por esta cultura.</p>
+    <p>
+      <strong>Mardant</strong> es una <strong>tienda online peruana</strong> fundada en 2022,
+      dedicada a <strong>importar productos auténticos de Japón</strong> relacionados con el
+      <strong>mundo del anime</strong>. Desde figuras hasta llaveros, traemos a los fans en Perú
+      artículos <strong>exclusivos</strong> que reflejan nuestra <strong>pasión</strong> por esta cultura.
+    </p>
 
     <!-- Nuestros productos -->
     <div class="contacto-centro">
       <h2 class="titulo-seccion">Nuestros Productos</h2>
     </div>
-    <p>Ofrecemos productos <strong>originales</strong> de alta calidad, importados directamente de
-       <strong>Japón</strong>, disponibles en cantidades <strong>limitadas</strong>. Renovamos
-       nuestro catálogo constantemente para ofrecerte artículos <strong>únicos</strong> de tus
-       series favoritas.</p>
+    <p>
+      Ofrecemos productos <strong>originales</strong> de alta calidad, importados directamente de
+      <strong>Japón</strong>, disponibles en cantidades <strong>limitadas</strong>. Renovamos
+      nuestro catálogo constantemente para ofrecerte artículos <strong>únicos</strong> de tus
+      series favoritas.
+    </p>
 
     <!-- Nuestra pasión -->
     <div class="contacto-centro">
       <h2 class="titulo-seccion">Nuestra Pasión</h2>
     </div>
-    <p>Nos mueve la <strong>pasión por el anime</strong> y el <strong>compromiso</strong> con
-       nuestros clientes. Queremos que cada artículo que llegue a ti sea especial y alegre tu día.
-       Valoramos cada compra, cada mensaje y cada recomendación.</p>
+    <p>
+      Nos mueve la <strong>pasión por el anime</strong> y el <strong>compromiso</strong> con
+      nuestros clientes. Queremos que cada artículo que llegue a ti sea especial y alegre tu día.
+      Valoramos cada compra, cada mensaje y cada recomendación.
+    </p>
 
-    <!-- Galería de imágenes -->
-    <div class="imagenes-seccion">
-      <img src="https://i.imgur.com/tzNqItz.png" alt="Foto tienda Mardant"        loading="lazy" />
-      <img src="https://i.imgur.com/lFOVEmv.png" alt="Clientes en Perú felices"   loading="lazy" />
+    <!-- Galería de imágenes con Lightbox -->
+    <div class="contacto-centro">
+      <h2 class="titulo-seccion">Galería de Entregas</h2>
     </div>
 
-    <!-- Botón al catálogo -->
-    <div class="boton-catalogo">
-      <a href="catalogo.html" data-vista="catalogo">
-        <img src="https://i.imgur.com/B5T6n58.png"
-             alt="Explora nuestro catálogo"
-             class="boton-catalogo-img" />
-      </a>
+    <div class="galeria-nosotros">
+      <!-- Thumbnails (pulsa para abrir el lightbox) -->
+      <a href="#lb1"><img src="https://i.imgur.com/OxLXhEQ.png" alt="Entregas Mardant 1" loading="lazy"></a>
+      <a href="#lb2"><img src="https://i.imgur.com/ms4dJaZ.png" alt="Entregas Mardant 2" loading="lazy"></a>
+      <a href="#lb3"><img src="https://i.imgur.com/Zh8zamG.png" alt="Entregas Mardant 3" loading="lazy"></a>
+      <a href="#lb4"><img src="https://i.imgur.com/m1gGf3s.png" alt="Entregas Mardant 4" loading="lazy"></a>
+      <a href="#lb5"><img src="https://i.imgur.com/uw4E5Qf.png" alt="Entregas Mardant 5" loading="lazy"></a>
+      <a href="#lb6"><img src="https://i.imgur.com/1Ywqk0g.png" alt="Entregas Mardant 6" loading="lazy"></a>
+    </div>
+
+    <!-- Lightbox overlays (CSS only) -->
+    <div id="lb1" class="lightbox-overlay">
+      <a href="#lb6" class="lb-nav lb-prev" aria-label="Anterior">‹</a>
+      <img src="https://i.imgur.com/OxLXhEQ.png" alt="Entregas Mardant 1">
+      <a href="#lb2" class="lb-nav lb-next" aria-label="Siguiente">›</a>
+      <a href="#" class="lightbox-close" aria-label="Cerrar">×</a>
+    </div>
+
+    <div id="lb2" class="lightbox-overlay">
+      <a href="#lb1" class="lb-nav lb-prev" aria-label="Anterior">‹</a>
+      <img src="https://i.imgur.com/ms4dJaZ.png" alt="Entregas Mardant 2">
+      <a href="#lb3" class="lb-nav lb-next" aria-label="Siguiente">›</a>
+      <a href="#" class="lightbox-close" aria-label="Cerrar">×</a>
+    </div>
+
+    <div id="lb3" class="lightbox-overlay">
+      <a href="#lb2" class="lb-nav lb-prev" aria-label="Anterior">‹</a>
+      <img src="https://i.imgur.com/Zh8zamG.png" alt="Entregas Mardant 3">
+      <a href="#lb4" class="lb-nav lb-next" aria-label="Siguiente">›</a>
+      <a href="#" class="lightbox-close" aria-label="Cerrar">×</a>
+    </div>
+
+    <div id="lb4" class="lightbox-overlay">
+      <a href="#lb3" class="lb-nav lb-prev" aria-label="Anterior">‹</a>
+      <img src="https://i.imgur.com/m1gGf3s.png" alt="Entregas Mardant 4">
+      <a href="#lb5" class="lb-nav lb-next" aria-label="Siguiente">›</a>
+      <a href="#" class="lightbox-close" aria-label="Cerrar">×</a>
+    </div>
+
+    <div id="lb5" class="lightbox-overlay">
+      <a href="#lb4" class="lb-nav lb-prev" aria-label="Anterior">‹</a>
+      <img src="https://i.imgur.com/uw4E5Qf.png" alt="Entregas Mardant 5">
+      <a href="#lb6" class="lb-nav lb-next" aria-label="Siguiente">›</a>
+      <a href="#" class="lightbox-close" aria-label="Cerrar">×</a>
+    </div>
+
+    <div id="lb6" class="lightbox-overlay">
+      <a href="#lb5" class="lb-nav lb-prev" aria-label="Anterior">‹</a>
+      <img src="https://i.imgur.com/1Ywqk0g.png" alt="Entregas Mardant 6">
+      <a href="#lb1" class="lb-nav lb-next" aria-label="Siguiente">›</a>
+      <a href="#" class="lightbox-close" aria-label="Cerrar">×</a>
+    </div>
+
+    <!-- CTA / Botones -->
+    <div class="cta-nosotros">
+      <a href="catalogo.html" data-vista="catalogo" class="boton">🛍️ Ver catálogo</a>
+      <a href="contacto.html" data-vista="contacto" class="boton" style="background:#4caf50">✉️ Contáctanos</a>
     </div>
   </section>
 
@@ -68,11 +125,107 @@
   </div>
 
   <!-- Carrito flotante -->
-  <a href="carrito.html"
-     class="boton-carrito-flotante"
-     title="Ver carrito 🛒"
-     data-vista="carrito">🛒</a>
+  <a href="carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒" data-vista="carrito">
+    🛒<span id="contador-carrito" class="contador-carrito"></span>
+  </a>
+
+  <!-- Estilos específicos de esta vista -->
+  <style>
+    /* Títulos más moderados en esta vista y subrayado más corto */
+    .sobre-nosotros .titulo-seccion{
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    .sobre-nosotros .titulo-seccion::after{
+      width: 220px;
+      height: 3px;
+    }
+
+    /* Galería responsive */
+    .galeria-nosotros{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      max-width: 1000px;
+      margin: 10px auto 26px;
+    }
+    .galeria-nosotros a{ display:block; }
+    .galeria-nosotros img{
+      width:100%;
+      height:220px;
+      object-fit:cover;
+      border-radius:12px;
+      box-shadow:0 10px 20px rgba(0,0,0,.35);
+      background:#e9eef4;
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .galeria-nosotros img:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(17,24,39,.25);
+    }
+
+    .cta-nosotros{
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      align-items:center;
+      margin: 8px 0 6px;
+    }
+
+    /* Lightbox (solo CSS con :target) */
+    .lightbox-overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 20px;
+    }
+    .lightbox-overlay:target{ display:flex; }
+    .lightbox-overlay img{
+      max-width: 92vw;
+      max-height: 88vh;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0,0,0,.5);
+    }
+    .lightbox-close{
+      position: absolute;
+      top: 12px; right: 16px;
+      color: #fff;
+      font-size: 34px;
+      text-decoration: none;
+      line-height: 1;
+      opacity: .9;
+    }
+    .lightbox-close:hover{ opacity: 1; }
+
+    .lb-nav{
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #fff;
+      font-size: 48px;
+      text-decoration: none;
+      padding: 8px 14px;
+      opacity: .85;
+      user-select: none;
+    }
+    .lb-prev{ left: 14px; }
+    .lb-next{ right: 14px; }
+    .lb-nav:hover{ opacity: 1; }
+
+    @media (max-width:640px){
+      .galeria-nosotros{ grid-template-columns: 1fr; gap: 12px; }
+      .galeria-nosotros img{ height: 200px; }
+      .lb-nav{ font-size: 38px; }
+      .lightbox-close{ font-size: 30px; }
+    }
+  </style>
+
   <!-- Tracking (FB Pixel + GA4 + eventos) -->
-<script type="module" src="../js/tracking.js"></script>
+  <script type="module" src="../js/tracking.js"></script>
 </body>
 </html>
+
