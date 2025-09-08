@@ -1,6 +1,3 @@
-
-estilos_inicio.html
-
 /* —— estilos_inicio.css (copia literal de tu Apps Script) —— */
 @import url('https://fonts.googleapis.com/css2?family=Carter+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap');
@@ -131,6 +128,34 @@ body{
   transform:scale(1.1);
 }
 
+/* ===== Botón "Mi cuenta" (nuevo) ===== */
+.boton-cuenta-flotante{
+  position:fixed;
+  top:16px;
+  right:16px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 14px;
+  background:rgba(0,0,0,.65);
+  color:#fff;
+  text-decoration:none;
+  border:1px solid #00bcd4;
+  border-radius:999px;
+  font-weight:700;
+  box-shadow:0 6px 16px rgba(0,0,0,.35);
+  backdrop-filter:blur(6px);
+  z-index:10000;
+  transition:transform .2s, box-shadow .2s, background .2s;
+}
+.boton-cuenta-flotante:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 20px rgba(0,0,0,.45);
+  background:rgba(0,0,0,.82);
+}
+.boton-cuenta-flotante .emoji{font-size:18px; line-height:1;}
+.boton-cuenta-flotante .texto{font-size:14px; white-space:nowrap;}
+
 /* Secciones */
 .seccion{
   padding:40px 20px;
@@ -241,8 +266,15 @@ body{
   font-size:14px;
 }
 
-/* Responsive */
 /* ========== RESPONSIVE ========== */
+@media (max-width: 768px){
+  .boton-cuenta-flotante{
+    top:10px;
+    right:10px;
+    padding:8px 10px;
+  }
+}
+
 @media (max-width: 480px) {
   .bienvenida h1 {
     font-size: 22px !important;
@@ -326,13 +358,15 @@ body{
   .banner img {
     height: 180px;
   }
-  .boton-carrito-flotante {
-    width: 58px !important;
-    height: 58px !important;
-    font-size: 28px !important;
-    bottom: 18px;
-    right: 18px;
-}
+
+  /* Mi cuenta en móvil: solo ícono para no tapar el banner */
+  .boton-cuenta-flotante{
+    border-radius:50%;
+    padding:10px;
+  }
+  .boton-cuenta-flotante .texto{
+    display:none;
+  }
 }
 
 /* Botón flecha al catálogo */
