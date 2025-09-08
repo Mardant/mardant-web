@@ -4,26 +4,77 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Catálogo Mardant</title>
-  <!-- favicon -->
+  <title>Catálogo Mardant</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
-  <!-- 1·  hoja global con *todos* los estilos -->
+  <!-- estilos globales -->
   <link rel="stylesheet" href="../css/estilos.css" />
-  <!-- 2·  (opcional) extras sólo‑catálogo -->
+  <!-- extras del catálogo (si los usas) -->
   <link rel="stylesheet" href="../css/catalogo.css" />
+
+  <!-- ajustes visuales propios de esta vista -->
+  <style>
+    /* Botones “píldora” consistentes con el resto */
+    .cta-catalogo{
+      display:flex; justify-content:center; flex-wrap:wrap; gap:14px;
+      margin: 12px auto 18px; padding: 0 12px;
+    }
+    .btn-pill{
+      display:inline-flex; align-items:center; gap:10px;
+      color:#fff; font-weight:800; line-height:1;
+      padding:14px 22px;
+      border-radius:9999px;
+      text-decoration:none;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
+        #00bcd4;
+      box-shadow:0 10px 24px rgba(0,188,212,.25);
+      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-pill:hover{ transform:translateY(-1px); box-shadow:0 14px 28px rgba(0,188,212,.32); filter:saturate(1.05); }
+    .btn-pill.alt{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
+        #31c48d;
+      box-shadow:0 10px 24px rgba(49,196,141,.25);
+    }
+
+    /* El buscador queda centrado y con aire */
+    #buscador{ margin-top: 6px; }
+
+    /* En móvil, las categorías van en carrusel horizontal */
+    @media (max-width: 680px){
+      .filtros{ padding: 6px 0 0; }
+      #filtro-categorias.grupo-filtro{
+        flex-wrap: nowrap;               /* no saltan de línea   */
+        overflow-x: auto;                /* scroll horizontal    */
+        -webkit-overflow-scrolling: touch;
+        justify-content: flex-start;     /* alineadas a la izq   */
+        gap: 10px;
+        padding: 8px 12px 12px;
+      }
+      #filtro-categorias .categoria-imagen{
+        flex: 0 0 auto;                  /* ancho según imagen   */
+      }
+    }
+
+    /* Grid un poco más suelto en escritorio */
+    @media (min-width: 1024px){
+      .grid{ gap: 28px; }
+    }
+  </style>
 </head>
 
 <body>
   <!-- Banner superior -->
   <img src="https://i.imgur.com/K7nyK2A.png"
-       alt="Catálogo Mardant"
+       alt="Catálogo Mardant"
        style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #00bcd4" />
 
-  <!-- Botón Volver -->
-  <div class="volver-inicio">
-    <!-- recuerda: si lo usas desde GitHub Pages pon la ruta relativa correcta -->
-    <a href="./inicio.html">🏠 Volver al inicio</a>
+  <!-- CTA superior (píldoras) -->
+  <div class="cta-catalogo">
+    <a href="./inicio.html" class="btn-pill">🏠 <span>Volver al inicio</span></a>
+    <a href="./preventa.html" class="btn-pill alt">📦 <span>Ver preventas</span></a>
   </div>
 
   <!-- Buscador -->
@@ -86,27 +137,27 @@
     </div>
   </div>
 
-  <!-- aquí pintaremos sub‑categorías por JS -->
+  <!-- Sub-categorías (JS las pinta aquí) -->
   <div id="subfiltro-contenedor"></div>
 
   <!-- Orden / disponibilidad -->
   <div class="orden">
     <label for="orden">Ordenar por:</label>
     <select id="orden">
-      <option value="recientes">Lo más nuevo</option>
-      <option value="default">Por defecto</option>
-      <option value="oferta">Sólo ofertas</option>
-      <option value="precio-asc">Precio (↑)</option>
-      <option value="precio-desc">Precio (↓)</option>
-      <option value="nombre-az">Nombre A‑Z</option>
-      <option value="nombre-za">Nombre Z‑A</option>
+      <option value="recientes">Lo más nuevo</option>
+      <option value="default">Por defecto</option>
+      <option value="oferta">Sólo ofertas</option>
+      <option value="precio-asc">Precio (↑)</option>
+      <option value="precio-desc">Precio (↓)</option>
+      <option value="nombre-az">Nombre A-Z</option>
+      <option value="nombre-za">Nombre Z-A</option>
     </select>
 
     <label for="estado" style="margin-left:20px">Disponibilidad:</label>
     <select id="estado">
       <option value="todos">Todos</option>
-      <option value="disponible">Sólo disponibles</option>
-      <option value="agotado">Sólo agotados</option>
+      <option value="disponible">Sólo disponibles</option>
+      <option value="agotado">Sólo agotados</option>
     </select>
   </div>
 
@@ -114,23 +165,21 @@
   <div id="contenedor" class="grid"></div>
   <div id="paginacion"></div>
 
-  <!-- Mini‑carrito + contador -->
+  <!-- Mini-carrito + contador -->
   <div class="carrito-contenedor">
-    <a href="./carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">
+    <a href="./carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">
       🛒<span id="contador-carrito" class="contador-carrito">0</span>
     </a>
     <div id="mini-carrito" class="mini-carrito"></div>
   </div>
 
   <!-- Notificación flotante -->
-  <div id="notificacion-carrito" class="noti-carrito">
-    ✅ Producto añadido al carrito
-  </div>
+  <div id="notificacion-carrito" class="noti-carrito">✅ Producto añadido al carrito</div>
 
   <!-- Lógica del catálogo -->
   <script type="module" src="../js/catalogo.js"></script>
 
   <!-- Tracking (FB Pixel + GA4 + eventos) -->
-<script type="module" src="../js/tracking.js"></script>
+  <script type="module" src="../js/tracking.js"></script>
 </body>
 </html>
