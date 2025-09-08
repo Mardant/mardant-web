@@ -3,22 +3,24 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Preguntas Frecuentes – Mardant</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
   <!-- hoja de estilos global -->
-  <link rel="stylesheet" href="../css/estilos.css" />
-  <!-- (opcional) si algún día quieres estilos exclusivos, enlázalos debajo -->
+  <link rel="stylesheet" href="../css/estilos.css?v=4" />
 </head>
 <body>
 
-  <!-- Banner superior -->
-  <img src="https://i.imgur.com/SDXUuTI.png"
-       alt="Preguntas Frecuentes Banner"
-       style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #00bcd4">
+  <!-- Banner superior unificado -->
+  <img
+    class="banner-top"
+    src="https://i.imgur.com/SDXUuTI.png"
+    alt="Preguntas Frecuentes - Mardant"
+  />
 
   <!-- Título -->
-  <div style="text-align:center;">
+  <div class="contacto-centro">
     <h2 class="titulo-seccion">Preguntas Frecuentes</h2>
   </div>
 
@@ -71,7 +73,7 @@
         <p>Depende del destino y del método de envío. Escríbenos para informarte tiempos y costos.</p>
       </div>
 
-      <div class="faq-card" style="grid-column:span 2;">
+      <div class="faq-card" style="grid-column: span 2;">
         <h3>¿Aceptan devoluciones o reembolsos?</h3>
         <p>Solo si el producto llega dañado. Contáctanos dentro de las 24 h con fotos y video. No aceptamos devoluciones de productos abiertos o usados.</p>
       </div>
@@ -79,28 +81,20 @@
     </div>
   </div>
 
-  <!-- Botón al catálogo -->
-  <div class="boton-catalogo">
-    <a href="./catalogo.html">
-      <img src="https://i.imgur.com/B5T6n58.png"
-           alt="Explora nuestro Catálogo"
-           class="boton-catalogo-img">
+  <!-- CTAs redondeados (consistentes con Contacto/Nosotros) -->
+  <div class="cta-row" style="margin-top: 10px;">
+    <a href="./catalogo.html" class="cta-btn cta--primary" aria-label="Ir al catálogo">
+      <span class="cta-ico">🛒</span> Ver catálogo
+    </a>
+    <a href="./inicio.html" class="cta-btn cta--primary" aria-label="Volver al inicio">
+      <span class="cta-ico">🏠</span> Volver al inicio
     </a>
   </div>
 
-  <!-- Volver al inicio -->
-  <div class="volver-inicio">
-    <a href="./inicio.html">🏠 Volver al inicio</a>
-  </div>
-
   <!-- Botón flotante carrito -->
-  <a href="./carrito.html"
-     class="boton-carrito-flotante"
-     title="Ver carrito 🛒">🛒</a>
+  <a href="./carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">🛒</a>
 
-  <!-- scripts específicos (si los necesitas) -->
-  <script type="module" src="../js/scripts_inicio.js"></script>
   <!-- Tracking (FB Pixel + GA4 + eventos) -->
-<script type="module" src="../js/tracking.js"></script>
+  <script type="module" src="../js/tracking.js"></script>
 </body>
 </html>
