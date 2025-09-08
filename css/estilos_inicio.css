@@ -1,6 +1,13 @@
-/* —— estilos_inicio.css (copia literal de tu Apps Script) —— */
+/* —— estilos_inicio.css —— */
 @import url('https://fonts.googleapis.com/css2?family=Carter+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap');
+
+/* Fixes globales para evitar “borde blanco” y desbordes */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+html, body { overflow-x: hidden; }
+img { max-width: 100%; height: auto; display: block; }
 
 body{
   margin:0;
@@ -18,7 +25,6 @@ body{
 .banner img{
   width:100%;
   height:250px;
-  max-width:1920px;
   display:block;
   object-fit:cover;
   object-position:center;
@@ -47,7 +53,7 @@ body{
 /* Menú visual */
 .menu-visual{
   background-color:transparent;
-  padding:20px 10px;
+  padding:20px 16px; /* respiración lateral estable */
   display:flex;
   flex-wrap:wrap;
   justify-content:center;
@@ -55,15 +61,20 @@ body{
 }
 .menu-visual img.boton-imagen{
   max-height:60px;
+  height:auto;
   border-radius:10px;
   background:#fff;
   padding:4px 6px;
   box-shadow:0 4px 10px rgba(0,0,0,.3);
   transition:transform .3s ease,box-shadow .3s ease;
+  will-change: transform;
 }
-.menu-visual img.boton-imagen:hover{
-  transform:scale(1.1);
-  box-shadow:0 8px 16px rgba(0,0,0,.4);
+/* Animaciones sólo en dispositivos con hover real (evita empujes en móvil) */
+@media (hover:hover){
+  .menu-visual img.boton-imagen:hover{
+    transform:scale(1.06);
+    box-shadow:0 8px 16px rgba(0,0,0,.35);
+  }
 }
 
 /* Carrusel */
@@ -125,10 +136,10 @@ body{
 }
 .boton-carrito-flotante:hover{
   background:#0097a7;
-  transform:scale(1.1);
+  transform:scale(1.07);
 }
 
-/* ===== Botón "Mi cuenta" (nuevo) ===== */
+/* ===== Botón "Mi cuenta" ===== */
 .boton-cuenta-flotante{
   position:fixed;
   top:16px;
@@ -283,7 +294,7 @@ body{
 
   .menu-visual {
     gap: 8px;
-    padding: 12px 5px;
+    padding: 12px 10px; /* un poco más de aire que antes */
   }
 
   .menu-visual img.boton-imagen {
@@ -328,18 +339,9 @@ body{
     margin-bottom: 8px;
   }
 
-  .nombre {
-    font-size: 10px !important;
-    line-height: 1.2;
-  }
-
-  .precio {
-    font-size: 10px !important;
-  }
-
-  .estado {
-    font-size: 10px !important;
-  }
+  .nombre { font-size: 12px !important; line-height: 1.25; }
+  .precio { font-size: 12px !important; }
+  .estado { font-size: 11px !important; }
 
   .boton {
     font-size: 13px !important;
@@ -355,18 +357,14 @@ body{
     right: 18px;
   }
 
-  .banner img {
-    height: 180px;
-  }
+  .banner img { height: 180px; }
 
   /* Mi cuenta en móvil: solo ícono para no tapar el banner */
   .boton-cuenta-flotante{
     border-radius:50%;
     padding:10px;
   }
-  .boton-cuenta-flotante .texto{
-    display:none;
-  }
+  .boton-cuenta-flotante .texto{ display:none; }
 }
 
 /* Botón flecha al catálogo */
