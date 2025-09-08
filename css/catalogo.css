@@ -1,6 +1,9 @@
-/* =========================================================
-   catalogo.css - Estilos específicos para el catálogo
-   ========================================================= */
+/* catalogo.css - Estilos específicos para el catálogo */
+
+/* ---------- Variables ---------- */
+:root{
+  --gutter-m: 14px;   /* margen lateral en móvil */
+}
 
 /* ------- CATEGORÍAS (fila de logos) ------- */
 #filtro-categorias {
@@ -24,10 +27,12 @@
   height: 60px;
   border-radius: 10px;
 }
+
 .categoria-imagen.selected {
   border-color: #ff4081;
   box-shadow: 0 0 12px rgba(255, 64, 129, 0.35);
 }
+
 /* Imagen contenida dentro de la “tarjeta” */
 .categoria-imagen img {
   max-width: 100%;
@@ -40,6 +45,7 @@
   margin: 15px 0;
   text-align: center;
 }
+
 #subcategoria-select {
   background: #f8f9fa;
   border: 2px solid #00bcd4;
@@ -59,6 +65,7 @@
   gap: 8px;
   margin: 30px 0;
 }
+
 #paginacion .boton {
   min-width: 40px;
   padding: 8px 12px;
@@ -73,6 +80,7 @@
   overflow: hidden;
   border-radius: 14px;
 }
+
 .producto::after {
   content: "";
   position: absolute;
@@ -83,11 +91,13 @@
   pointer-events: none;
 }
 .producto:hover::after { opacity: 1; }
+
 .agregar-carrito { position: relative; z-index: 1; }
 
-/* ------- REFINES DE LAYOUT ------- */
-/* Dar un pelín de aire al buscador */
-#buscador { margin-top: 6px; }
+/* ------- REFINES DE LAYOUT (desktop y general) ------- */
+#buscador {
+  margin-top: 6px;               /* da un poco de aire al buscador */
+}
 
 /* Ordenar / disponibilidad: centrar y dar flujo sano */
 .orden {
@@ -100,30 +110,28 @@
 }
 .orden label { font-weight: 700; color: #1976d2; }
 
-/* ------- RESPONSIVE ------- */
+/* Desktop mediano */
 @media (max-width: 1024px) {
-  .grid { gap: 24px; }          /* separa un poco más las cards */
+  .grid { gap: 24px; }           /* separa un poco más las cards */
 }
 
-/* MOBILE: carrusel horizontal de categorías SIN scrollbar visible */
+/* ---------- MÓVIL: gutters laterales + carrusel de categorías ---------- */
 @media (max-width: 680px) {
-  /* convertimos la fila de logos en carrusel horizontal */
+  /* Carrusel horizontal de categorías */
   #filtro-categorias {
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     justify-content: flex-start;
     gap: 10px;
-    padding: 8px 12px 6px;
+    padding: 8px var(--gutter-m) 6px;
     margin: 10px 0 6px;
-    scrollbar-width: none;         /* Firefox */
-    -ms-overflow-style: none;      /* IE/Edge */
+    scrollbar-width: none;       /* Firefox */
+    -ms-overflow-style: none;    /* IE/Edge */
   }
-  #filtro-categorias::-webkit-scrollbar { /* Chrome/Safari */
-    display: none;
-    height: 0; width: 0; background: transparent;
+  #filtro-categorias::-webkit-scrollbar {
+    display: none; height: 0; width: 0; background: transparent;
   }
-
   .categoria-imagen {
     width: 90px;
     height: 46px;
@@ -131,59 +139,52 @@
     margin: 0;
   }
 
-  /* apilar y centrar “orden / disponibilidad” */
-  .orden {
+  /* Gutters consistentes en todos los bloques superiores */
+  .cta-catalogo,
+  #subfiltro-contenedor,
+  #paginacion { padding-left: var(--gutter-m); padding-right: var(--gutter-m); }
+
+  /* Buscador con margen lateral */
+  #buscador{
+    max-width: none;
+    width: calc(100% - (var(--gutter-m) * 2));
+    margin: 8px var(--gutter-m) 12px;
+    border-radius: 12px;
+    box-sizing: border-box;
+  }
+
+  /* Orden/Disponibilidad apilados y con gutters */
+  .orden{
     display: grid;
     grid-template-columns: 1fr;
     justify-items: center;
     gap: 6px;
     margin: 8px 0 12px;
+    padding-left: var(--gutter-m);
+    padding-right: var(--gutter-m);
   }
-  .orden select {
-    width: 92vw;
-    max-width: 420px;
+  .orden select{
+    width: 100%;
+    max-width: none;
     font-size: 15px;
     padding: 10px 12px;
     border-radius: 10px;
+    box-sizing: border-box;
   }
 
-  /* cards centradas y con respiración */
-  .grid { gap: 18px; }
+  /* Cards centradas + gutters del grid */
+  .grid { gap: 18px; padding-left: var(--gutter-m); padding-right: var(--gutter-m); }
   .producto { max-width: 520px; margin: 0 auto; }
-
-  /* ===== FIX imagen recortada en móvil ===== */
-  .grid .producto img{
-    width: 100%;
-    height: auto !important;       /* anula max-height global */
-    max-height: none !important;
-    object-fit: contain !important;/* se ve completa */
-  }
-
-  /* ===== Limitar título para que no rompa el layout ===== */
-  .grid .producto .nombre{
-    display: -webkit-box;
-    -webkit-line-clamp: 2;         /* máximo 2 líneas */
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-height: 1.25;
-    min-height: calc(1.25em * 2);
-    word-break: break-word;
-    hyphens: auto;
-  }
 }
 
 /* extra-small */
 @media (max-width: 480px) {
-  #subcategoria-select { font-size: 14px; padding: 8px 12px; }
-  .categoria-imagen { width: 80px; height: 42px; }
+  #subcategoria-select {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+  .categoria-imagen {
+    width: 80px;
+    height: 42px;
+  }
 }
-
-/* ====== FIX: eliminar cualquier “barra/píldora” de fondo en la CTA ====== */
-.cta-catalogo{
-  background: transparent !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  position: relative;
-}
-.cta-catalogo::before,
-.cta-catalogo::after{ content: none !important; }
