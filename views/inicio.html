@@ -1,74 +1,77 @@
 <!DOCTYPE html>
 <section id="vista-inicio">
 
-    <!-- Encabezado -->
-    <header class="banner">
-      <img src="https://i.imgur.com/wfOe9n4.png"
-           alt="Banner Anime Mardant"
-           loading="lazy">
-      <div class="bienvenida"></div>
-    </header>
-  
-    <!-- Menú visual -->
-    <nav class="menu-visual">
-      <a href="./catalogo.html"><img src="https://i.imgur.com/B5T6n58.png"   alt="Catálogo"               class="boton-imagen"></a>
-      <a href="./como.html"><img      src="https://i.imgur.com/mIZddDA.png"   alt="Cómo Comprar"           class="boton-imagen"></a>
-      <a href="./contacto.html"><img  src="https://i.imgur.com/IJ7YYxR.png"   alt="Contacto"               class="boton-imagen"></a>
-      <a href="./pedidos.html"><img   src="https://i.imgur.com/Nwoeb0Q.png"   alt="Productos a Pedido"     class="boton-imagen"></a>
-      <a href="./preventa.html"><img  src="https://i.imgur.com/8wy78gh.png"   alt="Preventa"               class="boton-imagen"></a>
-      <a href="./faq.html"><img       src="https://i.imgur.com/MbxHkvB.png"   alt="Preguntas Frecuentes"   class="boton-imagen"></a>
-      <a href="./nosotros.html"><img  src="https://i.imgur.com/0aUfeE9.png"   alt="Sobre Nosotros"         class="boton-imagen"></a>
-    </nav>
-  
-    <!-- Carrusel -->
-    <div class="carrusel">
-      <img src="https://i.imgur.com/OxLXhEQ.png" class="activo" alt="Slide 1">
-      <img src="https://i.imgur.com/ms4dJaZ.png"               alt="Slide 2">
-      <img src="https://i.imgur.com/Zh8zamG.png"               alt="Slide 3">
-      <div class="carrusel-indicadores" id="indicadores"></div>
-    </div>
-  
-    <!-- Secciones de productos -->
-    <section class="seccion">
-      <h2><a href="./catalogo.html?orden=recientes" class="titulo-link">ÚLTIMAS IMPORTACIONES</a></h2>
-      <div id="ultimas-importaciones" class="grid-productos"></div>
-    </section>
+  <!-- Encabezado -->
+  <header class="banner">
+    <img src="https://i.imgur.com/wfOe9n4.png"
+         alt="Banner Anime Mardant"
+         loading="lazy">
+    <div class="bienvenida"></div>
+  </header>
 
-    <section class="seccion">
+  <!-- Menú visual -->
+  <nav class="menu-visual">
+    <a href="./catalogo.html"><img src="https://i.imgur.com/B5T6n58.png"   alt="Catálogo"               class="boton-imagen"></a>
+    <a href="./como.html"><img      src="https://i.imgur.com/mIZddDA.png"   alt="Cómo Comprar"           class="boton-imagen"></a>
+    <a href="./contacto.html"><img  src="https://i.imgur.com/IJ7YYxR.png"   alt="Contacto"               class="boton-imagen"></a>
+    <a href="./pedidos.html"><img   src="https://i.imgur.com/Nwoeb0Q.png"   alt="Productos a Pedido"     class="boton-imagen"></a>
+    <a href="./preventa.html"><img  src="https://i.imgur.com/8wy78gh.png"   alt="Preventa"               class="boton-imagen"></a>
+    <a href="./faq.html"><img       src="https://i.imgur.com/MbxHkvB.png"   alt="Preguntas Frecuentes"   class="boton-imagen"></a>
+    <a href="./nosotros.html"><img  src="https://i.imgur.com/0aUfeE9.png"   alt="Sobre Nosotros"         class="boton-imagen"></a>
+  </nav>
 
-      <h2><a href="./preventa.html" class="titulo-link">PREVENTAS</a></h2>
+  <!-- Carrusel -->
+  <div class="carrusel">
+    <img src="https://i.imgur.com/OxLXhEQ.png" class="activo" alt="Slide 1">
+    <img src="https://i.imgur.com/ms4dJaZ.png"               alt="Slide 2">
+    <img src="https://i.imgur.com/Zh8zamG.png"               alt="Slide 3">
+    <div class="carrusel-indicadores" id="indicadores"></div>
+  </div>
 
-      <div id="productos-preventa" class="grid-productos"></div>
-
-    </section>
-  
-    <section class="seccion">
-      <h2><a href="./pedidos.html" class="titulo-link">PRODUCTOS DISPONIBLES A PEDIDO</a></h2>
-      <div id="pedidos-disponibles" class="grid-productos"></div>
-    </section>
-  
-    <section class="seccion">
-      <h2><a href="./catalogo.html?orden=oferta" class="titulo-link">PRODUCTOS EN OFERTA</a></h2>
-      <div id="productos-oferta" class="grid-productos"></div>
-    </section>
-  
-    <!-- Pie -->
-    <footer class="pie">
-      <p>© 2025 Mardant Perú • Todos los derechos reservados</p>
-    </footer>
-  
-    <!-- Botón flotante del carrito -->
-    <a href="carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">
-        🛒<span id="contador-carrito" class="contador-carrito"></span>
-    </a>
-  
+  <!-- Secciones de productos -->
+  <section class="seccion">
+    <h2><a href="./catalogo.html?orden=recientes" class="titulo-link">ÚLTIMAS IMPORTACIONES</a></h2>
+    <div id="ultimas-importaciones" class="grid-productos"></div>
   </section>
-  
-  <!-- Estilos exclusivos -->
-  <link rel="stylesheet" href="../css/estilos_inicio.css">
-  
-  <!-- Lógica de la portada -->
-  <script type="module" src="../js/scripts_inicio.js"></script>
+
+  <section class="seccion">
+    <h2><a href="./preventa.html" class="titulo-link">PREVENTAS</a></h2>
+    <div id="productos-preventa" class="grid-productos"></div>
+  </section>
+
+  <section class="seccion">
+    <h2><a href="./pedidos.html" class="titulo-link">PRODUCTOS DISPONIBLES A PEDIDO</a></h2>
+    <div id="pedidos-disponibles" class="grid-productos"></div>
+  </section>
+
+  <section class="seccion">
+    <h2><a href="./catalogo.html?orden=oferta" class="titulo-link">PRODUCTOS EN OFERTA</a></h2>
+    <div id="productos-oferta" class="grid-productos"></div>
+  </section>
+
+  <!-- Pie -->
+  <footer class="pie">
+    <p>© 2025 Mardant Perú • Todos los derechos reservados</p>
+  </footer>
+
+  <!-- Botón flotante Mi Cuenta -->
+  <a href="./cuenta.html" class="boton-cuenta-flotante" id="btnCuenta" title="Mi cuenta">
+    <span class="emoji">👤</span>
+    <span class="texto" id="cuentaTexto">Entrar</span>
+  </a>
+
+  <!-- Botón flotante del carrito -->
+  <a href="carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">
+    🛒<span id="contador-carrito" class="contador-carrito"></span>
+  </a>
+
+</section>
+
+<!-- Estilos exclusivos -->
+<link rel="stylesheet" href="../css/estilos_inicio.css">
+
+<!-- Lógica de la portada -->
+<script type="module" src="../js/scripts_inicio.js"></script>
 
 <!-- Tracking (FB Pixel + GA4 + eventos) -->
 <script type="module" src="../js/tracking.js"></script>
