@@ -1,6 +1,23 @@
 /* catalogo.css - Estilos específicos para el catálogo */
 
-/* ------- CATEGORÍAS (fila de logos) ------- */
+/* ====== LAYOUT DEL LISTADO ====== */
+/* Forzamos grid estable SOLO para este contenedor */
+#contenedor.grid{
+  display:grid;
+  grid-template-columns: 1fr;         /* móvil por defecto */
+  gap: 22px;
+  max-width: 1200px;
+  margin: 0 auto 40px;
+  padding: 0 2px;                      /* evita rebalse horizontal */
+}
+@media (min-width: 900px){
+  #contenedor.grid{ grid-template-columns: repeat(2, minmax(320px, 1fr)); gap:28px; }
+}
+@media (min-width: 1440px){
+  #contenedor.grid{ grid-template-columns: repeat(3, minmax(320px, 1fr)); }
+}
+
+/* ====== CATEGORÍAS (fila de logos) ====== */
 #filtro-categorias{
   display:flex;
   flex-wrap:wrap;
@@ -24,15 +41,14 @@
   align-items:center;
   justify-content:center;
   overflow:hidden;
-  /* Evita que aparezca texto/guiones de fallback */
-  font-size:0;
+  font-size:0;            /* evita “guiones” o texto de fallback */
   line-height:0;
   transition:box-shadow .2s ease, transform .15s ease, border-color .2s;
 }
 .categoria-imagen:hover{ transform:translateY(-1px); box-shadow:0 6px 14px rgba(0,188,212,.25); }
 .categoria-imagen.selected{ border-color:#ff4081; box-shadow:0 0 12px rgba(255,64,129,.35); }
 
-/* Imagen dentro del botón: ocupa todo y no deja “huecos” */
+/* Imagen dentro del botón */
 .categoria-imagen img{
   display:block;
   width:100%;
@@ -40,7 +56,7 @@
   object-fit:contain;
 }
 
-/* ------- SUB-CATEGORÍAS ------- */
+/* ====== SUB-CATEGORÍAS ====== */
 #subfiltro-contenedor{ margin:15px 0; text-align:center; }
 
 #subcategoria-select{
@@ -55,22 +71,29 @@
   display:block;
 }
 
-/* ------- PAGINACIÓN ------- */
+/* ====== PAGINACIÓN ====== */
 #paginacion{
   display:flex;
   justify-content:center;
-  gap:8px;
-  margin:30px 0;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:30px 0 50px;
+  padding: 0 10px;
 }
 #paginacion .boton{
-  min-width:40px;
-  padding:8px 12px;
-  border-radius:8px;
-  transition:transform .2s;
+  min-width:44px;
+  padding:10px 12px;
+  border-radius:12px;
+  background:#00bcd4;
+  color:#fff;
+  font-weight:800;
+  transition:transform .2s, filter .2s;
 }
-#paginacion .boton:hover{ transform:translateY(-2px); }
+#paginacion .boton:hover{ transform:translateY(-2px); filter:saturate(1.05); }
+#paginacion .activo{ background:#ff9800 !important; }
 
-/* ------- TARJETA DE PRODUCTO ------- */
+/* ====== TARJETA DE PRODUCTO ====== */
 .producto{
   position:relative;
   overflow:hidden;
@@ -89,7 +112,7 @@
 
 .agregar-carrito{ position:relative; z-index:1; }
 
-/* ------- REFINES / FORM / GRID ------- */
+/* ====== FORM / ORDEN ====== */
 #buscador{ margin-top:6px; }
 
 .orden{
@@ -102,12 +125,7 @@
 }
 .orden label{ font-weight:700; color:#1976d2; }
 
-/* ------- RESPONSIVE ------- */
-@media (max-width:1024px){
-  .grid{ gap:24px; }
-}
-
-/* MOBILE: carrusel horizontal de categorías SIN scrollbar visible */
+/* ====== RESPONSIVE / CATEGORÍAS EN MÓVIL ====== */
 @media (max-width:680px){
   #filtro-categorias{
     flex-wrap:nowrap;
@@ -143,40 +161,35 @@
     border-radius:10px;
   }
 
-  .grid{ gap:18px; }
+  /* cards centradas y con respiración */
   .producto{ max-width:520px; margin:0 auto; }
 }
 
-/* extra-small */
 @media (max-width:480px){
   #subcategoria-select{ font-size:14px; padding:8px 12px; }
   .categoria-imagen{ width:86px; height:42px; }
 }
 
-/* ====== FIX DEFINITIVO: imágenes de producto sin recortes ====== */
-/* Cubre varios posibles wrappers que usa el JS (img directo, picture, figure, etc.) */
+/* ====== FIX: imágenes de producto sin recortes ni “saltos” ====== */
+/* Cubrimos diferentes wrappers posibles que puede generar el JS */
 .producto img,
 .producto picture img,
 .producto figure img,
 .producto .media img,
-.grid .producto img {
-  width: 100% !important;
-  max-width: 100% !important;
-  height: auto !important;          /* anula altos forzados */
-  object-fit: contain !important;    /* evita cortes; si prefieres “llenar”, cambia a cover */
-  display: block !important;
-  border-radius: 10px;
+.grid .producto img,
+#contenedor .producto img{
+  display:block !important;
+  width:100% !important;
+  max-width:100% !important;
+  height:auto !important;             /* NO fijamos alto */
+  object-fit:contain !important;       /* evita cortes; cambia a cover si quisieras llenar */
+  border-radius:10px;
 }
 
-/* Mantén las cards elegantes y centradas en móvil */
-@media (max-width: 680px){
-  .grid { gap: 18px; }
-  .producto{ max-width: 520px; margin: 0 auto; }
-}
-
-/* Pills superiores SIN fondo detrás (por si algún global reaparece) */
+/* Pills superiores (por si algún global reaparece) */
 .cta-catalogo{ background: transparent !important; box-shadow: none !important; }
 
+/* Buscador con un poco de aire lateral en móvil */
 @media (max-width: 680px){
   #buscador{
     width: calc(100% - 24px);
