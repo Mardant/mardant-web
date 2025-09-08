@@ -3,36 +3,163 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Productos a Pedido – Mardant</title>
+
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="../css/estilos.css" />
-
 </head>
 <body>
+
+  <!-- Banner -->
   <img src="https://i.imgur.com/dcPrIuh.png"
        alt="Productos a Pedido"
        style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #00bcd4;" />
 
+  <!-- Título -->
   <div class="contacto-centro">
     <h2 class="titulo-seccion">Productos a Pedido</h2>
   </div>
 
-  <div class="volver-inicio" style="margin:20px 0;">
-    <a href="../index.html"  class="boton">🏠 Volver al inicio</a>
-    <a href="catalogo.html"  class="boton">🛍️ Ir al catálogo</a>
+  <!-- Botones superiores (píldora) -->
+  <div class="cta-pedidos">
+    <a href="../index.html" class="btn-pill">
+      🏠 <span>Volver al inicio</span>
+    </a>
+    <a href="catalogo.html" class="btn-pill alt">
+      🛍️ <span>Ir al catálogo</span>
+    </a>
   </div>
 
-  <div class="grid" id="contenedor">
-    <p>Cargando productos…</p>
+  <!-- Listado -->
+  <div class="grid-pedidos" id="contenedor">
+    <p style="text-align:center;width:100%;">Cargando productos…</p>
   </div>
 
+  <!-- Carrito flotante -->
+  <a href="carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">🛒</a>
+
+  <!-- Lightbox para ver imágenes en grande -->
+  <div id="lb" class="lightbox" hidden>
+    <img alt="Vista ampliada">
+    <button class="lb-close" aria-label="Cerrar">×</button>
+  </div>
+
+  <!-- Lógica de la página -->
   <script type="module" src="../js/pedidos.js"></script>
-  
-  <a href="carrito.html"
-     class="boton-carrito-flotante"
-     title="Ver carrito 🛒">🛒</a>
+
+  <!-- Abrir lightbox al tocar cualquier imagen de una card -->
+  <script>
+    (function () {
+      const cont = document.getElementById('contenedor');
+      const lb   = document.getElementById('lb');
+      const img  = lb.querySelector('img');
+
+      cont.addEventListener('click', (e) => {
+        const el = e.target;
+        if (el && el.tagName === 'IMG') {
+          img.src = el.src;
+          lb.hidden = false;
+          document.body.style.overflow = 'hidden';
+        }
+      });
+      const close = () => {
+        lb.hidden = true;
+        img.src = '';
+        document.body.style.overflow = '';
+      };
+      lb.addEventListener('click', close);
+      lb.querySelector('.lb-close').addEventListener('click', (ev) => {
+        ev.stopPropagation(); close();
+      });
+      document.addEventListener('keydown', (ev) => {
+        if (!lb.hidden && ev.key === 'Escape') close();
+      });
+    })();
+  </script>
+
+  <!-- Ajustes visuales específicos de esta vista -->
+  <style>
+    :root{
+      --card-max-mobile: 380px;
+      --pill-radius: 9999px;
+    }
+
+    /* Botones estilo cápsula (coherentes con Contacto/Preventa) */
+    .btn-pill{
+      display:inline-flex; align-items:center; gap:10px;
+      color:#fff; font-weight:800; line-height:1;
+      padding:14px 22px;
+      border-radius: var(--pill-radius);
+      text-decoration:none;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
+        #00bcd4;
+      box-shadow:0 10px 24px rgba(0,188,212,.25);
+      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-pill:hover{
+      transform:translateY(-1px);
+      box-shadow:0 14px 28px rgba(0,188,212,.32);
+      filter:saturate(1.05);
+    }
+    .btn-pill.alt{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
+        #31c48d;
+      box-shadow:0 10px 24px rgba(49,196,141,.25);
+    }
+
+    .cta-pedidos{
+      display:flex; justify-content:center; flex-wrap:wrap; gap:14px;
+      margin: 12px auto 30px;      /* buen aire con las cards */
+      padding: 0 12px;
+    }
+
+    /* Grid propio para pedidos (en lugar del .grid genérico) */
+    .grid-pedidos{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(260px, 1fr));
+      gap:28px;
+      max-width:1200px;
+      margin:0 auto 60px;
+      padding:0 16px;
+    }
+    .grid-pedidos .producto{ width:100%; }  /* las cards ocupan toda su celda */
+
+    /* Responsivo */
+    @media (max-width:1100px){
+      .grid-pedidos{ grid-template-columns: repeat(2, minmax(260px, 1fr)); }
+    }
+    @media (max-width:720px){
+      .grid-pedidos{ grid-template-columns: 1fr; gap:18px; }
+      .grid-pedidos .producto{
+        max-width: var(--card-max-mobile);
+        margin: 0 auto;            /* centra la tarjeta y evita que se “estire” feo */
+      }
+      .cta-pedidos{ margin-bottom:22px; gap:10px; }
+    }
+
+    /* Lightbox */
+    .lightbox{
+      position:fixed; inset:0; background:rgba(0,0,0,.92);
+      display:flex; align-items:center; justify-content:center;
+      z-index:10000; padding:16px;
+    }
+    .lightbox[hidden]{ display:none !important; }
+    .lightbox img{
+      max-width:94vw; max-height:88vh; border-radius:12px;
+      box-shadow:0 20px 40px rgba(0,0,0,.5);
+    }
+    .lb-close{
+      position:absolute; top:10px; right:14px;
+      background:transparent; border:none; color:#fff;
+      font-size:36px; line-height:1; cursor:pointer; opacity:.9;
+    }
+    .lb-close:hover{ opacity:1; }
+  </style>
+
   <!-- Tracking (FB Pixel + GA4 + eventos) -->
-<script type="module" src="../js/tracking.js"></script>
-  
+  <script type="module" src="../js/tracking.js"></script>
 </body>
 </html>
