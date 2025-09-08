@@ -8,18 +8,16 @@
 
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <!-- Estilos globales -->
-  <link rel="stylesheet" href="../css/estilos.css" />
+  <link rel="stylesheet" href="../css/estilos.css?v=4" />
 </head>
 <body>
 
-  <!-- Banner superior (coherente con el resto del sitio) -->
-  <header class="banner">
-    <img
-      src="https://i.imgur.com/bXMSQ3E.png"
-      alt="Sobre Nosotros Mardant"
-      style="max-height:220px"
-    />
-  </header>
+  <!-- Banner superior unificado -->
+  <img
+    class="banner-top"
+    src="https://i.imgur.com/bXMSQ3E.png"
+    alt="Sobre Nosotros Mardant"
+  />
 
   <section class="seccion sobre-nosotros">
     <div class="contacto-centro">
@@ -51,11 +49,10 @@
       Valoramos cada compra, cada mensaje y cada recomendación.
     </p>
 
-    <!-- Galería (solo con tus 2 imágenes válidas) -->
+    <!-- Galería -->
     <div class="contacto-centro">
       <h2 class="titulo-seccion">Galería de Entregas</h2>
     </div>
-
     <div class="galeria-nosotros">
       <a href="#lb1">
         <img src="https://i.imgur.com/tzNqItz.png" alt="Entregas Mardant 1" loading="lazy">
@@ -70,32 +67,29 @@
       <img src="https://i.imgur.com/tzNqItz.png" alt="Entregas Mardant 1">
       <a href="#" class="lightbox-close" aria-label="Cerrar">×</a>
     </div>
-
     <div id="lb2" class="lightbox-overlay">
       <img src="https://i.imgur.com/lFOVEmv.png" alt="Entregas Mardant 2">
       <a href="#" class="lightbox-close" aria-label="Cerrar">×</a>
     </div>
 
-    <!-- CTA -->
-    <div class="cta-nosotros">
-      <a href="catalogo.html" data-vista="catalogo" class="boton">🛍️ Ver catálogo</a>
-      <a href="contacto.html" data-vista="contacto" class="boton" style="background:#4caf50">✉️ Contáctanos</a>
+    <!-- CTAs redondeados -->
+    <div class="cta-row">
+      <a href="catalogo.html" data-vista="catalogo" class="cta-btn cta--primary" aria-label="Ir al catálogo">
+        <span class="cta-ico">🛒</span> Ver catálogo
+      </a>
+      <a href="../index.html" data-vista="inicio" class="cta-btn cta--primary" aria-label="Volver al inicio">
+        <span class="cta-ico">🏠</span> Volver al inicio
+      </a>
     </div>
   </section>
 
-  <!-- Volver al inicio -->
-  <div class="volver-inicio">
-    <a href="../index.html" data-vista="inicio">🏠 Volver al inicio</a>
-  </div>
-
-  <!-- Carrito flotante -->
+  <!-- Botón flotante carrito -->
   <a href="carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒" data-vista="carrito">
     🛒<span id="contador-carrito" class="contador-carrito"></span>
   </a>
 
-  <!-- Overrides mínimos y estilos del lightbox/galería -->
+  <!-- Estilos locales (galería + lightbox + tipografía del cuerpo) -->
   <style>
-    /* Texto ancho legible */
     .texto-nosotros{
       max-width: 980px;
       margin: 0 auto 14px;
@@ -104,8 +98,6 @@
       padding: 0 16px;
       text-align: left;
     }
-
-    /* Títulos más contenidos en esta vista */
     .sobre-nosotros .titulo-seccion{
       font-size: 28px;
       margin-bottom: 10px;
@@ -114,8 +106,6 @@
       width: 220px;
       height: 3px;
     }
-
-    /* Galería responsive con sombra suave */
     .galeria-nosotros{
       display:grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -138,17 +128,6 @@
       transform: translateY(-2px);
       box-shadow: 0 16px 32px rgba(0,0,0,.22);
     }
-
-    .cta-nosotros{
-      display:flex;
-      gap:12px;
-      justify-content:center;
-      align-items:center;
-      margin: 8px 0 6px;
-      padding: 0 16px;
-    }
-
-    /* Lightbox */
     .lightbox-overlay{
       position: fixed;
       inset: 0;
@@ -176,7 +155,6 @@
       opacity: .9;
     }
     .lightbox-close:hover{ opacity: 1; }
-
     @media (max-width:640px){
       .sobre-nosotros .titulo-seccion{ font-size: 24px; }
       .galeria-nosotros{ grid-template-columns: 1fr; gap: 12px; }
