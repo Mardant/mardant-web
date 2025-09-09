@@ -264,17 +264,32 @@ tbody td{
 }
 .img-modal[hidden]{ display:none !important }
 
+/* Tamaño de zoom más pequeño (base = móvil) */
 .img-modal__content{
   display: block;
   width: auto;
   height: auto;
-  max-width: calc(100vw - 24px);  /* márgenes de seguridad */
-  max-height: calc(100vh - 24px);
-  object-fit: contain;            /* ajusta sin recortar */
+  max-width: 86vw;               /* antes: 100vw-24px */
+  max-height: 68vh;              /* antes: 100vh-24px */
+  object-fit: contain;
   border-radius: 12px;
   box-shadow: 0 12px 40px rgba(0,0,0,.6);
   box-sizing: border-box;
-  transform: translateZ(0);       /* evita artefactos en Android */
+  transform: translateZ(0);
+}
+
+/* Zoom más contenido en tablets/escritorio */
+@media (min-width: 768px){
+  .img-modal__content{
+    max-width: min(75vw, 900px);
+    max-height: 75vh;
+  }
+}
+@media (min-width: 1200px){
+  .img-modal__content{
+    max-width: min(65vw, 1000px);
+    max-height: 70vh;
+  }
 }
 
 .img-modal__close{
