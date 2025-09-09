@@ -1,23 +1,26 @@
-/* —— estilos_inicio.css (inicio al nivel del catálogo) —— */
+/* —— estilos_inicio.css (grid grande + botones superiores grandes) —— */
 @import url('https://fonts.googleapis.com/css2?family=Carter+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap');
 
 :root{
-  /* Escalas fluidas y espaciados */
-  --fs-h2:        clamp(22px, 5.0vw, 36px);
-  --fs-name:      clamp(14px, 2.3vw, 18px);
-  --fs-price:     clamp(13px, 2.1vw, 16px);
-  --fs-status:    clamp(12px, 2.0vw, 14px);
-  --fs-button:    clamp(12px, 2.2vw, 14px);
+  /* Escalas y medidas base */
+  --fs-h2:        clamp(22px, 4.6vw, 36px);
+  --fs-name:      clamp(14px, 1.8vw, 18px);
+  --fs-price:     clamp(13px, 1.7vw, 16px);
+  --fs-status:    clamp(12px, 1.6vw, 14px);
+  --fs-button:    clamp(12px, 1.7vw, 14px);
 
-  --card-pad:     14px;
+  --card-pad:     16px;
   --card-radius:  14px;
-  --grid-gap:     26px;
+  --grid-gap:     28px;
+
+  /* NUEVO: ancho mínimo de cada card para que no se encojan */
+  --card-min:     320px; /* puedes subir a 340/360 si las quieres aún más grandes */
 }
 
 html, body{
   margin:0;
-  overflow-x:hidden;                 /* evita banda blanca lateral */
+  overflow-x:hidden;
   font-family:'Nunito Sans',sans-serif;
   background:#fafafa;
   color:#111;
@@ -31,21 +34,34 @@ html, body{
 }
 .bienvenida{ position:absolute; top:20%; width:100%; text-align:center; color:#fff; text-shadow:2px 2px 4px #000; }
 
-/* ===== Menú visual ===== */
+/* ===== Menú visual (BOTONES GRANDES) ===== */
 .menu-visual{
-  background:transparent; padding:20px 10px;
+  background:transparent; padding:22px 14px 10px;
   display:flex; flex-wrap:wrap; justify-content:center; gap:18px;
 }
 .menu-visual img.boton-imagen{
-  max-height:58px; border-radius:12px; background:#fff; padding:4px 6px;
-  box-shadow:0 4px 14px rgba(0,0,0,.18);
+  max-height:82px;                 /* ↑ más grandes en desktop */
+  border-radius:14px;
+  background:#fff;
+  padding:6px 10px;
+  box-shadow:0 6px 16px rgba(0,0,0,.18);
   transition:transform .2s, box-shadow .2s, filter .2s;
 }
-.menu-visual img.boton-imagen:hover{ transform:translateY(-2px); box-shadow:0 8px 18px rgba(0,0,0,.22); filter:saturate(1.04); }
+@media (min-width:1200px){
+  .menu-visual img.boton-imagen{ max-height:96px; } /* aún más grandes en pantallas grandes */
+}
+@media (max-width:900px){
+  .menu-visual img.boton-imagen{ max-height:64px; padding:4px 8px; }
+}
+@media (max-width:520px){
+  .menu-visual{ gap:10px; padding:14px 8px 6px; }
+  .menu-visual img.boton-imagen{ max-height:46px; padding:2px 6px; border-radius:10px; }
+}
+.menu-visual img.boton-imagen:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(0,0,0,.22); filter:saturate(1.04); }
 
 /* ===== Carrusel ===== */
 .carrusel{
-  position:relative; width:100%; max-width:1100px; margin:26px auto 6px;
+  position:relative; width:100%; max-width:1100px; margin:22px auto 6px;
   overflow:hidden; border-radius:14px; box-shadow:0 6px 18px rgba(0,0,0,.18); max-height:200px;
 }
 .carrusel img{ width:100%; height:200px; object-fit:cover; display:none; }
@@ -58,7 +74,11 @@ html, body{
 .carrusel-indicadores .punto.activo{ background:#00bcd4; }
 
 /* ===== Secciones ===== */
-.seccion{ padding:34px 20px; max-width:1220px; margin:auto; }
+.seccion{
+  padding:34px 20px;
+  max-width:1360px;           /* ↑ más ancho para cards grandes */
+  margin:auto;
+}
 .seccion h2{
   font-family:'Montserrat', sans-serif; font-weight:700; text-align:center;
   font-size:var(--fs-h2); margin-bottom:22px; color:#00bcd4;
@@ -67,21 +87,13 @@ html, body{
 .titulo-link{ color:#000; font-weight:800; text-decoration:none; transition:color .2s, transform .2s; }
 .titulo-link:hover{ color:#e91e63; transform:scale(1.02); }
 
-/* ===== Grid + Cards (homologado con catálogo) ===== */
+/* ===== Grid + Cards (GRANDES) ===== */
 .grid-productos{
   display:grid;
-  grid-template-columns: repeat(4, minmax(240px, 1fr));
+  /* clave: cards grandes y estables; 3 columnas en 1280, 4 en ≥1500 */
+  grid-template-columns: repeat(auto-fit, minmax(var(--card-min), 1fr));
   gap:var(--grid-gap);
   align-items:stretch;
-}
-
-/* Breakpoints: 4→3→2→1 columnas */
-@media (max-width:1200px){ .grid-productos{ grid-template-columns: repeat(3, minmax(230px,1fr)); } }
-@media (max-width:900px){  .grid-productos{ grid-template-columns: repeat(2, minmax(220px,1fr)); } }
-@media (max-width:560px){
-  .grid-productos{ grid-template-columns: 1fr; gap:18px; }
-  /* Móvil: muestra solo 3 por sección para no saturar */
-  .grid-productos > .producto:nth-child(n+4){ display:none; }
 }
 
 /* Card */
@@ -96,16 +108,16 @@ html, body{
 }
 #vista-inicio .producto:hover{ transform:translateY(-3px); box-shadow:0 14px 30px rgba(0,0,0,.35); }
 
-/* Imagen SIN marco negro: llenado con crop sutil */
+/* Imagen: llena la caja (sin barras negras) */
 #vista-inicio .producto img{
   width:100%;
-  height:auto;               /* deja actuar al aspect-ratio */
-  aspect-ratio: 4 / 3;       /* altura homogénea */
-  object-fit: cover;         /* rellena la caja → sin barras negras */
+  aspect-ratio: 4 / 3;
+  height:auto;
+  object-fit: cover;           /* rellena sin marcos */
   border-radius:12px;
-  margin-bottom:10px;
+  margin-bottom:12px;
   display:block;
-  cursor:zoom-in;            /* indica que abre lightbox */
+  cursor:zoom-in;
 }
 
 /* Textos sobrios */
@@ -120,14 +132,14 @@ html, body{
 #vista-inicio .producto .estado{ font-size:var(--fs-status) !important; color:#81c784; margin-bottom:12px; }
 #vista-inicio .producto .estado.disponible-a-pedido{ font-weight:800; }
 
-/* Botón principal de card */
+/* Botón de la card */
 #vista-inicio .producto .boton{
   background:#00bcd4; color:#fff; border:none;
-  padding:10px 16px; border-radius:10px; font-weight:900;
+  padding:12px 18px; border-radius:10px; font-weight:900;
   cursor:pointer; text-decoration:none; display:inline-block;
   transition:background .2s ease, transform .1s ease;
   font-size:var(--fs-button);
-  margin-top:auto;                      /* se pega al fondo de la card */
+  margin-top:auto;
 }
 #vista-inicio .producto .boton:hover{ background:#0097a7; }
 
@@ -144,7 +156,6 @@ html, body{
 }
 .boton-carrito-flotante:hover{ background:#0097a7; transform:scale(1.08); }
 
-/* "Mi cuenta" */
 .boton-cuenta-flotante{
   position:fixed; top:16px; right:16px; display:inline-flex; align-items:center; gap:8px;
   padding:10px 14px; background:rgba(0,0,0,.65); color:#fff; text-decoration:none;
@@ -156,28 +167,21 @@ html, body{
 .boton-cuenta-flotante .emoji{ font-size:18px; line-height:1; }
 .boton-cuenta-flotante .texto{ font-size:14px; white-space:nowrap; }
 
-/* ===== Responsive fino ===== */
-@media (max-width:768px){
-  .menu-visual{ gap:12px; }
-  .carrusel{ max-height:160px; }
-  .carrusel img{ height:160px; }
+/* ===== Responsive ===== */
+@media (max-width:900px){
+  .seccion{ max-width: 96%; padding:26px 14px; }
+  :root{ --card-min: 280px; }  /* 2 columnas cómodas */
 }
-
-@media (max-width:480px){
-  .menu-visual{ gap:8px; padding:12px 5px; }
-  .menu-visual img.boton-imagen{ max-height:40px; padding:2px; }
-
-  .seccion{ padding:24px 10px; }
-  .seccion h2{ font-size:24px; padding-bottom:6px; margin-bottom:18px; }
-
-  /* Botón cuenta sólo ícono para no tapar el banner */
+@media (max-width:560px){
+  :root{ --card-min: 260px; }  /* 1 columna grande en móviles */
+  /* Opcional (para aligerar): mostrar sólo 3 por sección en móvil */
+  .grid-productos > .producto:nth-child(n+4){ display:none; }
   .boton-cuenta-flotante{ border-radius:50%; padding:10px; }
   .boton-cuenta-flotante .texto{ display:none; }
-
   .boton-carrito-flotante{ width:58px; height:58px; font-size:28px; bottom:18px; right:18px; }
 }
 
-/* ===== Lightbox (compartido) ===== */
+/* ===== Lightbox ===== */
 .lightbox{
   position:fixed; inset:0; background:rgba(0,0,0,.92);
   display:flex; align-items:center; justify-content:center;
