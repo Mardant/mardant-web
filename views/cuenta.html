@@ -4,7 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mi Cuenta - Mardant</title>
-  <link rel="stylesheet" href="../css/cuenta.css">
+  <!-- cache-busting -->
+  <link rel="stylesheet" href="../css/cuenta.css?v=7">
 </head>
 <body>
   <header class="topbar">
@@ -108,17 +109,19 @@
         <div class="msg small" id="preMsg"></div>
       </div>
     </section>
-
-    <!-- ===== Lightbox de imágenes (Mi cuenta) ===== -->
-    <div id="lbCuenta" class="lightbox" hidden>
-      <button class="lb-close" aria-label="Cerrar">×</button>
-      <img id="lbImagen" alt="Foto" />
-    </div>
   </main>
 
   <footer class="site-footer">
     © 2025 Mardant Perú
   </footer>
+
+  <!-- ===== Lightbox de imágenes (Mi cuenta) ===== -->
+  <div id="lbCuenta" class="lb" hidden>
+    <button class="lb-close" aria-label="Cerrar">×</button>
+    <div class="lb__content">
+      <img id="lbImagen" alt="Foto ampliada" />
+    </div>
+  </div>
 
   <script type="module" src="../js/cuenta.js"></script>
 </body>
