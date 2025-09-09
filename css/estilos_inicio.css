@@ -1,22 +1,23 @@
 /* ============================================================
-   INICIO – 3 columnas en PC / 2 en móvil
-   Banner superior y carrusel ajustados
+   INICIO – Mostrar 3 tarjetas en desktop, 2 en móvil,
+   y banners más compactos
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Carter+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap');
 
 :root{
-  --fs-h2:     clamp(22px, 4.4vw, 36px);
+  --fs-h2:     clamp(20px, 3.8vw, 32px);
   --fs-name:   clamp(13px, 2.0vw, 17px);
   --fs-price:  clamp(13px, 1.9vw, 16px);
   --fs-status: clamp(12px, 1.8vw, 14px);
   --fs-btn:    clamp(12px, 1.9vw, 14px);
 
   --radius: 14px;
-  --gap:    24px;
+  --gap:    22px;
 }
 
+/* ============================ Base ============================ */
 html, body{
   margin:0;
   overflow-x:hidden;
@@ -25,11 +26,11 @@ html, body{
   color:#111;
 }
 
-/* ========================= Banner superior ========================= */
+/* ======================= Banner superior ====================== */
 .banner{ position:relative; background:#000; overflow:hidden; }
 .banner img{
   width:100%;
-  height: 240px;                 /* tamaño sobrio por defecto */
+  height: 200px;                 /* ↓ más chico por defecto */
   max-width:1920px;
   display:block;
   object-fit:cover;
@@ -37,122 +38,116 @@ html, body{
   margin:0 auto;
   border-bottom:3px solid #00bcd4;
 }
-/* PC ancho: NO gigante */
-@media (min-width: 1200px){
-  .banner img{ height: 260px !important; }
-}
-/* Móvil compacto */
-@media (max-width: 680px){
-  .banner img{ height: 160px !important; }
-}
+@media (min-width: 1200px){ .banner img{ height: 220px !important; } } /* PC */
+@media (max-width: 680px) { .banner img{ height: 140px !important; } }   /* móvil */
 
-/* ====================== Menú visual (botonera) ===================== */
+/* ========================= Menú visual ======================== */
 .menu-visual{
   display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
-  gap:18px; padding:18px 12px 6px;
+  gap:16px; padding:16px 12px 2px;
 }
 .menu-visual img.boton-imagen{
-  height:72px; width:auto; max-width:100%;
+  height:66px; width:auto; max-width:100%;
   display:block; border-radius:12px; background:#fff;
   padding:6px 8px;
-  box-shadow:0 6px 16px rgba(0,0,0,.25);
+  box-shadow:0 6px 16px rgba(0,0,0,.22);
   transition:transform .18s, box-shadow .18s;
 }
 .menu-visual img.boton-imagen:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(0,0,0,.28); }
 @media (max-width: 680px){
-  .menu-visual{ gap:12px; padding:12px 10px 0; }
-  .menu-visual img.boton-imagen{ height:64px; padding:5px 7px; }
+  .menu-visual{ gap:10px; padding:10px 10px 0; }
+  .menu-visual img.boton-imagen{ height:56px; padding:5px 7px; }
 }
 
-/* ========================= Carrusel / banner ======================= */
+/* ====================== Carrusel / slider ===================== */
 .carrusel{
   position:relative;
   width:100%;
   max-width:1240px;
-  margin:22px auto 30px;
+  margin:18px auto 26px;
   overflow:hidden;
-  border-radius:16px;
-  box-shadow:0 6px 16px rgba(0,0,0,.18);
+  border-radius:14px;
+  box-shadow:0 6px 14px rgba(0,0,0,.16);
 }
 .carrusel img{
   width:100%;
-  height: 220px;
+  height: 190px;                 /* ↓ más compacto */
   object-fit:cover;
   display:none;
 }
 .carrusel img.activo{ display:block; }
-
-@media (min-width: 1200px){
-  .carrusel img{ height: 240px; }
-}
-@media (max-width: 680px){
-  .carrusel img{ height: 150px; }
-}
+@media (min-width: 1200px){ .carrusel img{ height: 210px; } } /* PC */
+@media (max-width: 680px) { .carrusel img{ height: 135px; } } /* móvil */
 
 .carrusel-indicadores{
-  position:absolute; bottom:12px; left:0; right:0;
+  position:absolute; bottom:10px; left:0; right:0;
   display:flex; justify-content:center; gap:10px;
 }
 .carrusel-indicadores .punto{
-  width:12px;height:12px;border-radius:50%;
+  width:10px;height:10px;border-radius:50%;
   background:rgba(255,255,255,.65);
 }
 .carrusel-indicadores .punto.activo{ background:#00bcd4; }
 
-/* ============================ Secciones ============================ */
-.seccion{ padding:36px 18px; max-width:1240px; margin:0 auto; }
+/* =========================== Secciones ======================== */
+.seccion{ padding:28px 18px; max-width:1240px; margin:0 auto; }
 .seccion h2{
   font-family:'Montserrat', sans-serif; font-weight:700; text-align:center;
-  font-size:var(--fs-h2); margin:0 0 22px; color:#00bcd4;
-  border-bottom:2px solid #778DA9; padding-bottom:10px;
+  font-size:var(--fs-h2); margin:0 0 18px; color:#00bcd4;
+  border-bottom:2px solid #778DA9; padding-bottom:8px;
 }
 
-/* =============== GRID – 3 en desktop, 2 en tablet/móvil =========== */
-/* Fuerzo el layout con !important para ganar a estilos globales */
+/* =========== GRID – 3 columnas en desktop, 2 en móvil ========= */
+/* Forzamos columnas exactas y límites de elementos visibles */
 #vista-inicio .grid-productos{
   display:grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important; /* PC: 3 */
+  grid-template-columns: repeat(3, 1fr) !important;  /* PC: 3 tarjetas por fila */
   gap: var(--gap);
   align-items:start;
-  max-width:1240px;
-  margin: 0 auto;
-}
-/* <= 920px: 2 columnas */
-@media (max-width: 920px){
-  #vista-inicio .grid-productos{
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important; /* Tablet/Móvil: 2 */
-    gap:18px;
-  }
-}
-/* Móviles chicos: 2 columnas y gap compacto */
-@media (max-width: 480px){
-  #vista-inicio .grid-productos{ gap:14px; }
 }
 
-/* ============================== Cards ============================== */
+/* Mostrar SÓLO 3 productos por sección en desktop */
+#vista-inicio .grid-productos > .producto:nth-child(n+4){
+  display:none !important;
+}
+
+/* Móvil (≤920px): 2 columnas y SÓLO 2 productos */
+@media (max-width: 920px){
+  #vista-inicio .grid-productos{
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap:16px;
+  }
+  #vista-inicio .grid-productos > .producto:nth-child(n+3){
+    display:none !important;
+  }
+}
+@media (max-width: 480px){
+  #vista-inicio .grid-productos{ gap:12px; }
+}
+
+/* ============================ Cards =========================== */
 .producto{
   background:#1a1a1a;
   border-radius:var(--radius);
-  padding:14px;
+  padding:12px;
   text-align:center;
-  box-shadow:0 0 15px rgba(0,0,0,.30);
+  box-shadow:0 0 12px rgba(0,0,0,.26);
   transition:transform .2s, box-shadow .2s;
 }
-.producto:hover{ transform:translateY(-2px); box-shadow:0 12px 26px rgba(0,0,0,.36); }
+.producto:hover{ transform:translateY(-2px); box-shadow:0 12px 24px rgba(0,0,0,.32); }
 
-/* Imagen llena el contenedor – sin marcos negros */
+/* Imagen sin marcos */
 .img{
   width:100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
-  background: transparent;
   border-radius:12px;
-  margin-bottom:10px;
+  margin-bottom:8px;
   display:block;
   cursor: zoom-in;
 }
 
-/* Textos sobrios y compactos */
+/* Textos */
 .nombre{
   font-weight:800; color:#ffc107;
   font-size:var(--fs-name) !important;
@@ -163,53 +158,53 @@ html, body{
 .precio{    font-size:var(--fs-price) !important; color:#fff; margin-bottom:6px; font-weight:800; }
 .estado{    font-size:var(--fs-status) !important; color:#81c784; margin-bottom:10px; }
 
-/* CTA ancho completo */
+/* CTA */
 .boton{
   width:100%;
   background:#00bcd4; color:#fff; border:none;
-  padding:12px 16px;
+  padding:11px 14px;
   border-radius:10px;
   font-weight:800; font-size:var(--fs-btn);
   cursor:pointer; text-decoration:none;
-  display:inline-block; margin-top:12px; margin-bottom:4px;
+  display:inline-block; margin-top:10px;
   transition:background .2s;
 }
 .boton:hover{ background:#0097a7; }
 
-/* =============================== Footer ============================ */
+/* ============================ Footer ========================== */
 .pie{
   background:#000;
   color:#888;
   text-align:center;
-  padding:20px 10px;
+  padding:18px 10px;
   font-size:14px;
 }
 
-/* ========================= Botones flotantes ======================= */
+/* ======================= Botones flotantes ==================== */
 .boton-carrito-flotante{
-  position:fixed; bottom:24px; right:24px;
-  width:70px; height:70px; font-size:36px;
+  position:fixed; bottom:22px; right:22px;
+  width:64px; height:64px; font-size:32px;
   background:#00bcd4; color:#fff; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
-  text-decoration:none; box-shadow:0 6px 18px rgba(0,0,0,.35);
+  text-decoration:none; box-shadow:0 6px 16px rgba(0,0,0,.32);
   z-index:9999; transition:background .25s, transform .15s;
 }
-.boton-carrito-flotante:hover{ background:#0097a7; transform:scale(1.08); }
+.boton-carrito-flotante:hover{ background:#0097a7; transform:scale(1.06); }
 
 .boton-cuenta-flotante{
-  position:fixed; top:16px; right:16px;
+  position:fixed; top:14px; right:14px;
   display:inline-flex; align-items:center; gap:8px;
-  padding:10px 14px;
-  background:rgba(0,0,0,.65); color:#fff; text-decoration:none;
+  padding:9px 12px;
+  background:rgba(0,0,0,.6); color:#fff; text-decoration:none;
   border:1px solid #00bcd4; border-radius:999px; font-weight:700;
-  box-shadow:0 6px 16px rgba(0,0,0,.35); backdrop-filter:blur(6px);
+  box-shadow:0 6px 16px rgba(0,0,0,.32); backdrop-filter:blur(5px);
   z-index:10000; transition:transform .2s, box-shadow .2s, background .2s;
 }
-.boton-cuenta-flotante:hover{ transform:translateY(-1px); box-shadow:0 10px 20px rgba(0,0,0,.45); background:rgba(0,0,0,.82); }
+.boton-cuenta-flotante:hover{ transform:translateY(-1px); box-shadow:0 10px 20px rgba(0,0,0,.42); background:rgba(0,0,0,.82); }
 .boton-cuenta-flotante .emoji{ font-size:18px; line-height:1; }
 .boton-cuenta-flotante .texto{ font-size:14px; white-space:nowrap; }
 
-/* ============================== Lightbox ========================== */
+/* ============================= Lightbox ======================= */
 .lightbox{
   position:fixed; inset:0; background:rgba(0,0,0,.92);
   display:flex; align-items:center; justify-content:center;
@@ -223,14 +218,13 @@ html, body{
 .lb-close{
   position:absolute; top:10px; right:14px;
   background:transparent; border:none; color:#fff;
-  font-size:36px; line-height:1; cursor:pointer; opacity:.9;
+  font-size:32px; line-height:1; cursor:pointer; opacity:.9;
 }
 .lb-close:hover{ opacity:1; }
 
-/* ============================ Enlaces título ======================= */
+/* Título con enlace */
 .titulo-link{
   color:#000; font-weight:bold; text-decoration:none;
   display:inline-block; transition:transform .2s ease, color .2s ease;
 }
 .titulo-link:hover{ transform:scale(1.05); color:#e91e63; text-decoration:none; }
-
