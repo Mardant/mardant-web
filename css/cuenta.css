@@ -222,3 +222,66 @@ tbody td{
   text-align:center; color:#64748b; font-weight:800;
   padding:18px 12px; margin:30px 0 10px;
 }
+
+/* ===== Tablas con scroll horizontal en móvil ===== */
+.table-wrap{
+  width: 100%;
+  overflow-x: visible;           /* desktop */
+}
+
+/* Estilo base de tablas (sirve para ambos: #itemsTable y #preTable) */
+.table-wrap table{
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.table-wrap thead th{
+  text-align: left;
+  font-weight: 900;
+  color: #0a2540;
+  background: #fff;
+  position: sticky;              /* queda fija al hacer scroll */
+  top: 0;
+  z-index: 1;
+}
+.table-wrap th,
+.table-wrap td{
+  padding: 12px 14px;
+  border-bottom: 1px solid #e6ecf2;
+  white-space: nowrap;           /* evita saltos raros en celdas */
+}
+.table-wrap td.right,
+.table-wrap th.right{ text-align:right }
+
+/* —— Solo en pantallas chicas activamos el scroll —— */
+@media (max-width: 900px){
+  .table-wrap{
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-inline: -10px;        /* que el scroll ocupe todo el ancho visual */
+    padding: 0 10px 8px;
+    border-radius: 12px;
+  }
+
+  /* Forzamos un ancho mínimo para provocar scroll horizontal cuando haga falta */
+  #itemsTable{ min-width: 720px; }   /* Foto | ID | Descripción | Ingreso | Estado | Días  */
+  #preTable{   min-width: 1000px; }  /* columnas de preventas más anchas       */
+
+  /* Scrollbar discreta (solo WebKit) */
+  .table-wrap::-webkit-scrollbar{ height: 8px; }
+  .table-wrap::-webkit-scrollbar-thumb{
+    background: #cfd8e3;
+    border-radius: 9999px;
+  }
+
+  /* Sombra suave en el borde derecho para indicar que hay más contenido */
+  .table-wrap::after{
+    content:"";
+    position: sticky;
+    right: 0; top: 0;
+    width: 28px; height: 100%;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(0,0,0,.06));
+  }
+}
+
