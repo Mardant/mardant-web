@@ -56,13 +56,28 @@ html,body{
   .menu-visual img.boton-imagen{ height:52px; }
 }
 
-/* ---------------- Carrusel / banner deslizante ---------------- */
+/* ---------------- Carrusel / banner deslizante (ALTURA RESPONSIVA REAL) ---------------- */
 #vista-inicio .carrusel{
-  position:relative; width:100%; max-width:1100px; margin:18px auto 26px;
-  border-radius:14px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,.18);
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  margin: 16px auto 24px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,.18);
+
+  /* móvil 95–110px, tablet ~140px, desktop ~180–200px */
+  height: clamp(95px, 22vw, 190px) !important;
 }
+
+/* La imagen SIEMPRE llena el alto del contenedor del carrusel */
 #vista-inicio .carrusel img{
-  width:100%; height: 200px !important; object-fit:cover; display:none;
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  display: none;
 }
 #vista-inicio .carrusel img.activo{ display:block; }
 
@@ -73,20 +88,6 @@ html,body{
   width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,.65)
 }
 #vista-inicio .carrusel-indicadores .punto.activo{ background:#00bcd4 }
-
-/* alturas más bajas en móvil/tablet */
-@media (max-width:900px){
-  #vista-inicio .carrusel img{ height: 150px !important; }
-}
-@media (max-width:680px){
-  #vista-inicio .carrusel img{ height: 125px !important; }
-}
-@media (max-width:480px){
-  #vista-inicio .carrusel img{ height: 110px !important; }
-}
-@media (max-width:380px){
-  #vista-inicio .carrusel img{ height: 102px !important; }
-}
 
 /* ---------------- Secciones ---------------- */
 .seccion{ padding:32px 18px; max-width:1200px; margin:0 auto; }
@@ -173,52 +174,5 @@ html,body{
 /* ---------------- Títulos con enlace ---------------- */
 .titulo-link{color:#000;font-weight:bold;text-decoration:none;display:inline-block;transition:transform .2s ease,color .2s ease}
 .titulo-link:hover{transform:scale(1.05);color:#e91e63;text-decoration:none}
-
-/* ---------------- CARRUSEL / banner deslizante (altura responsiva real) ---------------- */
-#vista-inicio .carrusel{
-  position: relative;
-  width: 100%;
-  max-width: 1100px;
-  margin: 16px auto 24px;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,.18);
-
-  /* Altura responsiva:
-     - móvil chico ≈ 95–110px
-     - tablet ≈ 130–150px
-     - desktop ≈ 170–190px
-  */
-  height: clamp(95px, 22vw, 190px) !important;
-}
-
-/* La imagen SIEMPRE llena el alto del contenedor del carrusel */
-#vista-inicio .carrusel img{
-  position: absolute;
-  inset: 0;
-  width: 100% !important;
-  height: 100% !important;     /* ← rompe cualquier altura fija previa */
-  object-fit: cover;
-  display: none;
-}
-#vista-inicio .carrusel img.activo{ display:block }
-
-/* Puntos del slider (sin cambios) */
-#vista-inicio .carrusel-indicadores{
-  position:absolute; bottom:10px; left:0; right:0;
-  display:flex; justify-content:center; gap:10px;
-}
-#vista-inicio .carrusel-indicadores .punto{
-  width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,.65)
-}
-#vista-inicio .carrusel-indicadores .punto.activo{ background:#00bcd4 }
-
-/* Afinado extra por cortes (opcional) */
-@media (max-width: 420px){
-  #vista-inicio .carrusel{ height: 100px !important; }
-}
-@media (min-width: 1360px){
-  #vista-inicio .carrusel{ height: 200px !important; }
-}
 
 
