@@ -1,135 +1,214 @@
-/* ===== Design tokens ===== */
+/* ============================================================
+   CUENTA (Mi cuenta) – Estilos mobile-first
+   Encapsulado en #vista-cuenta para evitar conflictos
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+
 :root{
-  --bg:#f6f8fb;
-  --panel:#ffffff;
-  --border:#e6edf3;
-  --text:#0b1a2b;
-  --muted:#5b6b7b;
-  --accent:#00bcd4;
-  --accent-2:#0097a7;
-  --warn:#ffb84d;
-  --danger:#ff6b6b;
-  --shadow:0 10px 30px rgba(16,24,40,.08);
-  --radius:14px;
-  --radius-sm:10px;
+  --gap: 18px;
+  --radius: 12px;
+
+  --fs-h1: clamp(22px, 4vw, 32px);
+  --fs-h2: clamp(18px, 3.2vw, 24px);
+
+  --panel: #fff;
+  --ink: #111;
+  --muted: #5b6b7b;
+
+  --accent: #00bcd4;
+  --accent-2: #008fb9;
+  --ok: #19c37d;
+  --warn: #ff9800;
+  --err: #ef5350;
+
+  --shadow: 0 8px 24px rgba(16,24,40,.10);
 }
 
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
-  background:
-    radial-gradient(1000px 500px at 80% -10%, rgba(0,188,212,.10), transparent 60%),
-    var(--bg);
-  color:var(--text);
+/* ===== Root ===== */
+#vista-cuenta{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px;
+  color: var(--ink);
+  font-family: 'Nunito Sans', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-/* ===== Topbar ===== */
-.topbar{
-  position:sticky; top:0; z-index:10;
-  background:rgba(255,255,255,.8);
-  backdrop-filter: blur(8px);
-  border-bottom:1px solid var(--border);
+/* ===== Header / Perfil ===== */
+#vista-cuenta .cuenta-header{
+  display:flex; gap:14px; align-items:center;
+  background: var(--panel);
+  border: 1px solid #e6ecf2;
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: var(--shadow);
 }
-.topbar .wrap{
-  max-width:1100px; margin:0 auto; padding:12px 16px;
-  display:flex; align-items:center; justify-content:space-between;
+#vista-cuenta .cuenta-avatar{
+  width:64px; height:64px; border-radius:50%;
+  display:grid; place-items:center;
+  background:#0f172a; color:#fff; font-weight:900;
+  border:2px solid var(--accent);
 }
-.brand{font-weight:800; color:var(--text); text-decoration:none}
-.nav a{color:#2b3a48;text-decoration:none;margin-left:14px;font-weight:600;opacity:.8}
-.nav a:hover,.nav a.active{opacity:1;color:var(--accent)}
+#vista-cuenta .cuenta-info h1{
+  font-family:'Montserrat',sans-serif; font-size:var(--fs-h1);
+  margin:0 0 4px; color:#0a2540; line-height:1.15;
+}
+#vista-cuenta .cuenta-info .email{ color:#607289; font-weight:700; font-size:14px }
+#vista-cuenta .cuenta-header .acciones{ margin-left:auto; display:flex; gap:8px; flex-wrap:wrap }
+#vista-cuenta .btn{
+  appearance:none; border:0; cursor:pointer;
+  padding:10px 14px; border-radius:9999px; font-weight:800;
+  background: linear-gradient(135deg,var(--accent) 0%, var(--accent-2) 100%);
+  color:#fff;
+  transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+}
+#vista-cuenta .btn:active{ transform: translateY(1px); opacity:.95 }
+#vista-cuenta .btn--ghost{
+  background:#f6f8fb; color:#0a2540; border:1px solid #e6ecf2;
+}
+@media (max-width:600px){
+  #vista-cuenta .cuenta-header{ flex-direction:column; text-align:center; align-items:center }
+  #vista-cuenta .cuenta-header .acciones{ margin-left:0 }
+}
 
-/* ===== Layout ===== */
-.container{max-width:1100px;margin:24px auto;padding:0 16px}
-.card{
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  padding:20px;
+/* ===== Layout (sidebar + contenido) ===== */
+#vista-cuenta .cuenta-layout{
+  display:grid; gap:var(--gap);
+  grid-template-columns: 1fr;          /* móvil */
+  margin-top: var(--gap);
 }
-.hero h1{margin:0 0 6px;font-size:28px;letter-spacing:.2px}
-.hero p{margin:0;color:var(--muted)}
-.site-footer{max-width:1100px;margin:24px auto 40px;padding:0 16px;color:var(--muted)}
-
-/* ===== Form ===== */
-.form .row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.label{color:var(--muted);font-size:13px;margin-bottom:6px;display:block}
-input{
-  width:100%;padding:12px 12px;border-radius:var(--radius-sm);
-  border:1px solid var(--border);background:#fff;color:var(--text);outline:none
+@media (min-width:900px){
+  #vista-cuenta .cuenta-layout{
+    grid-template-columns: 260px 1fr;   /* desktop */
+    align-items:start;
+  }
 }
-.input-wrap{position:relative}
-.toggle-pass{
-  position:absolute;right:8px;top:50%;transform:translateY(-50%);
-  background:transparent;border:0;color:var(--muted);cursor:pointer;padding:6px 8px
+
+/* ===== Menú (sidebar) ===== */
+#vista-cuenta .cuenta-menu{
+  background: var(--panel); border:1px solid #e6ecf2; border-radius:14px; padding:10px; box-shadow:var(--shadow);
 }
-.btn{
-  display:inline-flex;align-items:center;gap:8px;
-  margin-top:12px;padding:11px 16px;border:0;border-radius:var(--radius-sm);
-  background:var(--accent);color:white;font-weight:800;cursor:pointer
+#vista-cuenta .cuenta-menu ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px }
+#vista-cuenta .cuenta-menu a{
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px; border-radius:10px; text-decoration:none;
+  color:#223; font-weight:800; background:#f6f8fb; border:1px solid #e6ecf2;
+  transition: transform .12s ease, border-color .12s ease, background .12s ease;
 }
-.btn:hover{background:var(--accent-2)}
-.btn.secondary{background:#e8eef5;color:#10344a}
-.msg{margin-top:10px;color:var(--danger);min-height:18px}
-.msg.small{color:#657790}
-
-/* ===== Panel head ===== */
-.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.who .who-name{font-weight:800}
-
-/* ===== KPIs ===== */
-.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:16px}
-.kpi{background:#fbfdff;border:1px solid var(--border);border-radius:12px;padding:12px}
-.kpi .label{margin:0 0 4px}
-.kpi .val{font-weight:900;font-size:20px}
-
-/* ===== Tabs ===== */
-.tabs{
-  display:flex;gap:8px;margin:18px 0 8px;
-  border-bottom:1px solid var(--border);
+#vista-cuenta .cuenta-menu a:hover{ transform: translateX(2px); border-color:#cdd8e1 }
+#vista-cuenta .cuenta-menu a.activo{
+  background: linear-gradient(135deg,var(--accent) 0%, var(--accent-2) 100%);
+  color:#fff; border-color:transparent;
 }
-.tab-btn{
-  background:transparent;border:0;color:var(--muted);
-  padding:10px 12px;border-bottom:2px solid transparent;cursor:pointer;
-  font-weight:700
+
+/* Menú como “chips” desplazables en móvil */
+@media (max-width:899.98px){
+  #vista-cuenta .cuenta-menu{ position:sticky; top:0; z-index:10; padding:8px; border-radius:9999px; background:rgba(255,255,255,.92); backdrop-filter:blur(6px) }
+  #vista-cuenta .cuenta-menu ul{ flex-direction:row; overflow:auto; gap:8px; scrollbar-width:none }
+  #vista-cuenta .cuenta-menu ul::-webkit-scrollbar{ display:none }
+  #vista-cuenta .cuenta-menu a{ white-space:nowrap; padding:9px 12px }
 }
-.tab-btn.active{color:var(--text);border-color:var(--accent)}
 
-/* ===== Tables ===== */
-.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px}
-table{width:100%;border-collapse:collapse;background:white}
-th,td{padding:12px;border-bottom:1px solid var(--border)}
-th{color:var(--muted);text-align:left;font-weight:700}
-tr:hover{background:#f8fbff}
-.right{text-align:right}
-
-.thumb{
-  width:56px;height:56px;border-radius:10px;background:#f1f5f9;
-  display:inline-flex;align-items:center;justify-content:center;
-  border:1px solid var(--border);overflow:hidden
+/* ===== Panel de contenido ===== */
+#vista-cuenta .cuenta-panel{
+  background: var(--panel);
+  border:1px solid #e6ecf2;
+  border-radius:14px;
+  padding:16px;
+  box-shadow: var(--shadow);
 }
-.thumb img{width:100%;height:100%;object-fit:cover;display:block}
-.muted{color:var(--muted)}
-.badge{
-  display:inline-block;padding:4px 8px;border-radius:999px;
-  background:#eef4ff;border:1px solid #dce7ff;color:#3a5bff;font-size:12px
+#vista-cuenta .cuenta-panel h2{
+  font-family:'Montserrat',sans-serif; font-size:var(--fs-h2); color:#0a2540;
+  margin:0 0 10px; line-height:1.2;
 }
-.days.badge.danger{background:#fff1f1;border-color:#ffd2d2;color:#ff6b6b}
 
-/* Estados */
-.state{background:#f2fbff;border:1px solid #cceef7;color:#1283a6}
-.state.en-almacen{background:#eef7ff;border-color:#d5e8ff;color:#2c72d4}
-.state.enviado,.state.entregado{background:#edfdf6;border-color:#c8f2de;color:#0b8756}
-.state.retirado,.state.cancelado{background:#fff1f1;border-color:#ffd2d2;color:#ff6b6b}
-.state.en-camino{background:#f0f7ff;border-color:#cfe4ff;color:#1e6fd9}
-.state.reservado{background:#f6f1ff;border-color:#e7dbff;color:#6841ff}
-.state.llegado{background:#ecfbfb;border-color:#c8f3f3;color:#0b8c8c}
+/* ===== Formularios ===== */
+#vista-cuenta form .fila{ display:grid; grid-template-columns:1fr; gap:12px }
+@media (min-width:700px){ #vista-cuenta form .fila--2{ grid-template-columns:1fr 1fr } }
+@media (min-width:900px){ #vista-cuenta form .fila--3{ grid-template-columns:1fr 1fr 1fr } }
 
-/* ===== Responsive ===== */
-@media (max-width: 760px){
-  .form .row{grid-template-columns:1fr}
-  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .thumb{width:48px;height:48px}
+#vista-cuenta label{ font-weight:800; color:#334155; font-size:14px; margin-bottom:4px }
+#vista-cuenta input[type="text"],
+#vista-cuenta input[type="email"],
+#vista-cuenta input[type="password"],
+#vista-cuenta input[type="tel"],
+#vista-cuenta input[type="number"],
+#vista-cuenta select,
+#vista-cuenta textarea{
+  width:100%; padding:12px 14px; border-radius:10px;
+  border:1.5px solid #d0d7de; background:#fff; color:#111;
+  font-size:16px; /* evita zoom en iOS */
+  transition:border-color .2s, box-shadow .2s;
+}
+#vista-cuenta textarea{ min-height:110px; resize:vertical }
+#vista-cuenta input:focus,
+#vista-cuenta select:focus,
+#vista-cuenta textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px rgba(0,188,212,.15);
+  outline:0;
+}
+
+#vista-cuenta .form-actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:8px }
+#vista-cuenta .btn--secondary{
+  background:#0a2540; color:#fff; border-radius:9999px; padding:10px 14px; font-weight:800;
+}
+
+/* ===== Tabla de pedidos (responsive -> tarjetas) ===== */
+#vista-cuenta .pedidos-tabla{
+  width:100%; border-collapse:separate; border-spacing:0 8px; color:#0a2540;
+}
+#vista-cuenta .pedidos-tabla thead th{
+  font-size:12px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted);
+  text-align:left; padding:6px 10px;
+}
+#vista-cuenta .pedidos-tabla tbody td{
+  background:#fff; border:1px solid #e6ecf2; padding:12px 14px;
+}
+#vista-cuenta .badge{
+  display:inline-block; padding:6px 10px; border-radius:9999px; font-weight:900; font-size:12px;
+}
+#vista-cuenta .badge--ok{ background:rgba(25,195,125,.12); color:#0a7f56 }
+#vista-cuenta .badge--warn{ background:rgba(255,152,0,.12); color:#b36a00 }
+#vista-cuenta .badge--err{ background:rgba(239,83,80,.12); color:#b2261c }
+
+/* Tabla -> tarjetas en móvil */
+@media (max-width:768px){
+  #vista-cuenta .pedidos-tabla{ border-collapse:separate; border-spacing:0 }
+  #vista-cuenta .pedidos-tabla thead{ display:none }
+  #vista-cuenta .pedidos-tabla tbody tr{
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:8px; background:#fff; border:1px solid #e6ecf2; border-radius:12px;
+    padding:12px; margin-bottom:12px;
+  }
+  #vista-cuenta .pedidos-tabla tbody td{
+    border:0; padding:6px 4px; background:transparent;
+  }
+  /* usa data-label si lo agregas en el HTML */
+  #vista-cuenta .pedidos-tabla td::before{
+    content: attr(data-label);
+    display:block; font-size:12px; font-weight:800; color:#64748b; margin-bottom:2px;
+  }
+}
+
+/* ===== Direcciones / tarjetas ===== */
+#vista-cuenta .direcciones-grid{
+  display:grid; grid-template-columns:1fr; gap:12px;
+}
+@media (min-width:720px){
+  #vista-cuenta .direcciones-grid{ grid-template-columns:1fr 1fr }
+}
+#vista-cuenta .direccion-card{
+  background:#fff; border:1px solid #e6ecf2; border-radius:12px; padding:14px; box-shadow:var(--shadow);
+}
+#vista-cuenta .direccion-card .acciones{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap }
+
+/* ===== Utilidades ===== */
+#vista-cuenta .muted{ color:var(--muted) }
+#vista-cuenta .sep{ height:1px; background:#e6ecf2; margin:10px 0 }
+#vista-cuenta .center{ text-align:center }
+#vista-cuenta .right{ text-align:right }
+#vista-cuenta .pill{
+  display:inline-flex; align-items:center; gap:.45rem;
+  padding:6px 10px; border-radius:9999px; background:#eef4ff; color:#0a2540; font-weight:800; font-size:12px;
 }
