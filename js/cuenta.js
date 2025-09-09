@@ -30,6 +30,33 @@ const tabBtns         = document.querySelectorAll('.tab-btn');
 const tabAlmacen      = document.getElementById('tab-almacen');
 const tabPreventas    = document.getElementById('tab-preventas');
 
+/* ----- Modal de imagen (zoom) ----- */
+const imgModal  = document.getElementById('imgModal');
+const modalImg  = imgModal?.querySelector('img');
+const modalClose= imgModal?.querySelector('.img-modal__close');
+
+function openImgModal(src){
+  if (!imgModal || !modalImg) return;
+  modalImg.src = src || '';
+  imgModal.hidden = false;
+  document.body.style.overflow = 'hidden';
+}
+function closeImgModal(){
+  if (!imgModal || !modalImg) return;
+  imgModal.hidden = true;
+  modalImg.src = '';
+  document.body.style.overflow = '';
+}
+// Cierre por fondo / botón / ESC
+if (imgModal){
+  imgModal.addEventListener('click', (e)=>{
+    if (e.target === imgModal || e.target === modalClose) closeImgModal();
+  });
+  document.addEventListener('keydown', (e)=>{
+    if (e.key === 'Escape' && !imgModal.hidden) closeImgModal();
+  });
+}
+
 /* ---------------------------------
    Helpers
 ---------------------------------- */
@@ -96,19 +123,28 @@ function stateBadge(text){
   return `<span class="${cls}">${text||'-'}</span>`;
 }
 
-/* Miniatura clicable */
+/* Miniatura clicable: ahora es botón que abre el modal (no enlace) */
 function thumb(url){
   const u = (url||'').trim();
   if (!u) return `<div class="thumb"><span class="muted">–</span></div>`;
-  return `<a class="thumb" href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="foto"/></a>`;
+  return `<button type="button" class="thumb" data-full="${u}" aria-label="Ampliar foto">
+            <img src="${u}" alt="foto" loading="lazy"/>
+          </button>`;
 }
+
+/* Delegación de eventos: abrir modal al click en .thumb */
+document.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.thumb');
+  if (!btn) return;
+  const src = btn.dataset.full || btn.querySelector('img')?.src;
+  if (src) openImgModal(src);
+});
 
 /* ---------------------------------
    Alertas de almacenaje
 ---------------------------------- */
 const WARN_THRESHOLD = 10; // días restantes para advertir
 
-// Si la API no envía dias_restantes por ítem, lo derivamos con dias_gratis global.
 function getRestantes(it, diasGratisGlobal) {
   if (it.dias_restantes != null) return Number(it.dias_restantes);
   const usados = Number(it.dias_en_almacen || 0);
@@ -116,7 +152,6 @@ function getRestantes(it, diasGratisGlobal) {
   return gratis ? (gratis - usados) : null;
 }
 
-// pinta el badge de días con clase ok/warn/danger y title
 function renderDaysBadge(it, diasGratisGlobal) {
   const restantes = getRestantes(it, diasGratisGlobal);
   let cls = 'badge days';
@@ -133,7 +168,6 @@ function renderDaysBadge(it, diasGratisGlobal) {
     title = restantes != null ? `Quedan ${restantes} día(s)` : '';
   }
 
-  // Mostramos los días en almacén como valor principal (tu API lo trae)
   return `<span class="${cls}" title="${title}">${it.dias_en_almacen ?? '-'}</span>`;
 }
 
