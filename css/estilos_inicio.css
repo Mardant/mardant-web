@@ -23,7 +23,7 @@ html,body{
   background:#fafafa; color:#111;
 }
 
-/* ---------------- Banner superior (forzado a sobrescribir lo global) ---------------- */
+/* ---------------- Banner superior ---------------- */
 #vista-inicio header.banner{position:relative; overflow:hidden; background:#000; margin:0 0 18px;}
 #vista-inicio header.banner img{
   width:100% !important;
@@ -54,32 +54,34 @@ html,body{
 }
 
 /* ---------------- Carrusel / banner deslizante ----------------
-   - Contenedor define la altura (sin desbordes)
-   - Imágenes apiladas en COVER (sin barras)
+   FIX: evitar “halo”/borde en Android — imagen hereda el radio y recorte moderno
 -----------------------------------------------------------------*/
 #vista-inicio .carrusel{
   position: relative;
   width: 100%;
   max-width: 1200px;
   margin: 16px auto 26px;
-  overflow: hidden;
+  overflow: clip;                   /* mejor que hidden p/recorte preciso */
   border-radius: 14px;
+  background: transparent;          /* sin fondo visible */
   box-shadow: 0 4px 12px rgba(0,0,0,.18);
 
-  /* Altura responsiva */
   height: clamp(110px, 24vw, 220px) !important;
+  line-height: 0;                   /* elimina posibles huecos por baseline */
+  -webkit-transform: translateZ(0); /* evita artefactos de subpíxel */
+          transform: translateZ(0);
 }
 #vista-inicio .carrusel > img{
   position: absolute;
   inset: 0;
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover !important;        /* ← NO barras */
+  object-fit: cover !important;
   object-position: center center !important;
-  display: none;
+  display:block;                    /* garantiza sin inline-gap */
+  border-radius: inherit;           /* <<< CLAVE: esquinas perfectas */
 }
-#vista-inicio .carrusel > img:first-of-type{ display:block; } /* fallback */
-#vista-inicio .carrusel > img.activo{ display:block; }
+#vista-inicio .carrusel > img:not(.activo){ display:none; } /* fallback simple */
 
 /* Indicadores */
 #vista-inicio .carrusel-indicadores{
