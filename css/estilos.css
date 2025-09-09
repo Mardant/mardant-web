@@ -423,12 +423,3 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
   .cta-catalogo{ padding:13px 22px; font-size:1.05rem; }
   .cta-ico{ font-size:1.25rem; }
 }
-
-/* =======================================================================
-   NEUTRALIZADOR GLOBAL (el carrusel se controla en estilos_inicio.css)
-   ======================================================================= */
-#vista-inicio .carrusel,
-#vista-inicio .carrusel img{
-  height:auto !important;
-  max-height:none !important;
-}
