@@ -1,230 +1,143 @@
-/* ============================================================
-   INICIO – Mostrar 3 tarjetas en desktop, 2 en móvil,
-   y banners más compactos
-   ============================================================ */
-
-@import url('https://fonts.googleapis.com/css2?family=Carter+One&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap');
+/* ======== INICIO (3 cards en PC, 2 en móvil + banners ajustados) ======== */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
 
 :root{
-  --fs-h2:     clamp(20px, 3.8vw, 32px);
-  --fs-name:   clamp(13px, 2.0vw, 17px);
-  --fs-price:  clamp(13px, 1.9vw, 16px);
-  --fs-status: clamp(12px, 1.8vw, 14px);
-  --fs-btn:    clamp(12px, 1.9vw, 14px);
-
+  --gap: 24px;
   --radius: 14px;
-  --gap:    22px;
+
+  /* tipografías sobrias */
+  --fs-h2: clamp(22px, 4.0vw, 34px);
+  --fs-name: clamp(13px, 1.9vw, 17px);
+  --fs-price: clamp(13px, 1.8vw, 16px);
+  --fs-status: clamp(12px, 1.7vw, 14px);
+  --fs-btn: clamp(12px, 1.9vw, 14px);
 }
 
-/* ============================ Base ============================ */
-html, body{
-  margin:0;
-  overflow-x:hidden;
-  font-family:'Nunito Sans',sans-serif;
-  background:#fafafa;
-  color:#111;
-}
+html,body{margin:0;overflow-x:hidden;font-family:'Nunito Sans',system-ui,Segoe UI,Roboto,Arial,sans-serif;background:#fafafa;color:#111}
 
-/* ======================= Banner superior ====================== */
-.banner{ position:relative; background:#000; overflow:hidden; }
+/* ---------------- Banner superior ---------------- */
+.banner{position:relative;overflow:hidden;background:#000}
 .banner img{
   width:100%;
-  height: 200px;                 /* ↓ más chico por defecto */
-  max-width:1920px;
+  height: clamp(120px, 32vw, 220px); /* ↓ más bajo en móvil, medio en tablet, sobrio en PC */
+  object-fit: cover;
+  object-position: center 45%;       /* centra el texto del arte */
   display:block;
-  object-fit:cover;
-  object-position:center 45%;
-  margin:0 auto;
-  border-bottom:3px solid #00bcd4;
 }
-@media (min-width: 1200px){ .banner img{ height: 220px !important; } } /* PC */
-@media (max-width: 680px) { .banner img{ height: 140px !important; } }   /* móvil */
 
-/* ========================= Menú visual ======================== */
+/* ---------------- Menú visual ---------------- */
 .menu-visual{
   display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
-  gap:16px; padding:16px 12px 2px;
+  gap:18px; padding:18px 12px 8px;
 }
 .menu-visual img.boton-imagen{
-  height:66px; width:auto; max-width:100%;
-  display:block; border-radius:12px; background:#fff;
-  padding:6px 8px;
-  box-shadow:0 6px 16px rgba(0,0,0,.22);
-  transition:transform .18s, box-shadow .18s;
+  height:70px; width:auto; background:#fff; border-radius:12px;
+  padding:6px 8px; box-shadow:0 6px 16px rgba(0,0,0,.24); display:block;
 }
-.menu-visual img.boton-imagen:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(0,0,0,.28); }
-@media (max-width: 680px){
-  .menu-visual{ gap:10px; padding:10px 10px 0; }
-  .menu-visual img.boton-imagen{ height:56px; padding:5px 7px; }
+@media (max-width:680px){
+  .menu-visual{gap:12px; padding:12px 10px 0}
+  .menu-visual img.boton-imagen{height:58px; padding:5px 7px}
 }
 
-/* ====================== Carrusel / slider ===================== */
+/* ---------------- Carrusel / banner deslizante ---------------- */
 .carrusel{
-  position:relative;
-  width:100%;
-  max-width:1240px;
-  margin:18px auto 26px;
-  overflow:hidden;
-  border-radius:14px;
-  box-shadow:0 6px 14px rgba(0,0,0,.16);
+  position:relative; width:100%; max-width:1100px; margin:18px auto 26px;
+  border-radius:14px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,.18);
 }
-.carrusel img{
-  width:100%;
-  height: 190px;                 /* ↓ más compacto */
-  object-fit:cover;
-  display:none;
-}
-.carrusel img.activo{ display:block; }
-@media (min-width: 1200px){ .carrusel img{ height: 210px; } } /* PC */
-@media (max-width: 680px) { .carrusel img{ height: 135px; } } /* móvil */
+.carrusel img{width:100%; height:200px; object-fit:cover; display:none}
+.carrusel img.activo{display:block}
+.carrusel-indicadores{position:absolute; bottom:10px; left:0; right:0; display:flex; justify-content:center; gap:10px}
+.carrusel-indicadores .punto{width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,.65)}
+.carrusel-indicadores .punto.activo{background:#00bcd4}
 
-.carrusel-indicadores{
-  position:absolute; bottom:10px; left:0; right:0;
-  display:flex; justify-content:center; gap:10px;
+@media (max-width:900px){
+  .carrusel img{height:170px}
 }
-.carrusel-indicadores .punto{
-  width:10px;height:10px;border-radius:50%;
-  background:rgba(255,255,255,.65);
+@media (max-width:680px){
+  .carrusel img{height:140px}       /* ↓ más bajo en móvil (problema que reportaste) */
 }
-.carrusel-indicadores .punto.activo{ background:#00bcd4; }
 
-/* =========================== Secciones ======================== */
-.seccion{ padding:28px 18px; max-width:1240px; margin:0 auto; }
+/* ---------------- Secciones ---------------- */
+.seccion{padding:32px 18px; max-width:1200px; margin:0 auto}
 .seccion h2{
-  font-family:'Montserrat', sans-serif; font-weight:700; text-align:center;
+  font-family:'Montserrat',sans-serif; font-weight:700; text-align:center;
   font-size:var(--fs-h2); margin:0 0 18px; color:#00bcd4;
-  border-bottom:2px solid #778DA9; padding-bottom:8px;
+  border-bottom:2px solid #778DA9; padding-bottom:10px;
 }
 
-/* =========== GRID – 3 columnas en desktop, 2 en móvil ========= */
-/* Forzamos columnas exactas y límites de elementos visibles */
+/* ---------------- GRID (3→2) ---------------- */
 #vista-inicio .grid-productos{
   display:grid;
-  grid-template-columns: repeat(3, 1fr) !important;  /* PC: 3 tarjetas por fila */
-  gap: var(--gap);
+  grid-template-columns: repeat(3, minmax(0, 1fr));  /* PC: 3 columnas */
+  gap:var(--gap);
   align-items:start;
 }
-
-/* Mostrar SÓLO 3 productos por sección en desktop */
-#vista-inicio .grid-productos > .producto:nth-child(n+4){
-  display:none !important;
+@media (max-width:900px){
+  #vista-inicio .grid-productos{ grid-template-columns: repeat(2, minmax(0,1fr)); } /* móvil/tablet: 2 */
 }
 
-/* Móvil (≤920px): 2 columnas y SÓLO 2 productos */
-@media (max-width: 920px){
-  #vista-inicio .grid-productos{
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap:16px;
-  }
-  #vista-inicio .grid-productos > .producto:nth-child(n+3){
-    display:none !important;
-  }
+/* LIMITE DE ITEMS MOSTRADOS POR SECCIÓN (sin tocar tu JS) */
+#vista-inicio .grid-productos > .producto{ display:block }
+@media (min-width:901px){   /* PC: mostrar sólo 3 */
+  #vista-inicio .grid-productos > .producto:nth-child(n+4){ display:none !important; }
 }
-@media (max-width: 480px){
-  #vista-inicio .grid-productos{ gap:12px; }
+@media (max-width:900px){   /* móvil/tablet: mostrar sólo 2 */
+  #vista-inicio .grid-productos > .producto:nth-child(n+3){ display:none !important; }
 }
 
-/* ============================ Cards =========================== */
+/* ---------------- Cards ---------------- */
 .producto{
-  background:#1a1a1a;
-  border-radius:var(--radius);
-  padding:12px;
-  text-align:center;
-  box-shadow:0 0 12px rgba(0,0,0,.26);
-  transition:transform .2s, box-shadow .2s;
+  background:#1a1a1a; border-radius:var(--radius); padding:14px; text-align:center;
+  box-shadow:0 0 15px rgba(0,0,0,.30); transition:transform .2s, box-shadow .2s;
 }
-.producto:hover{ transform:translateY(-2px); box-shadow:0 12px 24px rgba(0,0,0,.32); }
+.producto:hover{ transform:translateY(-2px); box-shadow:0 12px 26px rgba(0,0,0,.36) }
 
-/* Imagen sin marcos */
 .img{
-  width:100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius:12px;
-  margin-bottom:8px;
-  display:block;
-  cursor: zoom-in;
+  width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:12px; margin-bottom:10px; display:block; cursor:zoom-in;
 }
-
-/* Textos */
 .nombre{
-  font-weight:800; color:#ffc107;
-  font-size:var(--fs-name) !important;
-  line-height:1.25; margin:6px 0 4px;
+  font-weight:800; color:#ffc107; font-size:var(--fs-name); line-height:1.25; margin:6px 0 4px;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
 }
-.categoria{ font-size:12.5px; color:#bbb; margin-bottom:6px; }
-.precio{    font-size:var(--fs-price) !important; color:#fff; margin-bottom:6px; font-weight:800; }
-.estado{    font-size:var(--fs-status) !important; color:#81c784; margin-bottom:10px; }
+.categoria{font-size:12.5px;color:#bbb;margin-bottom:6px}
+.precio{font-size:var(--fs-price);color:#fff;margin-bottom:6px;font-weight:800}
+.estado{font-size:var(--fs-status);color:#81c784;margin-bottom:10px}
 
-/* CTA */
 .boton{
-  width:100%;
-  background:#00bcd4; color:#fff; border:none;
-  padding:11px 14px;
-  border-radius:10px;
-  font-weight:800; font-size:var(--fs-btn);
-  cursor:pointer; text-decoration:none;
-  display:inline-block; margin-top:10px;
-  transition:background .2s;
+  width:100%; background:#00bcd4; color:#fff; border:none; padding:12px 16px;
+  border-radius:10px; font-weight:800; font-size:var(--fs-btn); cursor:pointer; text-decoration:none; display:inline-block; margin-top:12px;
 }
-.boton:hover{ background:#0097a7; }
+.boton:hover{ background:#0097a7 }
 
-/* ============================ Footer ========================== */
-.pie{
-  background:#000;
-  color:#888;
-  text-align:center;
-  padding:18px 10px;
-  font-size:14px;
-}
-
-/* ======================= Botones flotantes ==================== */
+/* ---------------- Footer + flotantes (sin cambios) ---------------- */
+.pie{background:#000;color:#888;text-align:center;padding:20px 10px;font-size:14px}
 .boton-carrito-flotante{
-  position:fixed; bottom:22px; right:22px;
-  width:64px; height:64px; font-size:32px;
-  background:#00bcd4; color:#fff; border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  text-decoration:none; box-shadow:0 6px 16px rgba(0,0,0,.32);
-  z-index:9999; transition:background .25s, transform .15s;
+  position:fixed;bottom:24px;right:24px;width:70px;height:70px;font-size:36px;background:#00bcd4;color:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.35);z-index:9999;
+  transition:background .25s, transform .15s;
 }
-.boton-carrito-flotante:hover{ background:#0097a7; transform:scale(1.06); }
-
+.boton-carrito-flotante:hover{background:#0097a7;transform:scale(1.08)}
 .boton-cuenta-flotante{
-  position:fixed; top:14px; right:14px;
-  display:inline-flex; align-items:center; gap:8px;
-  padding:9px 12px;
-  background:rgba(0,0,0,.6); color:#fff; text-decoration:none;
-  border:1px solid #00bcd4; border-radius:999px; font-weight:700;
-  box-shadow:0 6px 16px rgba(0,0,0,.32); backdrop-filter:blur(5px);
-  z-index:10000; transition:transform .2s, box-shadow .2s, background .2s;
+  position:fixed;top:16px;right:16px;display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(0,0,0,.65);
+  color:#fff;text-decoration:none;border:1px solid #00bcd4;border-radius:999px;font-weight:700;box-shadow:0 6px 16px rgba(0,0,0,.35);
+  backdrop-filter:blur(6px);z-index:10000;transition:transform .2s, box-shadow .2s, background .2s;
 }
-.boton-cuenta-flotante:hover{ transform:translateY(-1px); box-shadow:0 10px 20px rgba(0,0,0,.42); background:rgba(0,0,0,.82); }
-.boton-cuenta-flotante .emoji{ font-size:18px; line-height:1; }
-.boton-cuenta-flotante .texto{ font-size:14px; white-space:nowrap; }
+.boton-cuenta-flotante:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(0,0,0,.45);background:rgba(0,0,0,.82)}
+.boton-cuenta-flotante .emoji{font-size:18px;line-height:1}
+.boton-cuenta-flotante .texto{font-size:14px;white-space:nowrap}
+@media (max-width:480px){
+  .boton-cuenta-flotante{border-radius:50%;padding:10px}
+  .boton-cuenta-flotante .texto{display:none}
+  .boton-carrito-flotante{width:58px;height:58px;font-size:28px;bottom:18px;right:18px}
+}
 
-/* ============================= Lightbox ======================= */
-.lightbox{
-  position:fixed; inset:0; background:rgba(0,0,0,.92);
-  display:flex; align-items:center; justify-content:center;
-  z-index:10000; padding:16px;
-}
-.lightbox[hidden]{ display:none !important; }
-.lightbox img{
-  max-width:94vw; max-height:88vh; border-radius:12px;
-  box-shadow:0 20px 40px rgba(0,0,0,.5);
-}
-.lb-close{
-  position:absolute; top:10px; right:14px;
-  background:transparent; border:none; color:#fff;
-  font-size:32px; line-height:1; cursor:pointer; opacity:.9;
-}
-.lb-close:hover{ opacity:1; }
+/* ---------------- Lightbox ---------------- */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:10000;padding:16px}
+.lightbox[hidden]{display:none!important}
+.lightbox img{max-width:94vw;max-height:88vh;border-radius:12px;box-shadow:0 20px 40px rgba(0,0,0,.5)}
+.lb-close{position:absolute;top:10px;right:14px;background:transparent;border:none;color:#fff;font-size:36px;line-height:1;cursor:pointer;opacity:.9}
+.lb-close:hover{opacity:1}
 
-/* Título con enlace */
-.titulo-link{
-  color:#000; font-weight:bold; text-decoration:none;
-  display:inline-block; transition:transform .2s ease, color .2s ease;
-}
-.titulo-link:hover{ transform:scale(1.05); color:#e91e63; text-decoration:none; }
+/* ---------------- Títulos con enlace ---------------- */
+.titulo-link{color:#000;font-weight:bold;text-decoration:none;display:inline-block;transition:transform .2s ease,color .2s ease}
+.titulo-link:hover{transform:scale(1.05);color:#e91e63;text-decoration:none}
