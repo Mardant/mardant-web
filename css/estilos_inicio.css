@@ -1,7 +1,8 @@
-/* ========================================================================
-   INICIO – 3 tarjetas en PC, 2 en móvil + banners móviles compactos
-   (esta hoja se carga DESPUÉS de estilos.css)
-   ======================================================================== */
+/* ==========================
+   INICIO (Home)
+   3 cards PC · 2 cards móvil
+   Banner superior + Carrusel OK
+   ========================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
 
@@ -9,39 +10,31 @@
   --gap: 24px;
   --radius: 14px;
 
-  --fs-h2: clamp(22px, 4vw, 34px);
+  --fs-h2: clamp(22px, 4.0vw, 34px);
   --fs-name: clamp(13px, 1.9vw, 17px);
   --fs-price: clamp(13px, 1.8vw, 16px);
   --fs-status: clamp(12px, 1.7vw, 14px);
   --fs-btn: clamp(12px, 1.9vw, 14px);
 }
 
-/* ========================================================================
-   BASE
-   ======================================================================== */
 html,body{
   margin:0; overflow-x:hidden;
   font-family:'Nunito Sans',system-ui,Segoe UI,Roboto,Arial,sans-serif;
   background:#fafafa; color:#111;
 }
 
-/* ========================================================================
-   BANNER SUPERIOR (altura baja en móvil, sobria en desktop)
-   ======================================================================== */
+/* ---------------- Banner superior (compacto) ---------------- */
 #vista-inicio .banner{position:relative; overflow:hidden; background:#000}
 #vista-inicio .banner img{
   width:100%;
-  /* ~100–120px en móvil, hasta 220px en pantallas grandes */
-  height: clamp(100px, 26vw, 220px);
+  height: clamp(110px, 28vw, 220px);
   object-fit: cover;
   object-position: center 45%;
   display:block;
-  border-bottom:3px solid var(--accent, #00bcd4);
+  border-bottom:3px solid #00bcd4;
 }
 
-/* ========================================================================
-   MENÚ VISUAL
-   ======================================================================== */
+/* ---------------- Menú visual ---------------- */
 .menu-visual{
   display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
   gap:18px; padding:18px 12px 8px;
@@ -54,66 +47,58 @@ html,body{
   .menu-visual{ gap:12px; padding:12px 10px 0; }
   .menu-visual img.boton-imagen{ height:56px; padding:5px 7px; }
 }
+@media (max-width:420px){
+  .menu-visual img.boton-imagen{ height:52px; }
+}
 
-/* ========================================================================
-   CARRUSEL / BANNER DESLIZANTE (sin recortes en móvil)
-   ======================================================================== */
+/* ---------------- Carrusel / banner deslizante ----------------
+   ÚNICA FUENTE DE LA VERDAD (no hay otras reglas del carrusel aquí)
+-----------------------------------------------------------------*/
 #vista-inicio .carrusel{
   position: relative;
   width: 100%;
-  max-width: 1100px;
-  margin: 16px auto 24px;
+  max-width: 1200px;
+  margin: 16px auto 26px;
   overflow: hidden;
   border-radius: 14px;
+  background:#000;              /* evita “bordes blancos” */
   box-shadow: 0 4px 12px rgba(0,0,0,.18);
 
-  /* En móvil usamos relación de aspecto para que NUNCA se pase de alto */
-  aspect-ratio: 16 / 5;         /* ≈112px de alto en 360px de ancho */
-  min-height: 96px;             /* tope inferior por si la pantalla es muy estrecha */
-  max-height: 180px;            /* tope superior en móviles/tablets */
-}
-/* En desktop forzamos un alto sobrio fijo */
-@media (min-width: 900px){
-  #vista-inicio .carrusel{
-    aspect-ratio: initial;
-    height: 180px;
-    max-height: 180px;
-  }
+  /* Altura responsiva: móvil ~100–120px, desktop ~210–230px */
+  height: clamp(100px, 22vw, 220px);
 }
 
-/* Las imágenes SIEMPRE rellenan el contenedor del carrusel */
-#vista-inicio .carrusel img{
-  position:absolute; inset:0;
-  width:100%; height:100%;
-  object-fit:cover; object-position:center center;
-  display:none;
+/* Las imágenes siempre rellenan el contenedor del carrusel */
+#vista-inicio .carrusel > img{
+  position: absolute;
+  inset: 0;                     /* top:0 right:0 bottom:0 left:0 */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: none;
 }
-#vista-inicio .carrusel img.activo{ display:block; }
+#vista-inicio .carrusel > img.activo{ display:block; }
 
-/* Puntos */
+/* Puntos del carrusel */
 #vista-inicio .carrusel-indicadores{
   position:absolute; left:0; right:0; bottom:10px;
   display:flex; justify-content:center; gap:10px;
 }
 #vista-inicio .carrusel-indicadores .punto{
-  width:12px; height:12px; border-radius:50%;
-  background:rgba(255,255,255,.65)
+  width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,.65)
 }
-#vista-inicio .carrusel-indicadores .punto.activo{ background:var(--accent, #00bcd4) }
+#vista-inicio .carrusel-indicadores .punto.activo{ background:#00bcd4 }
 
-/* ========================================================================
-   SECCIONES
-   ======================================================================== */
+/* ---------------- Secciones ---------------- */
 .seccion{ padding:32px 18px; max-width:1200px; margin:0 auto; }
 .seccion h2{
   font-family:'Montserrat',sans-serif; font-weight:700; text-align:center;
-  font-size:var(--fs-h2); margin:0 0 18px; color:var(--accent, #00bcd4);
+  font-size:var(--fs-h2); margin:0 0 18px; color:#00bcd4;
   border-bottom:2px solid #778DA9; padding-bottom:10px;
 }
 
-/* ========================================================================
-   GRID (PC 3 columnas, móvil 2) + límite de items
-   ======================================================================== */
+/* ---------------- GRID (3→2) + límite de items ---------------- */
 #vista-inicio .grid-productos{
   display:grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));  /* PC: 3 columnas */
@@ -122,22 +107,19 @@ html,body{
 }
 @media (max-width:900px){
   #vista-inicio .grid-productos{
-    grid-template-columns: repeat(2, minmax(0, 1fr)); /* móvil/tablet: 2 */
-    gap:16px;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* tablet/móvil: 2 */
   }
 }
 
-/* Mostrar solo 3 productos por sección en PC y 2 en móvil/tablet */
+/* Mostrar sólo 3 en PC, 2 en móvil/tablet */
 @media (min-width:901px){
-  #vista-inicio .grid-productos > .producto:nth-child(n+4){ display:none; }
+  #vista-inicio .grid-productos > .producto:nth-child(n+4){ display:none !important; }
 }
 @media (max-width:900px){
-  #vista-inicio .grid-productos > .producto:nth-child(n+3){ display:none; }
+  #vista-inicio .grid-productos > .producto:nth-child(n+3){ display:none !important; }
 }
 
-/* ========================================================================
-   CARDS
-   ======================================================================== */
+/* ---------------- Cards ---------------- */
 .producto{
   background:#1a1a1a; border-radius:var(--radius); padding:14px; text-align:center;
   box-shadow:0 0 15px rgba(0,0,0,.30); transition:transform .2s, box-shadow .2s;
@@ -145,10 +127,8 @@ html,body{
 .producto:hover{ transform:translateY(-2px); box-shadow:0 12px 26px rgba(0,0,0,.36); }
 
 .img{
-  width:100%; aspect-ratio:4/3; object-fit:cover;
-  border-radius:12px; margin-bottom:10px; display:block; cursor:zoom-in;
+  width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:12px; margin-bottom:10px; display:block; cursor:zoom-in;
 }
-
 .nombre{
   font-weight:800; color:#ffc107; font-size:var(--fs-name); line-height:1.25; margin:6px 0 4px;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
@@ -158,29 +138,23 @@ html,body{
 .estado{font-size:var(--fs-status);color:#81c784;margin-bottom:10px}
 
 .boton{
-  width:100%; background:var(--accent, #00bcd4); color:#fff; border:none;
-  padding:12px 16px; border-radius:10px; font-weight:800; font-size:var(--fs-btn);
-  cursor:pointer; text-decoration:none; display:inline-block; margin-top:12px;
-  transition:background .2s;
+  width:100%; background:#00bcd4; color:#fff; border:none; padding:12px 16px;
+  border-radius:10px; font-weight:800; font-size:var(--fs-btn); cursor:pointer; text-decoration:none; display:inline-block; margin-top:12px;
 }
 .boton:hover{ background:#0097a7; }
 
-/* ========================================================================
-   FOOTER + FLOTANTES (sin cambios fuertes aquí)
-   ======================================================================== */
+/* ---------------- Footer + flotantes ---------------- */
 .pie{background:#000;color:#888;text-align:center;padding:20px 10px;font-size:14px}
-
 .boton-carrito-flotante{
-  position:fixed;bottom:24px;right:24px;width:70px;height:70px;font-size:36px;background:var(--accent,#00bcd4);color:#fff;border-radius:50%;
+  position:fixed;bottom:24px;right:24px;width:70px;height:70px;font-size:36px;background:#00bcd4;color:#fff;border-radius:50%;
   display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.35);z-index:9999;
   transition:background .25s, transform .15s;
 }
 .boton-carrito-flotante:hover{background:#0097a7;transform:scale(1.08)}
-
 .boton-cuenta-flotante{
   position:fixed;top:16px;right:16px;display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(0,0,0,.65);
-  color:#fff;text-decoration:none;border:1px solid var(--accent,#00bcd4);border-radius:999px;font-weight:700;
-  box-shadow:0 6px 16px rgba(0,0,0,.35);backdrop-filter:blur(6px);z-index:10000;transition:transform .2s, box-shadow .2s, background .2s;
+  color:#fff;text-decoration:none;border:1px solid #00bcd4;border-radius:999px;font-weight:700;box-shadow:0 6px 16px rgba(0,0,0,.35);
+  backdrop-filter:blur(6px);z-index:10000;transition:transform .2s, box-shadow .2s, background .2s;
 }
 .boton-cuenta-flotante:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(0,0,0,.45);background:rgba(0,0,0,.82)}
 .boton-cuenta-flotante .emoji{font-size:18px;line-height:1}
@@ -191,31 +165,13 @@ html,body{
   .boton-carrito-flotante{width:58px;height:58px;font-size:28px;bottom:18px;right:18px}
 }
 
-/* ========================================================================
-   LIGHTBOX
-   ======================================================================== */
-.lightbox{
-  position:fixed; inset:0; background:rgba(0,0,0,.92);
-  display:flex; align-items:center; justify-content:center;
-  z-index:10000; padding:16px;
-}
-.lightbox[hidden]{ display:none !important; }
-.lightbox img{
-  max-width:94vw; max-height:88vh; border-radius:12px;
-  box-shadow:0 20px 40px rgba(0,0,0,.5);
-}
-.lb-close{
-  position:absolute; top:10px; right:14px;
-  background:transparent; border:none; color:#fff;
-  font-size:36px; line-height:1; cursor:pointer; opacity:.9;
-}
-.lb-close:hover{ opacity:1; }
+/* ---------------- Lightbox ---------------- */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:10000;padding:16px}
+.lightbox[hidden]{display:none!important}
+.lightbox img{max-width:94vw;max-height:88vh;border-radius:12px;box-shadow:0 20px 40px rgba(0,0,0,.5)}
+.lb-close{position:absolute;top:10px;right:14px;background:transparent;border:none;color:#fff;font-size:36px;line-height:1;cursor:pointer;opacity:.9}
+.lb-close:hover{opacity:1}
 
-/* ========================================================================
-   ENLACE DE TÍTULO
-   ======================================================================== */
-.titulo-link{
-  color:#000; font-weight:bold; text-decoration:none;
-  display:inline-block; transition:transform .2s ease, color .2s ease;
-}
-.titulo-link:hover{ transform:scale(1.05); color:#e91e63; text-decoration:none; }
+/* ---------------- Títulos con enlace ---------------- */
+.titulo-link{color:#000;font-weight:bold;text-decoration:none;display:inline-block;transition:transform .2s ease,color .2s ease}
+.titulo-link:hover{transform:scale(1.05);color:#e91e63;text-decoration:none}
