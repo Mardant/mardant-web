@@ -65,7 +65,7 @@
     🛒<span id="contador-carrito" class="contador-carrito"></span>
   </a>
 
-  <!-- Lightbox portada -->
+  <!-- Lightbox único -->
   <div id="lb-inicio" class="lightbox" hidden>
     <img alt="Vista ampliada">
     <button class="lb-close" aria-label="Cerrar">×</button>
@@ -78,7 +78,7 @@
 <!-- Lógica de la portada -->
 <script type="module" src="../js/scripts_inicio.js"></script>
 
-<!-- Abrir imágenes en lightbox (delegado en toda la portada) -->
+<!-- Abrir imágenes en lightbox (solo imágenes dentro de las cards) -->
 <script>
   (function () {
     const root = document.getElementById('vista-inicio');
@@ -87,7 +87,8 @@
 
     root.addEventListener('click', (e) => {
       const el = e.target;
-      if (el && el.tagName === 'IMG' && el.closest('.grid-productos')) {
+      // Solo si es IMG dentro de una tarjeta de producto
+      if (el && el.tagName === 'IMG' && el.closest('.producto')) {
         img.src = el.src;
         lb.hidden = false;
         document.body.style.overflow = 'hidden';
@@ -101,7 +102,8 @@
     };
     lb.addEventListener('click', close);
     lb.querySelector('.lb-close').addEventListener('click', (ev) => {
-      ev.stopPropagation(); close();
+      ev.stopPropagation();
+      close();
     });
     document.addEventListener('keydown', (ev) => {
       if (!lb.hidden && ev.key === 'Escape') close();
@@ -111,3 +113,4 @@
 
 <!-- Tracking (FB Pixel + GA4 + eventos) -->
 <script type="module" src="../js/tracking.js"></script>
+
