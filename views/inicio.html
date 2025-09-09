@@ -8,7 +8,7 @@
   <!-- 1) Estilos globales -->
   <link rel="stylesheet" href="../css/estilos.css" />
 
-  <!-- 2) Estilos exclusivos de la portada (deben ir DESPUÉS) -->
+  <!-- 2) Estilos exclusivos de la portada (DEBEN ir después para pisar al global) -->
   <link rel="stylesheet" href="../css/estilos_inicio.css">
 </head>
 <body>
@@ -111,8 +111,13 @@
       document.body.style.overflow = '';
     };
     lb.addEventListener('click', close);
-    lb.querySelector('.lb-close').addEventListener('click', (ev) => { ev.stopPropagation(); close(); });
-    document.addEventListener('keydown', (ev) => { if (!lb.hidden && ev.key === 'Escape') close(); });
+    lb.querySelector('.lb-close').addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      close();
+    });
+    document.addEventListener('keydown', (ev) => {
+      if (!lb.hidden && ev.key === 'Escape') close();
+    });
   })();
 </script>
 
