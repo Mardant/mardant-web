@@ -175,4 +175,52 @@ html,body{
 .titulo-link{color:#000;font-weight:bold;text-decoration:none;display:inline-block;transition:transform .2s ease,color .2s ease}
 .titulo-link:hover{transform:scale(1.05);color:#e91e63;text-decoration:none}
 
+/* =======================================================================
+   FIX DURO – Carrusel (banner deslizante) capado en móvil y tablet
+   PÉGALO AL FINAL DEL ARCHIVO PARA QUE TENGA LA MAYOR PRIORIDAD
+   ======================================================================= */
+
+/* Contenedor del carrusel con altura responsiva (y tope en móvil) */
+#vista-inicio .carrusel{
+  position: relative !important;
+  width: 100% !important;
+  max-width: 1100px !important;
+  margin: 16px auto 24px !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,.18) !important;
+
+  /* Altura responsiva: móvil ~95–110px, tablet ~130–150px, desktop ~170px */
+  height: clamp(95px, 24vw, 170px) !important;
+  max-height: 170px !important;
+}
+
+/* Las imágenes rellenan SIEMPRE el alto del carrusel */
+#vista-inicio .carrusel img{
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  display: none !important;            /* solo se muestra la activa */
+  border-radius: 0 !important;
+}
+#vista-inicio .carrusel img.activo{ display: block !important; }
+
+/* Puntos del carrusel (sin cambios funcionales) */
+#vista-inicio .carrusel-indicadores{
+  position: absolute !important;
+  left: 0; right: 0; bottom: 10px;
+  display: flex; justify-content: center; gap: 10px;
+}
+
+/* Breakpoints extra por si el dispositivo es muy estrecho */
+@media (max-width: 680px){
+  #vista-inicio .carrusel{ height: 110px !important; max-height: 110px !important; }
+}
+@media (max-width: 420px){
+  #vista-inicio .carrusel{ height: 98px !important; max-height: 98px !important; }
+}
+
 
