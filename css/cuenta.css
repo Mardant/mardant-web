@@ -13,6 +13,7 @@
 
   --accent: #00bcd4;
   --accent-2: #008fb9;
+
   --ok: #19c37d;
   --warn: #ff9800;
   --err: #ef5350;
@@ -40,7 +41,7 @@ body{
 .topbar{
   position:sticky; top:0; z-index:50;
   background:#fff; border-bottom:1px solid #e6ecf2;
-  backdrop-filter: blur(6px);
+  backdrop-filter:blur(6px);
 }
 .topbar .wrap{
   max-width:1200px; margin:0 auto;
@@ -59,8 +60,8 @@ body{
 .topbar .nav a{
   font-weight:800; color:#223; text-decoration:none;
   padding:2px 0; border-bottom:2px solid transparent;
-  display:inline-block;
-  white-space:nowrap;               /* “Mi cuenta” no se parte */
+  display:inline-block;               /* evita cortes */
+  white-space:nowrap;                 /* “Mi cuenta” no se parte */
 }
 .topbar .nav a:hover{ color:var(--accent) }
 .topbar .nav a.active{
@@ -157,13 +158,14 @@ body{
   color:#fff; border-color:transparent;
 }
 
-/* ================= Tablas (siempre tablas) ================= */
+/* ================= Tablas (siempre tablas con scroll) ================= */
 .table-wrap{
   width:100%;
   overflow-x:auto;                 /* scroll horizontal en móvil */
   -webkit-overflow-scrolling:touch;
   border:1px solid #e6ecf2;
   border-radius:12px;
+  position:relative;
 }
 /* sombra para indicar que hay más contenido al lado derecho */
 .table-wrap::after{
@@ -172,6 +174,8 @@ body{
   pointer-events:none;
   background:linear-gradient(90deg,transparent,rgba(0,0,0,.06));
 }
+.table-wrap::-webkit-scrollbar{ height:8px }
+.table-wrap::-webkit-scrollbar-thumb{ background:#cfd8e3; border-radius:9999px }
 
 table{ width:100%; border-collapse:separate; border-spacing:0 }
 thead th{
@@ -186,7 +190,7 @@ tbody td{
   vertical-align:middle;
   white-space:nowrap;               /* filas en una sola línea */
 }
-/* un pequeño “gap” visual entre columnas */
+/* pequeño “gap” visual entre columnas */
 .table-wrap th + th,
 .table-wrap td + td{ padding-left:18px }
 
@@ -195,6 +199,37 @@ tbody td{
 #preTable{   min-width:1000px }     /* Preventas con más columnas */
 
 .right{ text-align:right }
+
+/* Miniaturas */
+.thumb{ display:inline-flex; width:44px; height:44px; border-radius:8px; overflow:hidden; border:1px solid #e6ecf2 }
+.thumb img{ width:100%; height:100%; object-fit:cover; display:block }
+
+/* ================= Badges ================= */
+.badge{
+  display:inline-flex; align-items:center; justify-content:center;
+  height:26px; padding:0 10px; border-radius:9999px;
+  font-weight:900; font-size:12px; line-height:1;
+}
+
+/* Estado (coincide con stateBadge de JS) */
+.badge.state{ background:#eef2f7; color:#0a2540 }
+.badge.state.en-almacen{ background:#eef7ff; color:#0b71c5 }
+.badge.state.enviado{    background:#e8f4ff; color:#0a66c2 }
+.badge.state.retirado{   background:#f1f5f9; color:#334155 }
+.badge.state.en-camino{  background:#e7fcfa; color:#0b8a7a }
+.badge.state.reservado{  background:#f5eaff; color:#6b21a8 }
+.badge.state.llegado{    background:#e9f9ef; color:#0a7f56 }
+.badge.state.entregado{  background:#e9f9ef; color:#0a7f56 }
+.badge.state.cancelado{  background:#ffe7e7; color:#b2261c }
+
+/* Días (ok/warn/danger) – usado por renderDaysBadge() */
+.badge.days{ min-width:46px; justify-content:center }
+.badge.days.ok{    background:rgba(25,195,125,.12); color:#0a7f56; border:1px solid rgba(25,195,125,.35) }
+.badge.days.warn{  background:rgba(255,152,0,.12); color:#b36a00; border:1px solid rgba(255,152,0,.35) }
+.badge.days.danger{background:rgba(239,83,80,.12); color:#b2261c; border:1px solid rgba(239,83,80,.35) }
+
+/* Utilidades */
+.muted{ color:var(--muted) }
 
 /* ================= Footer ================= */
 .site-footer{
