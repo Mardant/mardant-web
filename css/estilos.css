@@ -334,7 +334,7 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
 @media (max-width: 768px){
   .grid-productos{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
   .producto{padding:10px}
-  .carrusel img{height:150px}
+  /* ← Eliminado: .carrusel img{height:150px} para no interferir con portada */
   .boton-carrito-flotante{width:60px;height:60px;font-size:28px}
 }
 
@@ -422,4 +422,13 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
   .cta-btn,
   .cta-catalogo{ padding:13px 22px; font-size:1.05rem; }
   .cta-ico{ font-size:1.25rem; }
+}
+
+/* =======================================================================
+   NEUTRALIZADOR GLOBAL (el carrusel se controla en estilos_inicio.css)
+   ======================================================================= */
+#vista-inicio .carrusel,
+#vista-inicio .carrusel img{
+  height:auto !important;
+  max-height:none !important;
 }
