@@ -1,11 +1,10 @@
-/* ======== INICIO (3 cards en PC, 2 en móvil + banners ajustados) ======== */
+/* ======== INICIO (3 cards en PC, 2 en móvil + banners móviles más bajos) ======== */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
 
 :root{
   --gap: 24px;
   --radius: 14px;
 
-  /* tipografías sobrias */
   --fs-h2: clamp(22px, 4.0vw, 34px);
   --fs-name: clamp(13px, 1.9vw, 17px);
   --fs-price: clamp(13px, 1.8vw, 16px);
@@ -13,16 +12,31 @@
   --fs-btn: clamp(12px, 1.9vw, 14px);
 }
 
-html,body{margin:0;overflow-x:hidden;font-family:'Nunito Sans',system-ui,Segoe UI,Roboto,Arial,sans-serif;background:#fafafa;color:#111}
+html,body{
+  margin:0; overflow-x:hidden;
+  font-family:'Nunito Sans',system-ui,Segoe UI,Roboto,Arial,sans-serif;
+  background:#fafafa; color:#111;
+}
 
 /* ---------------- Banner superior ---------------- */
-.banner{position:relative;overflow:hidden;background:#000}
-.banner img{
+#vista-inicio .banner{position:relative; overflow:hidden; background:#000}
+#vista-inicio .banner img{
   width:100%;
-  height: clamp(120px, 32vw, 220px); /* ↓ más bajo en móvil, medio en tablet, sobrio en PC */
+  height: clamp(110px, 28vw, 220px) !important; /* móvil más bajo, PC sobrio */
   object-fit: cover;
-  object-position: center 45%;       /* centra el texto del arte */
+  object-position: center 45%;
   display:block;
+  border-bottom:3px solid #00bcd4;
+}
+/* afinado móvil */
+@media (max-width:680px){
+  #vista-inicio .banner img{ height: 120px !important; }
+}
+@media (max-width:480px){
+  #vista-inicio .banner img{ height: 105px !important; }
+}
+@media (max-width:380px){
+  #vista-inicio .banner img{ height: 96px !important; }
 }
 
 /* ---------------- Menú visual ---------------- */
@@ -35,37 +49,54 @@ html,body{margin:0;overflow-x:hidden;font-family:'Nunito Sans',system-ui,Segoe U
   padding:6px 8px; box-shadow:0 6px 16px rgba(0,0,0,.24); display:block;
 }
 @media (max-width:680px){
-  .menu-visual{gap:12px; padding:12px 10px 0}
-  .menu-visual img.boton-imagen{height:58px; padding:5px 7px}
+  .menu-visual{ gap:12px; padding:12px 10px 0; }
+  .menu-visual img.boton-imagen{ height:56px; padding:5px 7px; }
+}
+@media (max-width:420px){
+  .menu-visual img.boton-imagen{ height:52px; }
 }
 
 /* ---------------- Carrusel / banner deslizante ---------------- */
-.carrusel{
+#vista-inicio .carrusel{
   position:relative; width:100%; max-width:1100px; margin:18px auto 26px;
   border-radius:14px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,.18);
 }
-.carrusel img{width:100%; height:200px; object-fit:cover; display:none}
-.carrusel img.activo{display:block}
-.carrusel-indicadores{position:absolute; bottom:10px; left:0; right:0; display:flex; justify-content:center; gap:10px}
-.carrusel-indicadores .punto{width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,.65)}
-.carrusel-indicadores .punto.activo{background:#00bcd4}
+#vista-inicio .carrusel img{
+  width:100%; height: 200px !important; object-fit:cover; display:none;
+}
+#vista-inicio .carrusel img.activo{ display:block; }
 
+#vista-inicio .carrusel-indicadores{
+  position:absolute; bottom:10px; left:0; right:0; display:flex; justify-content:center; gap:10px;
+}
+#vista-inicio .carrusel-indicadores .punto{
+  width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,.65)
+}
+#vista-inicio .carrusel-indicadores .punto.activo{ background:#00bcd4 }
+
+/* alturas más bajas en móvil/tablet */
 @media (max-width:900px){
-  .carrusel img{height:170px}
+  #vista-inicio .carrusel img{ height: 150px !important; }
 }
 @media (max-width:680px){
-  .carrusel img{height:140px}       /* ↓ más bajo en móvil (problema que reportaste) */
+  #vista-inicio .carrusel img{ height: 125px !important; }
+}
+@media (max-width:480px){
+  #vista-inicio .carrusel img{ height: 110px !important; }
+}
+@media (max-width:380px){
+  #vista-inicio .carrusel img{ height: 102px !important; }
 }
 
 /* ---------------- Secciones ---------------- */
-.seccion{padding:32px 18px; max-width:1200px; margin:0 auto}
+.seccion{ padding:32px 18px; max-width:1200px; margin:0 auto; }
 .seccion h2{
   font-family:'Montserrat',sans-serif; font-weight:700; text-align:center;
   font-size:var(--fs-h2); margin:0 0 18px; color:#00bcd4;
   border-bottom:2px solid #778DA9; padding-bottom:10px;
 }
 
-/* ---------------- GRID (3→2) ---------------- */
+/* ---------------- GRID (3→2) + límite de items ---------------- */
 #vista-inicio .grid-productos{
   display:grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));  /* PC: 3 columnas */
@@ -73,15 +104,16 @@ html,body{margin:0;overflow-x:hidden;font-family:'Nunito Sans',system-ui,Segoe U
   align-items:start;
 }
 @media (max-width:900px){
-  #vista-inicio .grid-productos{ grid-template-columns: repeat(2, minmax(0,1fr)); } /* móvil/tablet: 2 */
+  #vista-inicio .grid-productos{
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* móvil/tablet: 2 */
+  }
 }
 
-/* LIMITE DE ITEMS MOSTRADOS POR SECCIÓN (sin tocar tu JS) */
-#vista-inicio .grid-productos > .producto{ display:block }
-@media (min-width:901px){   /* PC: mostrar sólo 3 */
+/* mostrar sólo 3 en PC, 2 en móvil/tablet */
+@media (min-width:901px){
   #vista-inicio .grid-productos > .producto:nth-child(n+4){ display:none !important; }
 }
-@media (max-width:900px){   /* móvil/tablet: mostrar sólo 2 */
+@media (max-width:900px){
   #vista-inicio .grid-productos > .producto:nth-child(n+3){ display:none !important; }
 }
 
@@ -90,7 +122,7 @@ html,body{margin:0;overflow-x:hidden;font-family:'Nunito Sans',system-ui,Segoe U
   background:#1a1a1a; border-radius:var(--radius); padding:14px; text-align:center;
   box-shadow:0 0 15px rgba(0,0,0,.30); transition:transform .2s, box-shadow .2s;
 }
-.producto:hover{ transform:translateY(-2px); box-shadow:0 12px 26px rgba(0,0,0,.36) }
+.producto:hover{ transform:translateY(-2px); box-shadow:0 12px 26px rgba(0,0,0,.36); }
 
 .img{
   width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:12px; margin-bottom:10px; display:block; cursor:zoom-in;
@@ -107,9 +139,9 @@ html,body{margin:0;overflow-x:hidden;font-family:'Nunito Sans',system-ui,Segoe U
   width:100%; background:#00bcd4; color:#fff; border:none; padding:12px 16px;
   border-radius:10px; font-weight:800; font-size:var(--fs-btn); cursor:pointer; text-decoration:none; display:inline-block; margin-top:12px;
 }
-.boton:hover{ background:#0097a7 }
+.boton:hover{ background:#0097a7; }
 
-/* ---------------- Footer + flotantes (sin cambios) ---------------- */
+/* ---------------- Footer + flotantes ---------------- */
 .pie{background:#000;color:#888;text-align:center;padding:20px 10px;font-size:14px}
 .boton-carrito-flotante{
   position:fixed;bottom:24px;right:24px;width:70px;height:70px;font-size:36px;background:#00bcd4;color:#fff;border-radius:50%;
