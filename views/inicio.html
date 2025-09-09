@@ -5,15 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Inicio – Mardant</title>
 
-  <!-- Estilos exclusivos de la portada -->
-  <link rel="stylesheet" href="../css/estilos_inicio.css">
-  <!-- Estilos globales existentes -->
+  <!-- 1) Estilos globales -->
   <link rel="stylesheet" href="../css/estilos.css" />
+
+  <!-- 2) Estilos exclusivos de la portada (deben ir DESPUÉS) -->
+  <link rel="stylesheet" href="../css/estilos_inicio.css">
 </head>
 <body>
 <section id="vista-inicio">
 
-  <!-- Encabezado -->
+  <!-- Banner superior -->
   <header class="banner">
     <img src="https://i.imgur.com/wfOe9n4.png"
          alt="Banner Anime Mardant"
@@ -21,7 +22,7 @@
     <div class="bienvenida"></div>
   </header>
 
-  <!-- Menú visual (botones grandes) -->
+  <!-- Menú visual -->
   <nav class="menu-visual">
     <a href="./catalogo.html"><img src="https://i.imgur.com/B5T6n58.png"   alt="Catálogo"               class="boton-imagen"></a>
     <a href="./como.html"><img      src="https://i.imgur.com/mIZddDA.png"   alt="Cómo Comprar"           class="boton-imagen"></a>
@@ -32,7 +33,7 @@
     <a href="./nosotros.html"><img  src="https://i.imgur.com/0aUfeE9.png"   alt="Sobre Nosotros"         class="boton-imagen"></a>
   </nav>
 
-  <!-- Carrusel / banner deslizante -->
+  <!-- Carrusel -->
   <div class="carrusel">
     <img src="https://i.imgur.com/OxLXhEQ.png" class="activo" alt="Slide 1">
     <img src="https://i.imgur.com/ms4dJaZ.png"               alt="Slide 2">
@@ -40,7 +41,7 @@
     <div class="carrusel-indicadores" id="indicadores"></div>
   </div>
 
-  <!-- Secciones de productos -->
+  <!-- Secciones -->
   <section class="seccion">
     <h2><a href="./catalogo.html?orden=recientes" class="titulo-link">ÚLTIMAS IMPORTACIONES</a></h2>
     <div id="ultimas-importaciones" class="grid-productos"></div>
@@ -66,18 +67,18 @@
     <p>© 2025 Mardant Perú • Todos los derechos reservados</p>
   </footer>
 
-  <!-- Botón flotante Mi Cuenta -->
+  <!-- Botón Mi Cuenta -->
   <a href="./cuenta.html" class="boton-cuenta-flotante" id="btnCuenta" title="Mi cuenta">
     <span class="emoji">👤</span>
     <span class="texto" id="cuentaTexto">Entrar</span>
   </a>
 
-  <!-- Botón flotante del carrito -->
+  <!-- Botón carrito -->
   <a href="carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">
     🛒<span id="contador-carrito" class="contador-carrito"></span>
   </a>
 
-  <!-- Lightbox (único) -->
+  <!-- Lightbox -->
   <div id="lb-inicio" class="lightbox" hidden>
     <img alt="Vista ampliada">
     <button class="lb-close" aria-label="Cerrar">×</button>
@@ -85,10 +86,10 @@
 
 </section>
 
-<!-- Lógica de la portada (pinta las cards) -->
+<!-- Lógica de portada -->
 <script type="module" src="../js/scripts_inicio.js"></script>
 
-<!-- Abrir imágenes de las cards en lightbox -->
+<!-- Lightbox para imágenes de cards -->
 <script>
   (function () {
     const root = document.getElementById('vista-inicio');
@@ -115,8 +116,7 @@
   })();
 </script>
 
-<!-- Tracking (FB Pixel + GA4 + eventos) -->
+<!-- Tracking -->
 <script type="module" src="../js/tracking.js"></script>
 </body>
 </html>
-
