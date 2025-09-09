@@ -1,4 +1,18 @@
 <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inicio – Mardant</title>
+
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <!-- estilos globales -->
+  <link rel="stylesheet" href="../css/estilos.css" />
+  <!-- estilos exclusivos del inicio -->
+  <link rel="stylesheet" href="../css/estilos_inicio.css" />
+</head>
+<body>
+
 <section id="vista-inicio">
 
   <!-- Encabezado -->
@@ -65,20 +79,18 @@
     🛒<span id="contador-carrito" class="contador-carrito"></span>
   </a>
 
-  <!-- Lightbox único -->
+  <!-- Lightbox portada -->
   <div id="lb-inicio" class="lightbox" hidden>
     <img alt="Vista ampliada">
     <button class="lb-close" aria-label="Cerrar">×</button>
   </div>
-</section>
 
-<!-- Estilos exclusivos -->
-<link rel="stylesheet" href="../css/estilos_inicio.css">
+</section>
 
 <!-- Lógica de la portada -->
 <script type="module" src="../js/scripts_inicio.js"></script>
 
-<!-- Abrir imágenes en lightbox (solo imágenes dentro de las cards) -->
+<!-- Abrir imágenes en lightbox (delegado en TODA la portada) -->
 <script>
   (function () {
     const root = document.getElementById('vista-inicio');
@@ -87,8 +99,8 @@
 
     root.addEventListener('click', (e) => {
       const el = e.target;
-      // Solo si es IMG dentro de una tarjeta de producto
-      if (el && el.tagName === 'IMG' && el.closest('.producto')) {
+      // sólo si es imagen dentro de una card del grid
+      if (el && el.tagName === 'IMG' && el.closest('.grid-productos')) {
         img.src = el.src;
         lb.hidden = false;
         document.body.style.overflow = 'hidden';
@@ -101,16 +113,12 @@
       document.body.style.overflow = '';
     };
     lb.addEventListener('click', close);
-    lb.querySelector('.lb-close').addEventListener('click', (ev) => {
-      ev.stopPropagation();
-      close();
-    });
-    document.addEventListener('keydown', (ev) => {
-      if (!lb.hidden && ev.key === 'Escape') close();
-    });
+    lb.querySelector('.lb-close').addEventListener('click', (ev) => { ev.stopPropagation(); close(); });
+    document.addEventListener('keydown', (ev) => { if (!lb.hidden && ev.key === 'Escape') close(); });
   })();
 </script>
 
-<!-- Tracking (FB Pixel + GA4 + eventos) -->
+<!-- Tracking -->
 <script type="module" src="../js/tracking.js"></script>
-
+</body>
+</html>
