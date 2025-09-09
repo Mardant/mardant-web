@@ -212,3 +212,12 @@
   display:inline-flex; align-items:center; gap:.45rem;
   padding:6px 10px; border-radius:9999px; background:#eef4ff; color:#0a2540; font-weight:800; font-size:12px;
 }
+
+/* --- FIX: evitar salto de línea en "Mi cuenta" del menú superior --- */
+header nav a[href*="cuenta"],
+nav a[href*="cuenta"]{
+  display: inline-block;   /* ancho en función del contenido */
+  white-space: nowrap;     /* no se parte en dos líneas */
+  word-break: keep-all;    /* evita cortes raros por palabra */
+  vertical-align: middle;  /* alinea con los demás ítems */
+}
