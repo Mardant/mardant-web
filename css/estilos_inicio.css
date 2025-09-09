@@ -1,9 +1,13 @@
-/* —— INICIO – grid sólido + responsive real (4→3→2→2) —— */
+/* ============================================================
+   INICIO – Grid sólido + responsive real (3 desktop → 2 móvil)
+   Banner superior y carrusel afinados
+   ============================================================ */
+
 @import url('https://fonts.googleapis.com/css2?family=Carter+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap');
 
 :root{
-  /* Tipos fluidos (no gigantes) */
+  /* Tipos fluidos (sin que se vean gigantes) */
   --fs-h2:     clamp(22px, 4.8vw, 38px);
   --fs-name:   clamp(13px, 2.0vw, 17px);
   --fs-price:  clamp(13px, 1.9vw, 16px);
@@ -22,14 +26,20 @@ html, body{
   color:#111;
 }
 
-/* ===== Banner ===== */
+/* ========================= Banner superior ========================= */
 .banner{ position:relative; background:#000; overflow:hidden; }
 .banner img{
-  width:100%; height:250px; max-width:1920px;
-  display:block; object-fit:cover; object-position:center; margin:0 auto;
+  width:100%;
+  height: clamp(180px, 28vw, 320px); /* alto fluido */
+  max-width:1920px;
+  display:block;
+  object-fit:cover;
+  object-position:center 40%;
+  margin:0 auto;
+  border-bottom:3px solid #00bcd4;
 }
 
-/* ===== Menú visual (más grande y legible) ===== */
+/* ====================== Menú visual (botonera) ===================== */
 .menu-visual{
   display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
   gap:18px; padding:18px 12px 6px;
@@ -45,63 +55,69 @@ html, body{
 
 @media (max-width: 680px){
   .menu-visual{ gap:12px; padding:12px 10px 0; }
-  .menu-visual img.boton-imagen{ height:62px; padding:5px 7px; }
+  .menu-visual img.boton-imagen{ height:66px; padding:5px 7px; }
 }
 
-/* ===== Carrusel ===== */
+/* ========================= Carrusel / banner ======================= */
 .carrusel{
-  position:relative; width:100%; max-width:1100px; margin:20px auto 28px;
-  overflow:hidden; border-radius:14px; box-shadow:0 4px 12px rgba(0,0,0,.18);
-  max-height:200px;
+  position:relative;
+  width:100%;
+  max-width:1240px;
+  margin:22px auto 30px;
+  overflow:hidden;
+  border-radius:16px;
+  box-shadow:0 6px 16px rgba(0,0,0,.18);
 }
-.carrusel img{ width:100%; height:200px; object-fit:cover; display:none; }
+.carrusel img{
+  width:100%;
+  height: clamp(160px, 22vw, 260px);
+  object-fit:cover;
+  display:none;
+}
 .carrusel img.activo{ display:block; }
+
 .carrusel-indicadores{
-  position:absolute; bottom:10px; width:100%; display:flex; justify-content:center; gap:10px;
+  position:absolute; bottom:12px; left:0; right:0;
+  display:flex; justify-content:center; gap:10px;
 }
 .carrusel-indicadores .punto{
-  width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,.65);
+  width:12px;height:12px;border-radius:50%;
+  background:rgba(255,255,255,.65);
 }
 .carrusel-indicadores .punto.activo{ background:#00bcd4; }
 
-/* ===== Secciones ===== */
-.seccion{ padding:36px 18px; max-width:1220px; margin:0 auto; }
+/* ============================ Secciones ============================ */
+.seccion{ padding:36px 18px; max-width:1240px; margin:0 auto; }
 .seccion h2{
   font-family:'Montserrat', sans-serif; font-weight:700; text-align:center;
   font-size:var(--fs-h2); margin:0 0 22px; color:#00bcd4;
   border-bottom:2px solid #778DA9; padding-bottom:10px;
 }
 
-/* ===== GRID (auto-fit con anchura mínima variable) =====
-   - 4 col si caben, si no 3, luego 2 → móvil 2
-   ------------------------------------------------------ */
+/* =============== GRID – 3 en desktop, 2 en tablet/móvil =========== */
 #vista-inicio .grid-productos{
-  --card-min: 340px;                 /* desktop: target 3 col */
   display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--card-min), 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 fijas en escritorio */
   gap: var(--gap);
   align-items:start;
+  max-width:1240px;
+  margin: 0 auto;
 }
 
-/* Si el ancho baja y 4 no caben, auto-fit cae a 3 sin saltos */
-@media (max-width: 1100px){
-  #vista-inicio .grid-productos{ --card-min: 300px; } /* fuerza 3 col */
-}
-
-/* Tablet: 2 columnas amplias */
-@media (max-width: 900px){
-  #vista-inicio .grid-productos{ --card-min: 260px; }
-}
-
-/* Móvil: 2 columnas (en 360–430px caben dos tarjetas) */
-@media (max-width: 680px){
+/* Tablet & móvil: 2 columnas */
+@media (max-width: 920px){
   #vista-inicio .grid-productos{
-    --card-min: 170px;               /* dos por fila en 360px */
-    gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap:18px;
   }
 }
 
-/* ===== Cards ===== */
+/* Móviles pequeños: mismo 2× con gap más compacto */
+@media (max-width: 480px){
+  #vista-inicio .grid-productos{ gap:14px; }
+}
+
+/* ============================== Cards ============================== */
 .producto{
   background:#1a1a1a;
   border-radius:var(--radius);
@@ -112,19 +128,19 @@ html, body{
 }
 .producto:hover{ transform:translateY(-2px); box-shadow:0 12px 26px rgba(0,0,0,.36); }
 
-/* Imagen LLENA el bloque (sin marco negro) */
+/* Imagen llena el contenedor – sin marcos negros */
 .img{
   width:100%;
   aspect-ratio: 4 / 3;
-  object-fit: cover;         /* llena el contenedor */
-  background: transparent;   /* sin “marco” detrás */
+  object-fit: cover;
+  background: transparent;
   border-radius:12px;
   margin-bottom:10px;
   display:block;
   cursor: zoom-in;
 }
 
-/* Textos sobrios */
+/* Textos sobrios y compactos */
 .nombre{
   font-weight:800; color:#ffc107;
   font-size:var(--fs-name) !important;
@@ -135,7 +151,7 @@ html, body{
 .precio{    font-size:var(--fs-price) !important; color:#fff; margin-bottom:6px; font-weight:800; }
 .estado{    font-size:var(--fs-status) !important; color:#81c784; margin-bottom:10px; }
 
-/* CTA */
+/* CTA ancho completo */
 .boton{
   width:100%;
   background:#00bcd4; color:#fff; border:none;
@@ -143,16 +159,21 @@ html, body{
   border-radius:10px;
   font-weight:800; font-size:var(--fs-btn);
   cursor:pointer; text-decoration:none;
-  display:inline-block;
-  margin-top:12px; margin-bottom:4px;
+  display:inline-block; margin-top:12px; margin-bottom:4px;
   transition:background .2s;
 }
 .boton:hover{ background:#0097a7; }
 
-/* ===== Footer ===== */
-.pie{ background:#000; color:#888; text-align:center; padding:20px 10px; font-size:14px; }
+/* =============================== Footer ============================ */
+.pie{
+  background:#000;
+  color:#888;
+  text-align:center;
+  padding:20px 10px;
+  font-size:14px;
+}
 
-/* ===== Botones flotantes ===== */
+/* ========================= Botones flotantes ======================= */
 .boton-carrito-flotante{
   position:fixed; bottom:24px; right:24px;
   width:70px; height:70px; font-size:36px;
@@ -176,10 +197,9 @@ html, body{
 .boton-cuenta-flotante .emoji{ font-size:18px; line-height:1; }
 .boton-cuenta-flotante .texto{ font-size:14px; white-space:nowrap; }
 
-/* ===== Ajustes extra ===== */
+/* ============================== Responsive ========================= */
 @media (max-width:768px){
-  .carrusel{ max-height:160px; }
-  .carrusel img{ height:160px; }
+  .seccion{ padding:30px 16px; }
 }
 @media (max-width:480px){
   .seccion{ padding:26px 12px; }
@@ -189,7 +209,7 @@ html, body{
   .boton-carrito-flotante{ width:58px; height:58px; font-size:28px; bottom:18px; right:18px; }
 }
 
-/* ===== Lightbox ===== */
+/* =============================== Lightbox ========================== */
 .lightbox{
   position:fixed; inset:0; background:rgba(0,0,0,.92);
   display:flex; align-items:center; justify-content:center;
@@ -207,10 +227,11 @@ html, body{
 }
 .lb-close:hover{ opacity:1; }
 
-/* Título con enlace */
+/* ============================ Enlaces título ======================= */
 .titulo-link{
   color:#000; font-weight:bold; text-decoration:none;
   display:inline-block; transition:transform .2s ease, color .2s ease;
 }
 .titulo-link:hover{ transform:scale(1.05); color:#e91e63; text-decoration:none; }
+
 
