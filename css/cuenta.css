@@ -6,7 +6,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&family=Montserrat:wght@700&display=swap');
 
 :root{
-  /* tokens */
   --bg: #f6f8fb;
   --panel: #ffffff;
   --ink: #111;
@@ -26,7 +25,6 @@
 }
 
 *{ box-sizing:border-box }
-
 html,body{ height:100% }
 
 body{
@@ -61,29 +59,22 @@ body{
 .topbar .nav a{
   font-weight:800; color:#223; text-decoration:none;
   padding:2px 0; border-bottom:2px solid transparent;
-  display:inline-block;                 /* ← evita cortes raros */
-  white-space:nowrap;                   /* ← “Mi cuenta” no se parte */
+  display:inline-block;
+  white-space:nowrap;               /* “Mi cuenta” no se parte */
 }
 .topbar .nav a:hover{ color:var(--accent) }
 .topbar .nav a.active{
   color:var(--accent);
   border-bottom-color:var(--accent);
 }
-
-/* En pantallas angostas, hacer la nav desplazable horizontalmente */
+/* Nav desplazable si no entra */
 @media (max-width:520px){
-  .topbar .nav{
-    overflow-x:auto; gap:14px;
-    -webkit-overflow-scrolling:touch;
-  }
+  .topbar .nav{ overflow-x:auto; gap:14px; -webkit-overflow-scrolling:touch }
   .topbar .nav::-webkit-scrollbar{ display:none }
 }
 
 /* ================= Contenedor base ================= */
-.container{
-  max-width:1200px; margin:16px auto;
-  padding:0 16px;
-}
+.container{ max-width:1200px; margin:16px auto; padding:0 16px }
 
 /* ================= Tarjetas / bloques ================= */
 .card{
@@ -114,25 +105,16 @@ body{
 }
 .btn:hover{ box-shadow:0 6px 16px rgba(0,0,0,.15) }
 .btn:active{ transform:translateY(1px); opacity:.95 }
-.btn.secondary{
-  background:#0a2540;
-}
+.btn.secondary{ background:#0a2540 }
 
 /* Mensajes */
 .msg{ margin-top:10px; font-weight:800 }
 .msg.small{ font-size:13px; color:var(--muted) }
 
 /* ================= Formulario (login) ================= */
-.form .row{
-  display:grid; grid-template-columns:1fr; gap:12px;
-  margin-bottom:12px;
-}
-@media (min-width:700px){
-  .form .row{ grid-template-columns:1fr 1fr }
-}
-.field .label{
-  display:block; font-weight:900; color:#334155; margin-bottom:6px; font-size:14px;
-}
+.form .row{ display:grid; grid-template-columns:1fr; gap:12px; margin-bottom:12px }
+@media (min-width:700px){ .form .row{ grid-template-columns:1fr 1fr } }
+.field .label{ display:block; font-weight:900; color:#334155; margin-bottom:6px; font-size:14px }
 .field input{
   width:100%; padding:12px 14px; border-radius:10px;
   border:1.5px solid #d0d7de; background:#fff; color:#111; font-size:16px;
@@ -143,11 +125,7 @@ body{
   box-shadow:0 0 0 4px rgba(0,188,212,.15);
   outline:0;
 }
-
-/* Contraseña con botón “mostrar” */
-.input-wrap{
-  display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center;
-}
+.input-wrap{ display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center }
 .toggle-pass{
   border:1px solid #e6ecf2; background:#f6f8fb; color:#0a2540;
   padding:10px 12px; border-radius:10px; font-weight:800; cursor:pointer;
@@ -155,23 +133,15 @@ body{
 .toggle-pass:active{ transform:translateY(1px) }
 
 /* ================= Panel de datos ================= */
-.panel-head{
-  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
-  margin-bottom:12px;
-}
+.panel-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px }
 .panel-head .who{ font-weight:900; color:#0a2540 }
 .panel-head .label{ font-size:12px; color:#64748b; font-weight:800 }
 .panel-head .who-name{ font-size:16px }
 .panel-head .muted{ color:#64748b }
 
 /* KPIs */
-.kpis{
-  display:grid; grid-template-columns:repeat(2,1fr); gap:10px;
-  margin-bottom:10px;
-}
-@media (min-width:700px){
-  .kpis{ grid-template-columns:repeat(4,1fr) }
-}
+.kpis{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:10px }
+@media (min-width:700px){ .kpis{ grid-template-columns:repeat(4,1fr) } }
 .kpi{ background:#f8fafc; border:1px solid #e6ecf2; border-radius:12px; padding:10px }
 .kpi .label{ font-size:12px; color:#64748b; font-weight:800 }
 .kpi .val{ font-weight:900; font-size:20px; color:#0a2540 }
@@ -182,106 +152,52 @@ body{
   border:1px solid #e6ecf2; background:#f6f8fb; color:#0a2540;
   padding:9px 12px; border-radius:9999px; font-weight:900; cursor:pointer;
 }
-.tab-btn.active{ background:linear-gradient(135deg,var(--accent) 0%,var(--accent-2) 100%); color:#fff; border-color:transparent }
+.tab-btn.active{
+  background:linear-gradient(135deg,var(--accent) 0%,var(--accent-2) 100%);
+  color:#fff; border-color:transparent;
+}
 
-/* ================= Tablas ================= */
-.table-wrap{ width:100%; overflow:auto; border-radius:12px; border:1px solid #e6ecf2 }
+/* ================= Tablas (siempre tablas) ================= */
+.table-wrap{
+  width:100%;
+  overflow-x:auto;                 /* scroll horizontal en móvil */
+  -webkit-overflow-scrolling:touch;
+  border:1px solid #e6ecf2;
+  border-radius:12px;
+}
+/* sombra para indicar que hay más contenido al lado derecho */
+.table-wrap::after{
+  content:"";
+  position:sticky; right:0; top:0; width:26px; height:100%;
+  pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(0,0,0,.06));
+}
+
 table{ width:100%; border-collapse:separate; border-spacing:0 }
 thead th{
   position:sticky; top:0; z-index:1;
   background:#eef2f7; color:#0a2540;
   text-align:left; font-size:13px; letter-spacing:.3px; text-transform:uppercase;
   padding:10px; border-bottom:1px solid #dfe7ef;
+  white-space:nowrap;               /* encabezado en una línea */
 }
 tbody td{
   background:#fff; padding:12px 10px; border-bottom:1px solid #eef2f7;
   vertical-align:middle;
+  white-space:nowrap;               /* filas en una sola línea */
 }
-.right{ text-align:right }
+/* un pequeño “gap” visual entre columnas */
+.table-wrap th + th,
+.table-wrap td + td{ padding-left:18px }
 
-/* Responsive: tabla -> tarjetas compactas */
-@media (max-width:768px){
-  .table-wrap{ border:0 }
-  table{ border-collapse:separate; border-spacing:0 }
-  thead{ display:none }
-  tbody tr{
-    display:grid; grid-template-columns:1fr 1fr;
-    gap:8px; background:#fff; border:1px solid #e6ecf2;
-    border-radius:12px; padding:12px; margin-bottom:12px;
-  }
-  tbody td{ border:0; padding:6px 4px; background:transparent }
-  /* si en el HTML agregas data-label en cada td, se mostrará aquí */
-  tbody td::before{
-    content:attr(data-label);
-    display:block; font-size:12px; font-weight:800; color:#64748b; margin-bottom:2px;
-  }
-}
+/* anchos mínimos para forzar scroll cuando haga falta */
+#itemsTable{ min-width:720px }      /* Foto | ID | Descripción | Ingreso | Estado | Días */
+#preTable{   min-width:1000px }     /* Preventas con más columnas */
+
+.right{ text-align:right }
 
 /* ================= Footer ================= */
 .site-footer{
   text-align:center; color:#64748b; font-weight:800;
   padding:18px 12px; margin:30px 0 10px;
 }
-
-/* ===== Tablas con scroll horizontal en móvil ===== */
-.table-wrap{
-  width: 100%;
-  overflow-x: visible;           /* desktop */
-}
-
-/* Estilo base de tablas (sirve para ambos: #itemsTable y #preTable) */
-.table-wrap table{
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-}
-.table-wrap thead th{
-  text-align: left;
-  font-weight: 900;
-  color: #0a2540;
-  background: #fff;
-  position: sticky;              /* queda fija al hacer scroll */
-  top: 0;
-  z-index: 1;
-}
-.table-wrap th,
-.table-wrap td{
-  padding: 12px 14px;
-  border-bottom: 1px solid #e6ecf2;
-  white-space: nowrap;           /* evita saltos raros en celdas */
-}
-.table-wrap td.right,
-.table-wrap th.right{ text-align:right }
-
-/* —— Solo en pantallas chicas activamos el scroll —— */
-@media (max-width: 900px){
-  .table-wrap{
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    margin-inline: -10px;        /* que el scroll ocupe todo el ancho visual */
-    padding: 0 10px 8px;
-    border-radius: 12px;
-  }
-
-  /* Forzamos un ancho mínimo para provocar scroll horizontal cuando haga falta */
-  #itemsTable{ min-width: 720px; }   /* Foto | ID | Descripción | Ingreso | Estado | Días  */
-  #preTable{   min-width: 1000px; }  /* columnas de preventas más anchas       */
-
-  /* Scrollbar discreta (solo WebKit) */
-  .table-wrap::-webkit-scrollbar{ height: 8px; }
-  .table-wrap::-webkit-scrollbar-thumb{
-    background: #cfd8e3;
-    border-radius: 9999px;
-  }
-
-  /* Sombra suave en el borde derecho para indicar que hay más contenido */
-  .table-wrap::after{
-    content:"";
-    position: sticky;
-    right: 0; top: 0;
-    width: 28px; height: 100%;
-    pointer-events: none;
-    background: linear-gradient(90deg, transparent, rgba(0,0,0,.06));
-  }
-}
-
