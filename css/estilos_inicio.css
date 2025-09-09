@@ -52,8 +52,9 @@ html,body{
 }
 
 /* ---------------- Carrusel / banner deslizante ----------------
-   - Altura controlada por el CONTENEDOR (sin recortes)
-   - Imágenes apiladas; se ocultan por opacidad (fallback: primera visible)
+   - El CONTENEDOR define la altura (no hay recortes)
+   - En móvil: imagen completa (contain) y fondo negro sin “borde blanco”
+   - En desktop: imagen llena el marco (cover)
 -----------------------------------------------------------------*/
 #vista-inicio .carrusel{
   position: relative;
@@ -62,11 +63,11 @@ html,body{
   margin: 16px auto 26px;
   overflow: hidden;
   border-radius: 14px;
-  background:#000;                         /* evita “bordes blancos” */
+  background:#000 !important;                 /* ← sin bordes blancos */
   box-shadow: 0 4px 12px rgba(0,0,0,.18);
 
-  /* Altura responsiva: móvil ~100–120px, desktop ~210–230px */
-  height: clamp(100px, 22vw, 220px);
+  /* Altura responsiva general */
+  height: clamp(110px, 36vw, 220px);
 }
 
 /* Imágenes apiladas que rellenan el carrusel */
@@ -75,12 +76,12 @@ html,body{
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
   object-position: center center;
   border-radius: 0;
   opacity: 0;
   visibility: hidden;
   transition: opacity .25s linear, visibility .25s linear;
+  background:#000 !important;                 /* barras/letterbox negras */
 }
 
 /* Fallback: si no hay .activo por cualquier motivo, se ve la primera */
@@ -93,6 +94,17 @@ html,body{
 #vista-inicio .carrusel > img.activo{
   opacity: 1;
   visibility: visible;
+}
+
+/* Reglas específicas por tamaño */
+@media (max-width: 768px){
+  /* En móvil mostramos la imagen COMPLETA sin recortes */
+  #vista-inicio .carrusel > img{ object-fit: contain !important; }
+}
+@media (min-width: 769px){
+  /* En desktop llenamos el marco como siempre */
+  #vista-inicio .carrusel{ height: clamp(180px, 18vw, 230px); }
+  #vista-inicio .carrusel > img{ object-fit: cover !important; }
 }
 
 /* Puntos del carrusel */
@@ -191,39 +203,4 @@ html,body{
 .titulo-link{color:#000;font-weight:bold;text-decoration:none;display:inline-block;transition:transform .2s ease,color .2s ease}
 .titulo-link:hover{transform:scale(1.05);color:#e91e63;text-decoration:none}
 
-/* ==== HOTFIX CARRUSEL – móvil no recorta (pegar al final) ==== */
-
-/* MÓVIL/TABLET: la imagen se ve completa */
-@media (max-width: 768px){
-  #vista-inicio .carrusel{
-    /* alto sólo en móvil: ~120–170px según ancho */
-    height: clamp(120px, 40vw, 170px) !important;
-    background: #fafafa !important;   /* mismo color de fondo que la página */
-    overflow: hidden !important;
-    border-radius: 14px !important;
-  }
-  #vista-inicio .carrusel > img{
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important;    /* ← ya no recorta */
-    object-position: center center !important;
-    opacity: 0; visibility: hidden;    /* seguimos usando opacidad para el slider */
-    transition: opacity .25s linear, visibility .25s linear;
-  }
-  #vista-inicio .carrusel > img:first-of-type{opacity:1;visibility:visible}
-  #vista-inicio .carrusel > img.activo{opacity:1;visibility:visible}
-}
-
-/* DESKTOP: llenar el marco (mismo look de antes) */
-@media (min-width: 769px){
-  #vista-inicio .carrusel{
-    height: clamp(180px, 18vw, 230px) !important;
-  }
-  #vista-inicio .carrusel > img{
-    object-fit: cover !important;
-    object-position: center center !important;
-  }
-}
 
