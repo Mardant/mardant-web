@@ -1,7 +1,7 @@
 /* ==========================
    INICIO (Home)
    3 cards PC · 2 cards móvil
-   Banner superior + Carrusel OK
+   Banner superior + Carrusel
    ========================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
@@ -23,13 +23,15 @@ html,body{
   background:#fafafa; color:#111;
 }
 
-/* ---------------- Banner superior (compacto) ---------------- */
-#vista-inicio .banner{position:relative; overflow:hidden; background:#000}
-#vista-inicio .banner img{
-  width:100%;
-  height: clamp(110px, 28vw, 220px);    /* móvil bajo, PC sobrio */
-  object-fit: cover;
-  object-position: center 45%;
+/* ---------------- Banner superior (forzado a sobrescribir lo global) ---------------- */
+#vista-inicio header.banner{position:relative; overflow:hidden; background:#000; margin:0 0 18px;}
+#vista-inicio header.banner img{
+  width:100% !important;
+  height: clamp(110px, 28vw, 220px) !important;
+  max-height:none !important;
+  border-radius:0 !important;
+  object-fit: cover !important;
+  object-position: center 45% !important;
   display:block;
   border-bottom:3px solid #00bcd4;
 }
@@ -53,7 +55,7 @@ html,body{
 
 /* ---------------- Carrusel / banner deslizante ----------------
    - Contenedor define la altura (sin desbordes)
-   - Imágenes apiladas y en COVER (sin barras ni cortes raros)
+   - Imágenes apiladas en COVER (sin barras)
 -----------------------------------------------------------------*/
 #vista-inicio .carrusel{
   position: relative;
@@ -64,38 +66,22 @@ html,body{
   border-radius: 14px;
   box-shadow: 0 4px 12px rgba(0,0,0,.18);
 
-  /* Altura responsiva: móvil ~110–150px, desktop ~200–220px */
-  height: clamp(110px, 24vw, 220px);
+  /* Altura responsiva */
+  height: clamp(110px, 24vw, 220px) !important;
 }
-
-/* Imágenes apiladas que rellenan el carrusel */
 #vista-inicio .carrusel > img{
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;                 /* ← sin letterboxing */
-  object-position: center center;
-  border-radius: 0;
-  display:block;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity .25s linear, visibility .25s linear;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;        /* ← NO barras */
+  object-position: center center !important;
+  display: none;
 }
+#vista-inicio .carrusel > img:first-of-type{ display:block; } /* fallback */
+#vista-inicio .carrusel > img.activo{ display:block; }
 
-/* Fallback: si no hay .activo por cualquier motivo, se ve la primera */
-#vista-inicio .carrusel > img:first-of-type{
-  opacity: 1;
-  visibility: visible;
-}
-
-/* La activa se muestra */
-#vista-inicio .carrusel > img.activo{
-  opacity: 1;
-  visibility: visible;
-}
-
-/* Puntos del carrusel */
+/* Indicadores */
 #vista-inicio .carrusel-indicadores{
   position:absolute; left:0; right:0; bottom:10px;
   display:flex; justify-content:center; gap:10px;
@@ -116,17 +102,17 @@ html,body{
 /* ---------------- GRID (3→2) + límite de items ---------------- */
 #vista-inicio .grid-productos{
   display:grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));  /* PC: 3 columnas */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap:var(--gap);
   align-items:start;
 }
 @media (max-width:900px){
   #vista-inicio .grid-productos{
-    grid-template-columns: repeat(2, minmax(0, 1fr)); /* tablet/móvil: 2 */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-/* Mostrar sólo 3 en PC, 2 en móvil/tablet (sin tocar tu JS) */
+/* mostrar sólo 3 en PC, 2 en móvil/tablet */
 @media (min-width:901px){
   #vista-inicio .grid-productos > .producto:nth-child(n+4){ display:none !important; }
 }
