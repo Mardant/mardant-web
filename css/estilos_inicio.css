@@ -52,9 +52,8 @@ html,body{
 }
 
 /* ---------------- Carrusel / banner deslizante ----------------
-   - El CONTENEDOR define la altura (no hay recortes)
-   - En móvil: imagen completa (contain) y fondo negro sin “borde blanco”
-   - En desktop: imagen llena el marco (cover)
+   - Contenedor define la altura (sin desbordes)
+   - Imágenes apiladas y en COVER (sin barras ni cortes raros)
 -----------------------------------------------------------------*/
 #vista-inicio .carrusel{
   position: relative;
@@ -63,11 +62,10 @@ html,body{
   margin: 16px auto 26px;
   overflow: hidden;
   border-radius: 14px;
-  background:#000 !important;                 /* ← sin bordes blancos */
   box-shadow: 0 4px 12px rgba(0,0,0,.18);
 
-  /* Altura responsiva general */
-  height: clamp(110px, 36vw, 220px);
+  /* Altura responsiva: móvil ~110–150px, desktop ~200–220px */
+  height: clamp(110px, 24vw, 220px);
 }
 
 /* Imágenes apiladas que rellenan el carrusel */
@@ -76,12 +74,13 @@ html,body{
   inset: 0;
   width: 100%;
   height: 100%;
+  object-fit: cover;                 /* ← sin letterboxing */
   object-position: center center;
   border-radius: 0;
+  display:block;
   opacity: 0;
   visibility: hidden;
   transition: opacity .25s linear, visibility .25s linear;
-  background:#000 !important;                 /* barras/letterbox negras */
 }
 
 /* Fallback: si no hay .activo por cualquier motivo, se ve la primera */
@@ -94,17 +93,6 @@ html,body{
 #vista-inicio .carrusel > img.activo{
   opacity: 1;
   visibility: visible;
-}
-
-/* Reglas específicas por tamaño */
-@media (max-width: 768px){
-  /* En móvil mostramos la imagen COMPLETA sin recortes */
-  #vista-inicio .carrusel > img{ object-fit: contain !important; }
-}
-@media (min-width: 769px){
-  /* En desktop llenamos el marco como siempre */
-  #vista-inicio .carrusel{ height: clamp(180px, 18vw, 230px); }
-  #vista-inicio .carrusel > img{ object-fit: cover !important; }
 }
 
 /* Puntos del carrusel */
@@ -202,5 +190,6 @@ html,body{
 /* ---------------- Títulos con enlace ---------------- */
 .titulo-link{color:#000;font-weight:bold;text-decoration:none;display:inline-block;transition:transform .2s ease,color .2s ease}
 .titulo-link:hover{transform:scale(1.05);color:#e91e63;text-decoration:none}
+
 
 
