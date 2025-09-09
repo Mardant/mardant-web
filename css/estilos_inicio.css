@@ -1,21 +1,18 @@
-/* —— estilos_inicio.css (grid grande + botones superiores grandes) —— */
+/* —— estilos_inicio.css (inicio limpio, grid sólido y responsive) —— */
 @import url('https://fonts.googleapis.com/css2?family=Carter+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap');
 
 :root{
-  /* Escalas y medidas base */
-  --fs-h2:        clamp(22px, 4.6vw, 36px);
-  --fs-name:      clamp(14px, 1.8vw, 18px);
-  --fs-price:     clamp(13px, 1.7vw, 16px);
-  --fs-status:    clamp(12px, 1.6vw, 14px);
-  --fs-button:    clamp(12px, 1.7vw, 14px);
+  /* Tipos fluidos (no gigantes en móvil) */
+  --fs-h2:     clamp(22px, 4.8vw, 38px);
+  --fs-name:   clamp(13px, 2.0vw, 17px);
+  --fs-price:  clamp(13px, 1.9vw, 16px);
+  --fs-status: clamp(12px, 1.8vw, 14px);
+  --fs-btn:    clamp(12px, 1.9vw, 14px);
 
-  --card-pad:     16px;
-  --card-radius:  14px;
-  --grid-gap:     28px;
-
-  /* NUEVO: ancho mínimo de cada card para que no se encojan */
-  --card-min:     320px; /* puedes subir a 340/360 si las quieres aún más grandes */
+  --card-pad:   14px;
+  --radius:     14px;
+  --gap:        24px;
 }
 
 html, body{
@@ -32,133 +29,129 @@ html, body{
   width:100%; height:250px; max-width:1920px;
   display:block; object-fit:cover; object-position:center; margin:0 auto;
 }
-.bienvenida{ position:absolute; top:20%; width:100%; text-align:center; color:#fff; text-shadow:2px 2px 4px #000; }
 
-/* ===== Menú visual (BOTONES GRANDES) ===== */
+/* ===== Menú visual (más grande) ===== */
 .menu-visual{
-  background:transparent; padding:22px 14px 10px;
-  display:flex; flex-wrap:wrap; justify-content:center; gap:18px;
+  display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
+  gap:18px; padding:18px 12px 6px;
 }
 .menu-visual img.boton-imagen{
-  max-height:82px;                 /* ↑ más grandes en desktop */
-  border-radius:14px;
-  background:#fff;
-  padding:6px 10px;
-  box-shadow:0 6px 16px rgba(0,0,0,.18);
-  transition:transform .2s, box-shadow .2s, filter .2s;
+  height:74px; /* ↑ más grande en desktop */
+  width:auto; max-width:100%;
+  display:block; border-radius:12px; background:#fff;
+  padding:6px 8px;
+  box-shadow:0 6px 16px rgba(0,0,0,.25);
+  transition:transform .18s, box-shadow .18s;
 }
-@media (min-width:1200px){
-  .menu-visual img.boton-imagen{ max-height:96px; } /* aún más grandes en pantallas grandes */
+.menu-visual img.boton-imagen:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(0,0,0,.28); }
+
+@media (max-width: 680px){
+  .menu-visual{ gap:12px; padding:12px 10px 0; }
+  .menu-visual img.boton-imagen{ height:62px; padding:5px 7px; }
 }
-@media (max-width:900px){
-  .menu-visual img.boton-imagen{ max-height:64px; padding:4px 8px; }
-}
-@media (max-width:520px){
-  .menu-visual{ gap:10px; padding:14px 8px 6px; }
-  .menu-visual img.boton-imagen{ max-height:46px; padding:2px 6px; border-radius:10px; }
-}
-.menu-visual img.boton-imagen:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(0,0,0,.22); filter:saturate(1.04); }
 
 /* ===== Carrusel ===== */
 .carrusel{
-  position:relative; width:100%; max-width:1100px; margin:22px auto 6px;
-  overflow:hidden; border-radius:14px; box-shadow:0 6px 18px rgba(0,0,0,.18); max-height:200px;
+  position:relative; width:100%; max-width:1100px; margin:20px auto 28px;
+  overflow:hidden; border-radius:14px; box-shadow:0 4px 12px rgba(0,0,0,.18);
+  max-height:200px;
 }
 .carrusel img{ width:100%; height:200px; object-fit:cover; display:none; }
 .carrusel img.activo{ display:block; }
 .carrusel-indicadores{
-  position:absolute; bottom:10px; left:0; right:0;
-  display:flex; justify-content:center; gap:10px;
+  position:absolute; bottom:10px; width:100%; display:flex; justify-content:center; gap:10px;
 }
-.carrusel-indicadores .punto{ width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,.6); transition:background .25s; }
+.carrusel-indicadores .punto{
+  width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,.65);
+}
 .carrusel-indicadores .punto.activo{ background:#00bcd4; }
 
 /* ===== Secciones ===== */
-.seccion{
-  padding:34px 20px;
-  max-width:1360px;           /* ↑ más ancho para cards grandes */
-  margin:auto;
-}
+.seccion{ padding:36px 18px; max-width:1200px; margin:0 auto; }
 .seccion h2{
   font-family:'Montserrat', sans-serif; font-weight:700; text-align:center;
-  font-size:var(--fs-h2); margin-bottom:22px; color:#00bcd4;
-  border-bottom:2px solid #778DA9; padding-bottom:8px;
+  font-size:var(--fs-h2); margin:0 0 22px; color:#00bcd4;
+  border-bottom:2px solid #778DA9; padding-bottom:10px;
 }
-.titulo-link{ color:#000; font-weight:800; text-decoration:none; transition:color .2s, transform .2s; }
-.titulo-link:hover{ color:#e91e63; transform:scale(1.02); }
 
-/* ===== Grid + Cards (GRANDES) ===== */
+/* ===== Grid de productos ===== */
 .grid-productos{
   display:grid;
-  /* clave: cards grandes y estables; 3 columnas en 1280, 4 en ≥1500 */
-  grid-template-columns: repeat(auto-fit, minmax(var(--card-min), 1fr));
-  gap:var(--grid-gap);
-  align-items:stretch;
+  grid-template-columns: repeat(4, minmax(260px, 1fr));
+  gap:var(--gap);
+  align-items:start;
 }
+@media (max-width: 1180px){ .grid-productos{ grid-template-columns: repeat(3, minmax(240px, 1fr)); } }
+@media (max-width: 900px) { .grid-productos{ grid-template-columns: repeat(2, minmax(220px, 1fr)); } }
+@media (max-width: 420px) { .grid-productos{ grid-template-columns: 1fr; gap:16px; } }
 
-/* Card */
-#vista-inicio .producto{
-  background:#131313;
-  border-radius:var(--card-radius);
+/* ===== Card ===== */
+.producto{
+  background:#1a1a1a;
+  border-radius:var(--radius);
   padding:var(--card-pad);
   text-align:center;
-  box-shadow:0 8px 22px rgba(0,0,0,.28);
-  transition:transform .2s ease, box-shadow .2s ease;
-  display:flex; flex-direction:column;
+  box-shadow:0 0 15px rgba(0,0,0,.30);
+  transition:transform .2s, box-shadow .2s;
 }
-#vista-inicio .producto:hover{ transform:translateY(-3px); box-shadow:0 14px 30px rgba(0,0,0,.35); }
+.producto:hover{ transform:translateY(-2px); box-shadow:0 12px 26px rgba(0,0,0,.36); }
 
-/* Imagen: llena la caja (sin barras negras) */
-#vista-inicio .producto img{
+/* Imagen SIN marco negro (cover y sin fondo) */
+.img{
   width:100%;
   aspect-ratio: 4 / 3;
-  height:auto;
-  object-fit: cover;           /* rellena sin marcos */
+  object-fit: cover;         /* rellena sin marcos */
+  background: transparent;   /* nada detrás */
   border-radius:12px;
-  margin-bottom:12px;
+  margin-bottom:10px;
   display:block;
-  cursor:zoom-in;
+  cursor: zoom-in;
 }
 
-/* Textos sobrios */
-#vista-inicio .producto .nombre{
+/* Textos sobrios y legibles */
+.nombre{
   font-weight:800; color:#ffc107;
   font-size:var(--fs-name) !important;
   line-height:1.25; margin:6px 0 4px;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
 }
-#vista-inicio .producto .categoria{ font-size:12.5px; color:#bbb; margin-bottom:6px; }
-#vista-inicio .producto .precio{ font-size:var(--fs-price) !important; color:#fff; margin-bottom:6px; font-weight:800; }
-#vista-inicio .producto .estado{ font-size:var(--fs-status) !important; color:#81c784; margin-bottom:12px; }
-#vista-inicio .producto .estado.disponible-a-pedido{ font-weight:800; }
+.categoria{ font-size:12.5px; color:#bbb; margin-bottom:6px; }
+.precio{ font-size:var(--fs-price) !important; color:#fff; margin-bottom:6px; font-weight:800; }
+.estado{ font-size:var(--fs-status) !important; color:#81c784; margin-bottom:10px; }
 
-/* Botón de la card */
-#vista-inicio .producto .boton{
+/* Botón acción con más respiración */
+.boton{
+  width:100%;
   background:#00bcd4; color:#fff; border:none;
-  padding:12px 18px; border-radius:10px; font-weight:900;
-  cursor:pointer; text-decoration:none; display:inline-block;
-  transition:background .2s ease, transform .1s ease;
-  font-size:var(--fs-button);
-  margin-top:auto;
+  padding:12px 16px;
+  border-radius:10px;
+  font-weight:800; font-size:var(--fs-btn);
+  cursor:pointer; text-decoration:none;
+  display:inline-block;
+  margin-top:12px; margin-bottom:4px; /* ↓ distancia al borde inferior */
+  transition:background .2s;
 }
-#vista-inicio .producto .boton:hover{ background:#0097a7; }
+.boton:hover{ background:#0097a7; }
 
 /* ===== Footer ===== */
 .pie{ background:#000; color:#888; text-align:center; padding:20px 10px; font-size:14px; }
 
 /* ===== Botones flotantes ===== */
 .boton-carrito-flotante{
-  position:fixed; bottom:24px; right:24px; width:70px; height:70px; font-size:36px;
+  position:fixed; bottom:24px; right:24px;
+  width:70px; height:70px; font-size:36px;
   background:#00bcd4; color:#fff; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
-  box-shadow:0 6px 18px rgba(0,0,0,.35); z-index:9999;
-  transition:background .25s, transform .15s;
+  text-decoration:none; box-shadow:0 6px 18px rgba(0,0,0,.35);
+  z-index:9999; transition:background .25s, transform .15s;
 }
 .boton-carrito-flotante:hover{ background:#0097a7; transform:scale(1.08); }
 
 .boton-cuenta-flotante{
-  position:fixed; top:16px; right:16px; display:inline-flex; align-items:center; gap:8px;
-  padding:10px 14px; background:rgba(0,0,0,.65); color:#fff; text-decoration:none;
+  position:fixed; top:16px; right:16px;
+  display:inline-flex; align-items:center; gap:8px;
+  padding:10px 14px;
+  background:rgba(0,0,0,.65); color:#fff; text-decoration:none;
   border:1px solid #00bcd4; border-radius:999px; font-weight:700;
   box-shadow:0 6px 16px rgba(0,0,0,.35); backdrop-filter:blur(6px);
   z-index:10000; transition:transform .2s, box-shadow .2s, background .2s;
@@ -167,21 +160,20 @@ html, body{
 .boton-cuenta-flotante .emoji{ font-size:18px; line-height:1; }
 .boton-cuenta-flotante .texto{ font-size:14px; white-space:nowrap; }
 
-/* ===== Responsive ===== */
-@media (max-width:900px){
-  .seccion{ max-width: 96%; padding:26px 14px; }
-  :root{ --card-min: 280px; }  /* 2 columnas cómodas */
+/* ===== Responsive fino ===== */
+@media (max-width:768px){
+  .carrusel{ max-height:160px; }
+  .carrusel img{ height:160px; }
 }
-@media (max-width:560px){
-  :root{ --card-min: 260px; }  /* 1 columna grande en móviles */
-  /* Opcional (para aligerar): mostrar sólo 3 por sección en móvil */
-  .grid-productos > .producto:nth-child(n+4){ display:none; }
+@media (max-width:480px){
+  .seccion{ padding:26px 12px; }
+  .seccion h2{ font-size:24px !important; padding-bottom:6px; margin-bottom:18px; }
   .boton-cuenta-flotante{ border-radius:50%; padding:10px; }
   .boton-cuenta-flotante .texto{ display:none; }
   .boton-carrito-flotante{ width:58px; height:58px; font-size:28px; bottom:18px; right:18px; }
 }
 
-/* ===== Lightbox ===== */
+/* ===== Lightbox (igual que otras vistas) ===== */
 .lightbox{
   position:fixed; inset:0; background:rgba(0,0,0,.92);
   display:flex; align-items:center; justify-content:center;
@@ -198,3 +190,11 @@ html, body{
   font-size:36px; line-height:1; cursor:pointer; opacity:.9;
 }
 .lb-close:hover{ opacity:1; }
+
+/* —— Enlaces de título —— */
+.titulo-link{
+  color:#000; font-weight:bold; text-decoration:none;
+  display:inline-block; transition:transform .2s ease, color .2s ease;
+}
+.titulo-link:hover{ transform:scale(1.05); color:#e91e63; text-decoration:none; }
+
