@@ -5,14 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Inicio – Mardant</title>
 
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
-  <!-- estilos globales -->
+  <!-- Estilos exclusivos de la portada -->
+  <link rel="stylesheet" href="../css/estilos_inicio.css">
+  <!-- Estilos globales existentes -->
   <link rel="stylesheet" href="../css/estilos.css" />
-  <!-- estilos exclusivos del inicio -->
-  <link rel="stylesheet" href="../css/estilos_inicio.css" />
 </head>
 <body>
-
 <section id="vista-inicio">
 
   <!-- Encabezado -->
@@ -23,7 +21,7 @@
     <div class="bienvenida"></div>
   </header>
 
-  <!-- Menú visual -->
+  <!-- Menú visual (botones grandes) -->
   <nav class="menu-visual">
     <a href="./catalogo.html"><img src="https://i.imgur.com/B5T6n58.png"   alt="Catálogo"               class="boton-imagen"></a>
     <a href="./como.html"><img      src="https://i.imgur.com/mIZddDA.png"   alt="Cómo Comprar"           class="boton-imagen"></a>
@@ -79,7 +77,7 @@
     🛒<span id="contador-carrito" class="contador-carrito"></span>
   </a>
 
-  <!-- Lightbox portada -->
+  <!-- Lightbox (único) -->
   <div id="lb-inicio" class="lightbox" hidden>
     <img alt="Vista ampliada">
     <button class="lb-close" aria-label="Cerrar">×</button>
@@ -90,7 +88,7 @@
 <!-- Lógica de la portada -->
 <script type="module" src="../js/scripts_inicio.js"></script>
 
-<!-- Abrir imágenes en lightbox (delegado en TODA la portada) -->
+<!-- Abrir imágenes en lightbox (delegado en toda la portada) -->
 <script>
   (function () {
     const root = document.getElementById('vista-inicio');
@@ -99,7 +97,6 @@
 
     root.addEventListener('click', (e) => {
       const el = e.target;
-      // sólo si es imagen dentro de una card del grid
       if (el && el.tagName === 'IMG' && el.closest('.grid-productos')) {
         img.src = el.src;
         lb.hidden = false;
@@ -118,7 +115,8 @@
   })();
 </script>
 
-<!-- Tracking -->
+<!-- Tracking (FB Pixel + GA4 + eventos) -->
 <script type="module" src="../js/tracking.js"></script>
 </body>
 </html>
+
