@@ -1,7 +1,9 @@
 // === js/cuenta.js ===
 import { API_URL, AUTH_KEYS } from './config.js';
 
-/* ---- Elements ---- */
+/* ---------------------------------
+   Elementos del DOM
+---------------------------------- */
 const loginSection  = document.getElementById('loginSection');
 const statusSection = document.getElementById('statusSection');
 const loginForm     = document.getElementById('loginForm');
@@ -28,18 +30,38 @@ const tabBtns         = document.querySelectorAll('.tab-btn');
 const tabAlmacen      = document.getElementById('tab-almacen');
 const tabPreventas    = document.getElementById('tab-preventas');
 
-/* ---- Helpers ---- */
+/* ---------------------------------
+   Helpers
+---------------------------------- */
 const PEN = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
-const getToken = () => localStorage.getItem(AUTH_KEYS.TOKEN);
-const setAuth  = (t,id,name)=>{ localStorage.setItem(AUTH_KEYS.TOKEN,t); localStorage.setItem(AUTH_KEYS.CLIENT,id||''); localStorage.setItem(AUTH_KEYS.NAME,name||''); };
-const clearAuth= ()=>{ localStorage.removeItem(AUTH_KEYS.TOKEN); localStorage.removeItem(AUTH_KEYS.CLIENT); localStorage.removeItem(AUTH_KEYS.NAME); };
-const showLogin= ()=>{ statusSection.style.display='none'; loginSection.style.display='block'; };
-const showPanel= ()=>{ loginSection.style.display='none'; statusSection.style.display='block'; };
 
+const getToken = () => localStorage.getItem(AUTH_KEYS.TOKEN);
+const setAuth  = (t,id,name)=>{
+  localStorage.setItem(AUTH_KEYS.TOKEN,t);
+  localStorage.setItem(AUTH_KEYS.CLIENT,id||'');
+  localStorage.setItem(AUTH_KEYS.NAME,name||'');
+};
+const clearAuth= ()=>{
+  localStorage.removeItem(AUTH_KEYS.TOKEN);
+  localStorage.removeItem(AUTH_KEYS.CLIENT);
+  localStorage.removeItem(AUTH_KEYS.NAME);
+};
+
+const showLogin= ()=>{
+  statusSection.style.display='none';
+  loginSection.style.display='block';
+};
+const showPanel= ()=>{
+  loginSection.style.display='none';
+  statusSection.style.display='block';
+};
+
+/* Mantener ID en mayúsculas */
 document.getElementById('clientId').addEventListener('input', (e)=>{
   e.target.value = e.target.value.toUpperCase().trim();
 });
 
+/* Mostrar / ocultar contraseña */
 togglePassBtn.addEventListener('click', ()=>{
   const input = document.getElementById('password');
   const to = input.type === 'password' ? 'text' : 'password';
@@ -47,16 +69,18 @@ togglePassBtn.addEventListener('click', ()=>{
   togglePassBtn.textContent = (to === 'text') ? 'Ocultar' : 'Mostrar';
 });
 
+/* Tabs */
 tabBtns.forEach(btn=>{
   btn.addEventListener('click', ()=>{
     tabBtns.forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
     const t = btn.dataset.tab;
-    tabAlmacen.style.display  = (t === 'almacen')  ? 'block' : 'none';
-    tabPreventas.style.display= (t === 'preventas')? 'block' : 'none';
+    tabAlmacen.style.display   = (t === 'almacen')   ? 'block' : 'none';
+    tabPreventas.style.display = (t === 'preventas') ? 'block' : 'none';
   });
 });
 
+/* Estado (badge) de la columna "Estado" */
 function stateBadge(text){
   const t = (text||'').toUpperCase();
   let cls = 'badge state ';
@@ -72,12 +96,50 @@ function stateBadge(text){
   return `<span class="${cls}">${text||'-'}</span>`;
 }
 
+/* Miniatura clicable */
 function thumb(url){
   const u = (url||'').trim();
   if (!u) return `<div class="thumb"><span class="muted">–</span></div>`;
   return `<a class="thumb" href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="foto"/></a>`;
 }
 
+/* ---------------------------------
+   Alertas de almacenaje
+---------------------------------- */
+const WARN_THRESHOLD = 10; // días restantes para advertir
+
+// Si la API no envía dias_restantes por ítem, lo derivamos con dias_gratis global.
+function getRestantes(it, diasGratisGlobal) {
+  if (it.dias_restantes != null) return Number(it.dias_restantes);
+  const usados = Number(it.dias_en_almacen || 0);
+  const gratis = Number(diasGratisGlobal || 0);
+  return gratis ? (gratis - usados) : null;
+}
+
+// pinta el badge de días con clase ok/warn/danger y title
+function renderDaysBadge(it, diasGratisGlobal) {
+  const restantes = getRestantes(it, diasGratisGlobal);
+  let cls = 'badge days';
+  let title = '';
+
+  if (it.excedido || (restantes != null && restantes < 0)) {
+    cls += ' danger';
+    title = 'Almacenaje excedido';
+  } else if (restantes != null && restantes <= WARN_THRESHOLD) {
+    cls += ' warn';
+    title = `Quedan ${Math.max(restantes, 0)} día(s)`;
+  } else {
+    cls += ' ok';
+    title = restantes != null ? `Quedan ${restantes} día(s)` : '';
+  }
+
+  // Mostramos los días en almacén como valor principal (tu API lo trae)
+  return `<span class="${cls}" title="${title}">${it.dias_en_almacen ?? '-'}</span>`;
+}
+
+/* ---------------------------------
+   Carga de panel (status)
+---------------------------------- */
 async function loadStatus(){
   const token = getToken();
   if (!token){ showLogin(); return; }
@@ -107,10 +169,17 @@ async function loadStatus(){
     diasRestantesEl.textContent = data.dias_restantes;
     diasExcedidosEl.textContent = data.dias_excedidos;
 
-    // ALMACÉN
+    /* ---------- ALMACÉN ---------- */
     const items = data.almacen || data.items || [];
     itemsTbody.innerHTML = '';
+
+    const nearDue = []; // ítems por vencer (≤ WARN_THRESHOLD)
     items.forEach(it=>{
+      const restantes = getRestantes(it, data.dias_gratis);
+      if (!it.excedido && restantes != null && restantes <= WARN_THRESHOLD) {
+        nearDue.push({ id: it.item_id, rest: Math.max(restantes, 0) });
+      }
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${thumb(it.foto_url)}</td>
@@ -118,13 +187,21 @@ async function loadStatus(){
         <td>${it.descripcion || '-'}</td>
         <td>${it.fecha_ingreso || '-'}</td>
         <td>${stateBadge(it.estado)}</td>
-        <td class="right"><span class="badge days ${it.excedido?'danger':''}">${it.dias_en_almacen ?? '-'}</span></td>
+        <td class="right">${renderDaysBadge(it, data.dias_gratis)}</td>
       `;
       itemsTbody.appendChild(tr);
     });
-    almacenMsg.textContent = items.length ? '' : 'No tienes ítems en almacén.';
 
-    // PREVENTAS
+    if (!items.length){
+      almacenMsg.textContent = 'No tienes ítems en almacén.';
+    } else if (nearDue.length){
+      const lista = nearDue.map(x => `${x.id} (${x.rest}d)`).join(', ');
+      almacenMsg.innerHTML = `⚠️ Los siguientes ítems están por vencer (≤ ${WARN_THRESHOLD} días): <strong>${lista}</strong>.`;
+    } else {
+      almacenMsg.textContent = '';
+    }
+
+    /* ---------- PREVENTAS ---------- */
     const prevs = data.preventas || [];
     preTbody.innerHTML = '';
     prevs.forEach(p=>{
@@ -153,6 +230,9 @@ async function loadStatus(){
   }
 }
 
+/* ---------------------------------
+   Login
+---------------------------------- */
 loginForm.addEventListener('submit', async (ev)=>{
   ev.preventDefault();
   loginMsg.textContent = 'Verificando…';
@@ -161,7 +241,8 @@ loginForm.addEventListener('submit', async (ev)=>{
   const password  = document.getElementById('password').value;
   try{
     const res  = await fetch(API_URL + '?route=login', {
-      method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      method:'POST',
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
       body: JSON.stringify({ client_id, password })
     });
     const data = await res.json();
@@ -172,14 +253,21 @@ loginForm.addEventListener('submit', async (ev)=>{
     await loadStatus();
   }catch(err){
     const map = {
-      client_not_found:'Cliente no encontrado',
-      invalid_password:'Contraseña incorrecta',
-      missing_credentials:'Completa ambos campos',
-      too_many_attempts:'Demasiados intentos. Intenta más tarde'
+      client_not_found   : 'Cliente no encontrado',
+      invalid_password   : 'Contraseña incorrecta',
+      missing_credentials: 'Completa ambos campos',
+      too_many_attempts  : 'Demasiados intentos. Intenta más tarde'
     };
     loginMsg.textContent = map[err.message] || ('Error: ' + err.message);
   }
 });
 
-logoutBtn.addEventListener('click', ()=>{ clearAuth(); showLogin(); });
+/* ---------------------------------
+   Logout e inicio
+---------------------------------- */
+logoutBtn.addEventListener('click', ()=>{
+  clearAuth();
+  showLogin();
+});
+
 getToken() ? loadStatus() : showLogin();
