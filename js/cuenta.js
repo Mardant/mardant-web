@@ -30,30 +30,33 @@ const tabBtns         = document.querySelectorAll('.tab-btn');
 const tabAlmacen      = document.getElementById('tab-almacen');
 const tabPreventas    = document.getElementById('tab-preventas');
 
-/* ----- Modal de imagen (zoom) ----- */
-const imgModal  = document.getElementById('imgModal');
-const modalImg  = imgModal?.querySelector('img');
-const modalClose= imgModal?.querySelector('.img-modal__close');
+/* ---------------------------------
+   Lightbox (igual al de Catálogo)
+---------------------------------- */
+const lb = document.getElementById('lbCuenta');
+const lbImg = document.getElementById('lbImagen');
+const lbClose = lb?.querySelector('.lb-close');
 
-function openImgModal(src){
-  if (!imgModal || !modalImg) return;
-  modalImg.src = src || '';
-  imgModal.hidden = false;
+function openLB(src){
+  if (!lb || !lbImg || !src) return;
+  lbImg.src = src;
+  lb.hidden = false;
   document.body.style.overflow = 'hidden';
 }
-function closeImgModal(){
-  if (!imgModal || !modalImg) return;
-  imgModal.hidden = true;
-  modalImg.src = '';
+function closeLB(){
+  if (!lb || !lbImg) return;
+  lb.hidden = true;
+  lbImg.src = '';
   document.body.style.overflow = '';
 }
-// Cierre por fondo / botón / ESC
-if (imgModal){
-  imgModal.addEventListener('click', (e)=>{
-    if (e.target === imgModal || e.target === modalClose) closeImgModal();
+
+// Cerrar por botón, click en fondo o ESC
+if (lb){
+  lb.addEventListener('click', (e)=>{
+    if (e.target === lb || e.target === lbClose) closeLB();
   });
   document.addEventListener('keydown', (e)=>{
-    if (e.key === 'Escape' && !imgModal.hidden) closeImgModal();
+    if (e.key === 'Escape' && !lb.hidden) closeLB();
   });
 }
 
@@ -123,21 +126,23 @@ function stateBadge(text){
   return `<span class="${cls}">${text||'-'}</span>`;
 }
 
-/* Miniatura clicable: ahora es botón que abre el modal (no enlace) */
+/* Miniatura -> abre lightbox (sin enlace) */
 function thumb(url){
   const u = (url||'').trim();
   if (!u) return `<div class="thumb"><span class="muted">–</span></div>`;
-  return `<button type="button" class="thumb" data-full="${u}" aria-label="Ampliar foto">
-            <img src="${u}" alt="foto" loading="lazy"/>
-          </button>`;
+  return `
+    <button type="button" class="thumb" data-lb-src="${u}" aria-label="Ampliar foto">
+      <img src="${u}" alt="foto" loading="lazy">
+    </button>
+  `;
 }
 
-/* Delegación de eventos: abrir modal al click en .thumb */
+/* Delegación: abrir lightbox cuando se haga click en una miniatura */
 document.addEventListener('click', (e)=>{
   const btn = e.target.closest('.thumb');
   if (!btn) return;
-  const src = btn.dataset.full || btn.querySelector('img')?.src;
-  if (src) openImgModal(src);
+  const src = btn.dataset.lbSrc || btn.querySelector('img')?.src;
+  if (src) openLB(src);
 });
 
 /* ---------------------------------
