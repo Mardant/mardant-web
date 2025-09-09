@@ -280,7 +280,7 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
 }
 
 /* =======================================================================
-   /views/carrito.html (respetando tu lógica actual)
+   /views/carrito.html
    ======================================================================= */
 .carrito-container{
   max-width:1000px;margin:40px auto;padding:20px;background:#121212;border-radius:12px;color:#eee
@@ -334,7 +334,6 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
 @media (max-width: 768px){
   .grid-productos{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
   .producto{padding:10px}
-  /* ← Eliminado: .carrusel img{height:150px} para no interferir con portada */
   .boton-carrito-flotante{width:60px;height:60px;font-size:28px}
 }
 
@@ -342,7 +341,7 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
   .contenedor-guia{grid-template-columns:1fr;max-width:100%;padding:0 10px}
 }
 
-/* CTA compacto al catálogo */
+/* CTA */
 .cta-centro{ text-align:center; margin: 26px 0 8px; }
 .cta-catalogo{
   display:inline-flex; align-items:center; gap:.6rem;
@@ -357,23 +356,12 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
 .cta-catalogo:hover{ transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,.25); }
 .cta-catalogo:active{ transform: translateY(0); opacity:.92; }
 .cta-ico{ font-size: 1.2rem; line-height: 1; }
-
-/* tamaño un pelín mayor en pantallas anchas */
 @media (min-width: 900px){
   .cta-catalogo{ padding:13px 22px; font-size:1.05rem; }
   .cta-ico{ font-size:1.25rem; }
 }
 
-/* Banner superior genérico */
-.banner-top{
-  width:100%;
-  max-height:200px;
-  object-fit:cover;
-  border-bottom:3px solid #00bcd4;
-  display:block;
-}
-
-/* Fila de CTAs centrados */
+/* Fila de CTAs */
 .cta-row{
   display:flex;
   gap:14px;
@@ -382,8 +370,6 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
   margin: 18px 0 6px;
   flex-wrap:wrap;
 }
-
-/* Botón redondeado reutilizable (y compatibilidad con .cta-catalogo) */
 .cta-btn,
 .cta-catalogo{
   display:inline-flex;
@@ -397,8 +383,6 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
   box-shadow:0 6px 16px rgba(0,0,0,.18);
   transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
 }
-
-/* Variante principal (teal degradado) */
 .cta--primary,
 .cta-catalogo{
   background: linear-gradient(135deg,#00bcd4 0%, #008fb9 100%);
@@ -413,13 +397,4 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
 .cta-catalogo:active{
   transform: translateY(0);
   opacity:.92;
-}
-
-/* Icono dentro del CTA */
-.cta-ico{ font-size: 1.2rem; line-height: 1; }
-
-@media (min-width: 900px){
-  .cta-btn,
-  .cta-catalogo{ padding:13px 22px; font-size:1.05rem; }
-  .cta-ico{ font-size:1.25rem; }
 }
