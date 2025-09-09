@@ -1,7 +1,7 @@
 /* ============================================================
-   CUENTA (Mi cuenta) – CSS para el HTML enviado
+   CUENTA (Mi cuenta) – CSS
    Mobile-first, sin dependencias de otros CSS
-   ============================================================ */
+============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&family=Montserrat:wght@700&display=swap');
 
@@ -28,7 +28,7 @@
   --zoom-w-mobile: 72vw;   /* ancho máx en móvil */
   --zoom-h-mobile: 54vh;   /* alto  máx en móvil */
 
-  --zoom-w-tablet: 60vw;   /* entre 768px y 1199px */
+  --zoom-w-tablet: 60vw;   /* 768–1199px */
   --zoom-h-tablet: 62vh;
 
   --zoom-w-desktop: 50vw;  /* ≥1200px */
@@ -37,7 +37,6 @@
 
 *{ box-sizing:border-box }
 html,body{ height:100% }
-
 body{
   margin:0;
   font-family:'Nunito Sans',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
@@ -46,6 +45,8 @@ body{
     radial-gradient(900px 420px at 85% -10%, rgba(0,188,212,.10), transparent 60%),
     var(--bg);
 }
+/* bloquea el scroll del body cuando el lightbox está abierto */
+body.no-scroll{ overflow:hidden; height:100% }
 
 /* ================= Topbar ================= */
 .topbar{
@@ -71,14 +72,13 @@ body{
   font-weight:800; color:#223; text-decoration:none;
   padding:2px 0; border-bottom:2px solid transparent;
   display:inline-block;
-  white-space:nowrap;                 /* “Mi cuenta” no se parte */
+  white-space:nowrap;
 }
 .topbar .nav a:hover{ color:var(--accent) }
 .topbar .nav a.active{
   color:var(--accent);
   border-bottom-color:var(--accent);
 }
-/* Nav desplazable si no entra */
 @media (max-width:520px){
   .topbar .nav{ overflow-x:auto; gap:14px; -webkit-overflow-scrolling:touch }
   .topbar .nav::-webkit-scrollbar{ display:none }
@@ -171,13 +171,12 @@ body{
 /* ================= Tablas (siempre tablas con scroll) ================= */
 .table-wrap{
   width:100%;
-  overflow-x:auto;                 /* scroll horizontal en móvil */
+  overflow-x:auto;
   -webkit-overflow-scrolling:touch;
   border:1px solid #e6ecf2;
   border-radius:12px;
   position:relative;
 }
-/* sombra para indicar que hay más contenido al lado derecho */
 .table-wrap::after{
   content:"";
   position:sticky; right:0; top:0; width:26px; height:100%;
@@ -193,20 +192,19 @@ thead th{
   background:#eef2f7; color:#0a2540;
   text-align:left; font-size:13px; letter-spacing:.3px; text-transform:uppercase;
   padding:10px; border-bottom:1px solid #dfe7ef;
-  white-space:nowrap;               /* encabezado en una línea */
+  white-space:nowrap;
 }
 tbody td{
   background:#fff; padding:12px 10px; border-bottom:1px solid #eef2f7;
   vertical-align:middle;
-  white-space:nowrap;               /* filas en una sola línea */
+  white-space:nowrap;
 }
-/* pequeño “gap” visual entre columnas */
 .table-wrap th + th,
 .table-wrap td + td{ padding-left:18px }
 
 /* anchos mínimos para forzar scroll cuando haga falta */
-#itemsTable{ min-width:720px }      /* Foto | ID | Descripción | Ingreso | Estado | Días */
-#preTable{   min-width:1000px }     /* Preventas con más columnas */
+#itemsTable{ min-width:720px }
+#preTable{   min-width:1000px }
 
 .right{ text-align:right }
 
@@ -238,8 +236,6 @@ tbody td{
   height:26px; padding:0 10px; border-radius:9999px;
   font-weight:900; font-size:12px; line-height:1;
 }
-
-/* Estado (coincide con stateBadge de JS) */
 .badge.state{ background:#eef2f7; color:#0a2540 }
 .badge.state.en-almacen{ background:#eef7ff; color:#0b71c5 }
 .badge.state.enviado{    background:#e8f4ff; color:#0a66c2 }
@@ -250,13 +246,11 @@ tbody td{
 .badge.state.entregado{  background:#e9f9ef; color:#0a7f56 }
 .badge.state.cancelado{  background:#ffe7e7; color:#b2261c }
 
-/* Días (ok/warn/danger) – usado por renderDaysBadge() */
 .badge.days{ min-width:46px; justify-content:center }
 .badge.days.ok{    background:rgba(25,195,125,.12); color:#0a7f56; border:1px solid rgba(25,195,125,.35) }
 .badge.days.warn{  background:rgba(255,152,0,.12); color:#b36a00; border:1px solid rgba(255,152,0,.35) }
 .badge.days.danger{background:rgba(239,83,80,.12); color:#b2261c; border:1px solid rgba(239,83,80,.35) }
 
-/* Utilidades */
 .muted{ color:var(--muted) }
 
 /* ============================================================
@@ -269,7 +263,7 @@ tbody td{
   display:grid; place-items:center;
   padding:8px;
   z-index:1000;
-  overflow:auto;                       /* permite desplazar si el contenido crece */
+  overflow:auto;
   -webkit-overflow-scrolling:touch;
   overscroll-behavior:contain;
 }
@@ -277,12 +271,12 @@ tbody td{
 
 .lb__content{ position:relative }
 
-/* Tamaños controlados por variables */
+/* límites DUROS con min() para no exceder el viewport */
 .lb img{
   display:block;
   width:auto; height:auto;
-  max-width:var(--zoom-w-mobile);
-  max-height:var(--zoom-h-mobile);
+  max-width: min(var(--zoom-w-mobile), calc(100vw - 24px));
+  max-height: min(var(--zoom-h-mobile), calc(100vh - 24px));
   object-fit:contain;
   border-radius:12px;
   box-shadow:0 12px 40px rgba(0,0,0,.6);
@@ -293,16 +287,16 @@ tbody td{
 /* Tablet */
 @media (min-width:768px){
   .lb img{
-    max-width:var(--zoom-w-tablet);
-    max-height:var(--zoom-h-tablet);
+    max-width: min(var(--zoom-w-tablet),  calc(100vw - 32px));
+    max-height: min(var(--zoom-h-tablet), calc(100vh - 32px));
   }
 }
 
 /* Desktop */
 @media (min-width:1200px){
   .lb img{
-    max-width:var(--zoom-w-desktop);
-    max-height:var(--zoom-h-desktop);
+    max-width: min(var(--zoom-w-desktop),  calc(100vw - 48px));
+    max-height: min(var(--zoom-h-desktop), calc(100vh - 48px));
   }
 }
 
