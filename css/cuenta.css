@@ -1,9 +1,9 @@
 /* ============================================================
-   CUENTA (Mi cuenta) – Estilos mobile-first
-   Encapsulado en #vista-cuenta para evitar conflictos
+   CUENTA (Mi cuenta) – Mobile first
+   Encapsulado en #vista-cuenta
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&family=Montserrat:wght@700&display=swap');
 
 :root{
   --gap: 18px;
@@ -34,7 +34,16 @@
   font-family: 'Nunito Sans', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-/* ===== Header / Perfil ===== */
+/* ===== FIX: que el enlace “Mi cuenta” no se parta ===== */
+header a[href*="cuenta"],
+nav a[href*="cuenta"]{
+  white-space: nowrap;
+  word-break: keep-all;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* ===== Header / Perfil (opcional) ===== */
 #vista-cuenta .cuenta-header{
   display:flex; gap:14px; align-items:center;
   background: var(--panel);
@@ -101,7 +110,7 @@
   color:#fff; border-color:transparent;
 }
 
-/* Menú como “chips” desplazables en móvil */
+/* Menú como “chips” en móvil */
 @media (max-width:899.98px){
   #vista-cuenta .cuenta-menu{ position:sticky; top:0; z-index:10; padding:8px; border-radius:9999px; background:rgba(255,255,255,.92); backdrop-filter:blur(6px) }
   #vista-cuenta .cuenta-menu ul{ flex-direction:row; overflow:auto; gap:8px; scrollbar-width:none }
@@ -122,12 +131,34 @@
   margin:0 0 10px; line-height:1.2;
 }
 
+/* ===== Login simple (cuando sólo hay un formulario) ===== */
+#vista-cuenta .login-card,
+#vista-cuenta form{
+  max-width: 480px;
+  margin: 16px auto;
+  background: var(--panel);
+  border: 1px solid #e6ecf2;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+#vista-cuenta h1{
+  font-family:'Montserrat',sans-serif;
+  font-size: var(--fs-h1);
+  color:#0a2540;
+  text-align:center;
+  margin: 6px 0 14px;
+}
+#vista-cuenta p.desc{
+  text-align:center; color:#4b5563; margin:0 0 12px; line-height:1.5;
+}
+
 /* ===== Formularios ===== */
 #vista-cuenta form .fila{ display:grid; grid-template-columns:1fr; gap:12px }
 @media (min-width:700px){ #vista-cuenta form .fila--2{ grid-template-columns:1fr 1fr } }
 @media (min-width:900px){ #vista-cuenta form .fila--3{ grid-template-columns:1fr 1fr 1fr } }
 
-#vista-cuenta label{ font-weight:800; color:#334155; font-size:14px; margin-bottom:4px }
+#vista-cuenta label{ font-weight:800; color:#334155; font-size:14px; margin-bottom:4px; display:block }
 #vista-cuenta input[type="text"],
 #vista-cuenta input[type="email"],
 #vista-cuenta input[type="password"],
@@ -141,6 +172,7 @@
   transition:border-color .2s, box-shadow .2s;
 }
 #vista-cuenta textarea{ min-height:110px; resize:vertical }
+
 #vista-cuenta input:focus,
 #vista-cuenta select:focus,
 #vista-cuenta textarea:focus{
@@ -184,7 +216,6 @@
   #vista-cuenta .pedidos-tabla tbody td{
     border:0; padding:6px 4px; background:transparent;
   }
-  /* usa data-label si lo agregas en el HTML */
   #vista-cuenta .pedidos-tabla td::before{
     content: attr(data-label);
     display:block; font-size:12px; font-weight:800; color:#64748b; margin-bottom:2px;
