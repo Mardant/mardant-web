@@ -52,7 +52,7 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
 .page-container p{line-height:1.7;color:#34495e}
 
 /* =======================================================================
-   BANNER (global para páginas de texto)
+   BANNER
    ======================================================================= */
 .banner{margin:0 0 24px;text-align:center}
 .banner img{
@@ -84,6 +84,7 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
    ======================================================================= */
 .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:32px;max-width:1280px;margin:0 auto}
 
+/* usamos grid para productos, con columnas fluidas */
 .grid-productos{
   display:grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -247,7 +248,7 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
 .contacto-centro{max-width:1000px;margin:0 auto 30px;text-align:center}
 
 /* =======================================================================
-   TÍTULOS DE SECCIÓN
+   TÍTULOS DE SECCIÓN (ajustados para que NO se vean gigantes)
    ======================================================================= */
 .titulo-seccion{
   font-family:'Montserrat', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
@@ -260,7 +261,7 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
 }
 .titulo-seccion::after{
   content:'';display:block;height:4px;
-  width: clamp(160px, 45vw, 420px);
+  width: clamp(160px, 45vw, 420px);    /* ← ya no fijo a 600px */
   background:var(--accent);
   margin:10px auto 0;border-radius:2px
 }
@@ -276,6 +277,42 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
   position:fixed;bottom:20px;right:20px;background:var(--success);color:#fff;
   padding:12px 20px;border-radius:8px;font-weight:900;box-shadow:0 4px 12px rgba(0,0,0,.25);
   z-index:9999;display:none;opacity:0;transition:opacity .25s ease
+}
+
+/* =======================================================================
+   /views/carrito.html (respetando tu lógica actual)
+   ======================================================================= */
+.carrito-container{
+  max-width:1000px;margin:40px auto;padding:20px;background:#121212;border-radius:12px;color:#eee
+}
+.carrito-container h1{ text-align:center;color:#4fc3f7;margin-top:0 }
+
+.carrito-item{
+  display:flex;align-items:center;background:#1e1e1e;margin-bottom:20px;border-radius:10px;
+  padding:15px;box-shadow:0 2px 6px rgba(0,0,0,.3)
+}
+.carrito-item img{width:100px;height:auto;border-radius:8px;margin-right:20px}
+.carrito-info{flex-grow:1}
+.carrito-info .nombre{font-size:18px;font-weight:900;margin-bottom:8px;color:#ffc107}
+.carrito-info .precio{color:#ffee58;font-weight:900;margin-bottom:4px}
+.carrito-info .estado{font-size:14px;color:#66bb6a}
+
+.eliminar{
+  background:#e53935;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-weight:900;transition:background .2s
+}
+.eliminar:hover{background:#c62828}
+
+.total{font-size:20px;font-weight:900;text-align:right;margin-top:20px;color:#fff}
+
+.finalizar{text-align:center;margin-top:20px}
+.finalizar a{
+  background:#43a047;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:900;transition:background .2s
+}
+.finalizar a:hover{background:#388e3c}
+
+.notificacion-flotante{
+  position:fixed;bottom:20px;right:20px;color:#fff;padding:15px 25px;border-radius:8px;
+  box-shadow:0 4px 12px rgba(0,0,0,.25);z-index:10000;transition:opacity .25s
 }
 
 /* =======================================================================
@@ -297,7 +334,7 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
 @media (max-width: 768px){
   .grid-productos{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
   .producto{padding:10px}
-  /* (No reglas del carrusel aquí) */
+  /* ← Eliminado: .carrusel img{height:150px} para no interferir con portada */
   .boton-carrito-flotante{width:60px;height:60px;font-size:28px}
 }
 
@@ -321,12 +358,22 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
 .cta-catalogo:active{ transform: translateY(0); opacity:.92; }
 .cta-ico{ font-size: 1.2rem; line-height: 1; }
 
+/* tamaño un pelín mayor en pantallas anchas */
 @media (min-width: 900px){
   .cta-catalogo{ padding:13px 22px; font-size:1.05rem; }
   .cta-ico{ font-size:1.25rem; }
 }
 
-/* Fila de CTAs */
+/* Banner superior genérico */
+.banner-top{
+  width:100%;
+  max-height:200px;
+  object-fit:cover;
+  border-bottom:3px solid #00bcd4;
+  display:block;
+}
+
+/* Fila de CTAs centrados */
 .cta-row{
   display:flex;
   gap:14px;
@@ -336,7 +383,7 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
   flex-wrap:wrap;
 }
 
-/* Botón redondeado reutilizable */
+/* Botón redondeado reutilizable (y compatibilidad con .cta-catalogo) */
 .cta-btn,
 .cta-catalogo{
   display:inline-flex;
@@ -350,6 +397,8 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
   box-shadow:0 6px 16px rgba(0,0,0,.18);
   transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
 }
+
+/* Variante principal (teal degradado) */
 .cta--primary,
 .cta-catalogo{
   background: linear-gradient(135deg,#00bcd4 0%, #008fb9 100%);
@@ -364,4 +413,13 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
 .cta-catalogo:active{
   transform: translateY(0);
   opacity:.92;
+}
+
+/* Icono dentro del CTA */
+.cta-ico{ font-size: 1.2rem; line-height: 1; }
+
+@media (min-width: 900px){
+  .cta-btn,
+  .cta-catalogo{ padding:13px 22px; font-size:1.05rem; }
+  .cta-ico{ font-size:1.25rem; }
 }
