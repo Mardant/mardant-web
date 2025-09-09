@@ -25,13 +25,13 @@
   --fs-h2: clamp(18px, 3.2vw, 24px);
 
   /* Tamaños del ZOOM (ajustes rápidos) */
-  --zoom-w-mobile: 72vw;  /* ancho máx en móvil */
-  --zoom-h-mobile: 54vh;  /* alto  máx en móvil */
+  --zoom-w-mobile: 72vw;   /* ancho máx en móvil */
+  --zoom-h-mobile: 54vh;   /* alto  máx en móvil */
 
-  --zoom-w-tablet: 60vw;  /* 768px–1199px */
+  --zoom-w-tablet: 60vw;   /* entre 768px y 1199px */
   --zoom-h-tablet: 62vh;
 
-  --zoom-w-desktop: 50vw; /* ≥1200px */
+  --zoom-w-desktop: 50vw;  /* ≥1200px */
   --zoom-h-desktop: 60vh;
 }
 
@@ -70,7 +70,7 @@ body{
 .topbar .nav a{
   font-weight:800; color:#223; text-decoration:none;
   padding:2px 0; border-bottom:2px solid transparent;
-  display:inline-block;               /* evita cortes */
+  display:inline-block;
   white-space:nowrap;                 /* “Mi cuenta” no se parte */
 }
 .topbar .nav a:hover{ color:var(--accent) }
@@ -259,62 +259,63 @@ tbody td{
 /* Utilidades */
 .muted{ color:var(--muted) }
 
-/* ================= Modal de imagen (zoom) ================= */
-.img-modal{
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.85);
-  display: grid;                 /* centra mejor que flex cuando hay scroll */
-  place-items: center;
-  padding: 8px;
-  z-index: 1000;
-  overflow: auto;                /* si el contenido supera el alto, que deslice */
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;  /* evita bounce/scroll del body detrás */
+/* ============================================================
+   LIGHTBOX (Mi Cuenta) – igual al de Catálogo
+   (reemplaza el antiguo .img-modal)
+============================================================ */
+.lb{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.85);
+  display:grid; place-items:center;
+  padding:8px;
+  z-index:1000;
+  overflow:auto;                       /* permite desplazar si el contenido crece */
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
 }
-.img-modal[hidden]{ display:none !important }
+.lb[hidden]{ display:none !important }
 
-/* Tamaño de zoom CONTROLADO por variables */
-.img-modal__content{
-  display: block;
-  width: auto;
-  height: auto;
-  max-width: var(--zoom-w-mobile);
-  max-height: var(--zoom-h-mobile);
-  object-fit: contain;
-  border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(0,0,0,.6);
-  box-sizing: border-box;
-  transform: translateZ(0);
+.lb__content{ position:relative }
+
+/* Tamaños controlados por variables */
+.lb img{
+  display:block;
+  width:auto; height:auto;
+  max-width:var(--zoom-w-mobile);
+  max-height:var(--zoom-h-mobile);
+  object-fit:contain;
+  border-radius:12px;
+  box-shadow:0 12px 40px rgba(0,0,0,.6);
+  box-sizing:border-box;
+  transform:translateZ(0);
 }
 
 /* Tablet */
-@media (min-width: 768px){
-  .img-modal__content{
-    max-width: var(--zoom-w-tablet);
-    max-height: var(--zoom-h-tablet);
+@media (min-width:768px){
+  .lb img{
+    max-width:var(--zoom-w-tablet);
+    max-height:var(--zoom-h-tablet);
   }
 }
 
 /* Desktop */
-@media (min-width: 1200px){
-  .img-modal__content{
-    max-width: var(--zoom-w-desktop);
-    max-height: var(--zoom-h-desktop);
+@media (min-width:1200px){
+  .lb img{
+    max-width:var(--zoom-w-desktop);
+    max-height:var(--zoom-h-desktop);
   }
 }
 
-.img-modal__close{
-  position: absolute;
-  top: 12px; right: 16px;
-  width: 40px; height: 40px;
-  display: grid; place-items: center;
-  background: rgba(255,255,255,.15);
-  border: 1px solid rgba(255,255,255,.35);
-  color: #fff; font-size: 28px; line-height: 1;
-  border-radius: 9999px; cursor: pointer;
+.lb .lb-close{
+  position:fixed; top:12px; right:16px;
+  width:40px; height:40px;
+  display:grid; place-items:center;
+  background:rgba(255,255,255,.15);
+  border:1px solid rgba(255,255,255,.35);
+  color:#fff; font-size:28px; line-height:1;
+  border-radius:9999px; cursor:pointer;
 }
-.img-modal__close:hover{ background: rgba(255,255,255,.28) }
+.lb .lb-close:hover{ background:rgba(255,255,255,.28) }
 
 /* ================= Footer ================= */
 .site-footer{
