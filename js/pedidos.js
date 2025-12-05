@@ -6,8 +6,8 @@ const $ = (s) => document.querySelector(s);
 
 const ITEMS_PER_PAGE = 20;
 
-let allPedidos      = [];  // todo lo que viene del backend
-let pedidos         = [];  // filtrado (categoria + estado)
+let allPedidos      = [];  // todo lo que viene de la API
+let pedidos         = [];  // filtrado por categoría/estado
 let paginaActual    = 1;
 let categoriaActual = 'TODOS';
 
@@ -25,6 +25,8 @@ const norm = (s) =>
   (s || '')
     .toString()
     .toUpperCase()
+    .normalize('NFD')                  // quita tildes
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/\u00A0/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
@@ -33,7 +35,12 @@ const norm = (s) =>
 /* Init                                    */
 /* ──────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('📦 pedidos.js (cotizador por ID) cargado');
+  console.log('📦 pedidos.js (categoría por URL) cargado');
+
+  // Leemos la categoría desde la URL: ?categoria=pokemon
+  const params = new URLSearchParams(window.location.search);
+  categoriaActual =
+    params.get('categoria') || params.get('anime') || params.get('cat') || 'TODOS';
 
   fetch(`${API_URL}?accion=pedidosDisponibles`)
     .then((r) => {
@@ -45,16 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   actualizarCarritoUI();
 
-  // Cambio de categoría (anime)
-  const sel = $('#filtroCategoria');
-  if (sel) {
-    sel.addEventListener('change', (ev) => {
-      categoriaActual = ev.target.value || 'TODOS';
-      aplicarFiltrosYRedibujar();
-    });
-  }
-
-  // Click en paginación
+  // paginación
   const pag = $('#paginacion');
   if (pag) {
     pag.addEventListener('click', (ev) => {
@@ -97,7 +95,7 @@ function renderLista(lista = []) {
     return;
   }
 
-  // Normalizamos estructura
+  // normalizamos estructura
   allPedidos = lista.map((p) => ({
     id:        (p.id ?? p.ID ?? '').toString().trim(),
     nombre:    (p.nombre ?? '').toString().trim(),
@@ -106,32 +104,7 @@ function renderLista(lista = []) {
     estado:    (p.estado ?? '').toString().trim()
   }));
 
-  categoriaActual = 'TODOS';
-
-  rellenarSelectCategorias();
   aplicarFiltrosYRedibujar();
-}
-
-function rellenarSelectCategorias() {
-  const sel = $('#filtroCategoria');
-  if (!sel) return;
-
-  const categorias = Array.from(
-    new Set(
-      allPedidos
-        .map((p) => (p.categoria || '').trim())
-        .filter((c) => c)
-    )
-  ).sort((a, b) => a.localeCompare(b, 'es'));
-
-  let opciones = '<option value="TODOS">Todos los animes</option>';
-  categorias.forEach((cat) => {
-    const esc = escapeHtml(cat);
-    opciones += `<option value="${esc}">${esc}</option>`;
-  });
-
-  sel.innerHTML = opciones;
-  sel.value = 'TODOS';
 }
 
 function aplicarFiltrosYRedibujar() {
@@ -150,16 +123,16 @@ function aplicarFiltrosYRedibujar() {
       norm(p.estado) === 'DISPONIBLE' ||
       norm(p.estado) === 'DISPONIBLE A PEDIDO';
 
-    const okCat =
-      categoriaActual === 'TODOS'
-        ? true
-        : norm(p.categoria) === norm(categoriaActual);
+    let okCat = true;
+    if (categoriaActual && norm(categoriaActual) !== 'TODOS') {
+      okCat = norm(p.categoria) === norm(categoriaActual);
+    }
 
     return okEstado && okCat;
   });
 
   if (!pedidos.length) {
-    if (cont) cont.innerHTML = '<p>No hay productos en esa categoría por ahora.</p>';
+    if (cont) cont.innerHTML = '<p>No hay productos en esta categoría por ahora.</p>';
     if (pag)  pag.innerHTML  = '';
     return;
   }
@@ -222,15 +195,14 @@ function dibujarPaginacion() {
 }
 
 /* ──────────────────────────────────────── */
-/* Card: sólo imagen + ID (+ categoría)    */
+/* Card: solo imagen + ID                  */
 /* ──────────────────────────────────────── */
 function card(p) {
   const div = document.createElement('div');
   div.className = 'producto';
 
-  const id          = escapeHtml(p.id || '');
-  const etiquetaId  = id || 'sin ID';
-  const categoria   = p.categoria ? escapeHtml(p.categoria) : '';
+  const id         = escapeHtml(p.id || '');
+  const etiquetaId = id || 'sin ID';
 
   const imagen = p.imagen && p.imagen.trim()
     ? escapeHtml(p.imagen.trim())
@@ -251,7 +223,6 @@ function card(p) {
            loading="lazy">
     </a>
     <div class="nombre"><b>Figura N° ${etiquetaId}</b></div>
-    ${categoria ? `<div class="categoria-pedido">${categoria}</div>` : ''}
   `;
 
   return div;
@@ -268,3 +239,4 @@ function showErr(e) {
   }
   if (pag) pag.innerHTML = '';
 }
+
