@@ -204,15 +204,7 @@
     <a href="../index.html" class="btn-pill">🏠 <span>Volver al inicio</span></a>
     <a href="catalogo.html" class="btn-pill alt">🛍️ <span>Ir al catálogo</span></a>
   </div>
-
-  <!-- 🔽 Nuevo: filtro por anime -->
-  <div class="filtros-pedidos">
-    <label for="filtroCategoria">Filtrar por anime:</label>
-    <select id="filtroCategoria">
-      <option value="TODOS">Todos los animes</option>
-    </select>
-  </div>
-
+  
   <!-- Listado -->
   <div class="grid-pedidos" id="contenedor">
     <p style="text-align:center;width:100%;">Cargando productos…</p>
@@ -235,6 +227,25 @@
     <img alt="Vista ampliada">
     <button class="lb-close" aria-label="Cerrar">×</button>
   </div>
+
+  <div class="grid-animes">
+  <!-- TODOS -->
+  <a href="pedidos.html?categoria=TODOS" class="anime-pill">
+    <img src="URL_LOGO_TODOS.png" alt="Todos">
+  </a>
+
+  <!-- Pokémon -->
+  <a href="pedidos.html?categoria=pokemon" class="anime-pill">
+    <img src="URL_LOGO_POKEMON.png" alt="Pokémon">
+  </a>
+
+  <!-- Dragon Ball -->
+  <a href="pedidos.html?categoria=dragon ball" class="anime-pill">
+    <img src="URL_LOGO_DRAGONBALL.png" alt="Dragon Ball">
+  </a>
+
+  <!-- etc... -->
+</div>
 
   <!-- Lógica de la página -->
   <script type="module" src="../js/pedidos.js"></script>
