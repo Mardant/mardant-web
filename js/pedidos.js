@@ -117,6 +117,7 @@ function aplicarFiltrosYRedibujar() {
     return;
   }
 
+  // 1) Filtrar por estado y categoría
   pedidos = allPedidos.filter((p) => {
     const okEstado =
       !p.estado ||
@@ -131,12 +132,20 @@ function aplicarFiltrosYRedibujar() {
     return okEstado && okCat;
   });
 
+  // 2) ORDENAR: ID más grande = más nuevo (descendente)
+  pedidos.sort((a, b) => {
+    const na = Number(a.id) || 0;
+    const nb = Number(b.id) || 0;
+    return nb - na; // primero el más nuevo
+  });
+
   if (!pedidos.length) {
     if (cont) cont.innerHTML = '<p>No hay productos en esta categoría por ahora.</p>';
     if (pag)  pag.innerHTML  = '';
     return;
   }
 
+  // 3) Reset paginación y pintar
   paginaActual = 1;
   pintarPagina();
   dibujarPaginacion();
