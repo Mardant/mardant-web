@@ -12,7 +12,6 @@
   <style>
     /* ====== AJUSTES LOCALES SOLO PARA ESTA VISTA ====== */
 
-    /* Evitar cualquier scroll lateral fantasma */
     html, body { overflow-x: hidden; }
 
     :root{
@@ -20,10 +19,10 @@
       --card-max-mobile: 380px;
     }
 
-    /* Píldoras coherentes con catálogo/preventa y SIN fondo detrás */
+    /* Píldoras coherentes con catálogo/preventa */
     .cta-pedidos{
       display:flex; justify-content:center; flex-wrap:wrap; gap:14px;
-      margin: 12px auto 30px;
+      margin: 12px auto 20px;
       padding: 0 12px;
       background: none !important;
       box-shadow: none !important;
@@ -54,34 +53,41 @@
       box-shadow:0 10px 24px rgba(49,196,141,.25);
     }
 
-        /* ====== Filtro por categoría (anime) ====== */
-    .filtros-pedidos{
-      max-width:1200px;
-      margin: 6px auto 18px;
+    /* ====== BOTONES DE ANIME ARRIBA (centrados) ====== */
+    .grid-animes{
+      max-width: 1200px;
+      margin: 0 auto 24px;
       padding: 0 16px;
       display:flex;
-      align-items:center;
-      gap:8px;
       flex-wrap:wrap;
-      font-size:14px;
+      justify-content:center;
+      gap:12px;
     }
-    .filtros-pedidos label{
-      font-weight:600;
-    }
-    .filtros-pedidos select{
-      min-width:180px;
-      padding:6px 10px;
+    .grid-animes .anime-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px 16px;
       border-radius:999px;
-      border:1px solid rgba(255,255,255,.4);
-      background:rgba(0,0,0,.5);
+      background:rgba(0,0,0,.65);
       color:#fff;
-      outline:none;
+      font-weight:700;
+      text-decoration:none;
+      border:1px solid rgba(0,188,212,.5);
+      box-shadow:0 10px 22px rgba(0,188,212,.25);
+      font-size:14px;
+      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+      white-space:nowrap;
     }
-
-    .categoria-pedido{
-      margin-top:4px;
-      font-size:13px;
-      opacity:.8;
+    .grid-animes .anime-pill:hover{
+      transform:translateY(-1px);
+      box-shadow:0 14px 30px rgba(0,188,212,.35);
+      filter:saturate(1.05);
+    }
+    .grid-animes .anime-pill img{
+      height:32px;
+      object-fit:contain;
+      display:block;
     }
 
     /* ====== PAGINACIÓN ====== */
@@ -118,14 +124,14 @@
       font-weight:700;
     }
 
-    /* ====== GRID PROPIO DE PEDIDOS (estable) ====== */
+    /* ====== GRID DE PEDIDOS ====== */
     .grid-pedidos{
       display:grid;
       grid-template-columns: repeat(3, minmax(260px, 1fr));
       gap:28px;
       max-width:1200px;
       margin:0 auto 60px;
-      padding:0 16px;               /* respiración lateral */
+      padding:0 16px;
       box-sizing:border-box;
     }
     .grid-pedidos .producto{ width:100%; }
@@ -137,35 +143,31 @@
       .grid-pedidos{ grid-template-columns: 1fr; gap:18px; }
       .grid-pedidos .producto{
         max-width: var(--card-max-mobile);
-        margin: 0 auto;             /* centra la card en móvil */
+        margin: 0 auto;
       }
       .cta-pedidos{ margin-bottom:22px; gap:10px; }
     }
 
-    /* Imágenes de producto SIEMPRE sin recortes */
     .grid-pedidos .producto img{
       display:block !important;
       width:100% !important;
       max-width:100% !important;
-      height:auto !important;           /* anula altos forzados */
-      object-fit:contain !important;     /* evita cortes */
+      height:auto !important;
+      object-fit:contain !important;
       border-radius:10px;
-      cursor: zoom-in;                   /* pista del lightbox */
+      cursor: zoom-in;
     }
 
-    /* ====== MÁS ESPACIO BAJO EL CTA DE WHATSAPP ====== */
     .grid-pedidos .producto{
-      padding-bottom: 22px;                 /* colchón inferior de la card */
+      padding-bottom: 22px;
     }
-    .grid-pedidos .producto .agregar-carrito,
-    .grid-pedidos .producto a.boton,
-    .grid-pedidos .producto a[href*="whatsapp"],
-    .grid-pedidos .producto a[href*="wa.me"]{
+
+    .boton-cotizar{
       display:block;
-      margin-bottom: 10px;                  /* extra bajo el botón */
-    }
-    @media (max-width:720px){
-      .grid-pedidos .producto{ padding-bottom: 26px; }
+      margin-top:10px;
+      margin-bottom:6px;
+      text-align:center;
+      font-weight:700;
     }
 
     /* Lightbox coherente con catálogo */
@@ -198,26 +200,40 @@
   <div class="contacto-centro">
     <h2 class="titulo-seccion">Productos a Pedido</h2>
   </div>
-  
+
   <!-- Botones superiores (píldora) -->
   <div class="cta-pedidos">
     <a href="../index.html" class="btn-pill">🏠 <span>Volver al inicio</span></a>
     <a href="catalogo.html" class="btn-pill alt">🛍️ <span>Ir al catálogo</span></a>
   </div>
-  
-  <!-- Listado -->
+
+  <!-- BOTONES DE ANIME ARRIBA (CENTRADOS) -->
+  <div class="grid-animes">
+    <!-- Ejemplos: reemplaza las URLs por tus imágenes reales -->
+    <a href="pedidos.html?categoria=TODOS" class="anime-pill">
+      TODOS
+      <!-- o <img src="URL_LOGO_TODOS.png" alt="Todos"> -->
+    </a>
+
+    <a href="pedidos.html?categoria=pokemon" class="anime-pill">
+      Pokémon
+      <!-- o <img src="URL_LOGO_POKEMON.png" alt="Pokémon"> -->
+    </a>
+
+    <a href="pedidos.html?categoria=dragon ball" class="anime-pill">
+      Dragon Ball
+      <!-- o <img src="URL_LOGO_DRAGONBALL.png" alt="Dragon Ball"> -->
+    </a>
+    <!-- añade más animes aquí -->
+  </div>
+
+  <!-- Listado de productos -->
   <div class="grid-pedidos" id="contenedor">
     <p style="text-align:center;width:100%;">Cargando productos…</p>
   </div>
 
-  <!-- 🔽 Nuevo: paginación -->
+  <!-- Paginación -->
   <div id="paginacion" class="paginacion"></div>
-
-
-  <!-- Listado -->
-  <div class="grid-pedidos" id="contenedor">
-    <p style="text-align:center;width:100%;">Cargando productos…</p>
-  </div>
 
   <!-- Carrito flotante -->
   <a href="carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">🛒</a>
@@ -227,25 +243,6 @@
     <img alt="Vista ampliada">
     <button class="lb-close" aria-label="Cerrar">×</button>
   </div>
-
-  <div class="grid-animes">
-  <!-- TODOS -->
-  <a href="pedidos.html?categoria=TODOS" class="anime-pill">
-    <img src="URL_LOGO_TODOS.png" alt="Todos">
-  </a>
-
-  <!-- Pokémon -->
-  <a href="pedidos.html?categoria=pokemon" class="anime-pill">
-    <img src="URL_LOGO_POKEMON.png" alt="Pokémon">
-  </a>
-
-  <!-- Dragon Ball -->
-  <a href="pedidos.html?categoria=dragon ball" class="anime-pill">
-    <img src="URL_LOGO_DRAGONBALL.png" alt="Dragon Ball">
-  </a>
-
-  <!-- etc... -->
-</div>
 
   <!-- Lógica de la página -->
   <script type="module" src="../js/pedidos.js"></script>
@@ -286,3 +283,4 @@
   <script type="module" src="../js/tracking.js"></script>
 </body>
 </html>
+
