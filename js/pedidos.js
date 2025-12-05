@@ -195,7 +195,7 @@ function dibujarPaginacion() {
 }
 
 /* ──────────────────────────────────────── */
-/* Card: solo imagen + ID                  */
+/* Card: imagen + texto + botón WhatsApp   */
 /* ──────────────────────────────────────── */
 function card(p) {
   const div = document.createElement('div');
@@ -212,17 +212,15 @@ function card(p) {
   const urlWA = `https://wa.me/51985135331?text=${encodeURIComponent(mensajeWA)}`;
 
   div.innerHTML = `
+    <img src="${imagen}"
+         alt="Figura N° ${etiquetaId}"
+         class="img"
+         loading="lazy">
+    <div class="nombre"><b>Figura N° ${etiquetaId}</b></div>
     <a href="${urlWA}"
        target="_blank"
        rel="noopener noreferrer"
-       class="link-imagen"
-       title="Cotizar figura N° ${etiquetaId}">
-      <img src="${imagen}"
-           alt="Figura N° ${etiquetaId}"
-           class="img"
-           loading="lazy">
-    </a>
-    <div class="nombre"><b>Figura N° ${etiquetaId}</b></div>
+       class="boton boton-cotizar">📩 Cotizar figura</a>
   `;
 
   return div;
