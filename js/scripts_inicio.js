@@ -98,14 +98,12 @@ fetchJSON('preventas')
 fetchJSON('pedidosDisponibles')
   .then(lista =>
     lista
-      // Solo los que están disponibles a pedido
       .filter(p => (p.estado || '').toUpperCase() === 'DISPONIBLE A PEDIDO')
-      // Más nuevos primero (ID más grande = más nuevo)
       .sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0))
   )
-  .then(limitarProductos)   // sigue usando tu función para limitar la cantidad en portada
+  .then(limitarProductos)
   .then(lista => {
-    const c = $("#pedidos-disponibles");
+    const c = $("#productos-pedido");   // 👈 AQUÍ EL CAMBIO
     if (!c) return;
     c.innerHTML = '';
 
@@ -114,7 +112,6 @@ fetchJSON('pedidosDisponibles')
       div.className = 'producto' + (p.soloDesktop ? ' mostrar-solo-desktop' : '');
 
       const nombre = escapeHtml(p.nombre || '');
-
       const img = p.imagen && p.imagen.trim()
         ? p.imagen.trim()
         : 'https://via.placeholder.com/300x300?text=Producto+a+pedido';
@@ -187,5 +184,6 @@ show();
 window.addEventListener('storage', (ev)=>{
   if ([KEYS.TOKEN, KEYS.NAME].includes(ev.key)) ensureCuentaButton();
 });
+
 
 
