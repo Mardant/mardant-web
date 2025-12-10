@@ -94,30 +94,46 @@ fetchJSON('preventas')
   })
   .catch(console.error);
 
-/* ====== Disponibles a pedido ====== */
+/* ====== Productos a pedido (portada) ====== */
 fetchJSON('pedidosDisponibles')
-  .then(lista => lista
-        .filter(p => (p.estado||'').toUpperCase()==='DISPONIBLE A PEDIDO')
-        .sort((a,b)=>b.id-a.id))
-  .then(limitarProductos)
-  .then(lista=>{
-    const c=$("#pedidos-disponibles"); c.innerHTML='';
-    lista.forEach(p=>{
-      const precA = parseFloat(p.precioAereo ?? p.precio ?? 0).toFixed(2);   // ✈️
-      const precB = parseFloat(p.precioBarco ?? p.precio ?? 0).toFixed(2);   // 🚢
+  .then(lista =>
+    lista
+      // Solo los que están disponibles a pedido
+      .filter(p => (p.estado || '').toUpperCase() === 'DISPONIBLE A PEDIDO')
+      // Más nuevos primero (ID más grande = más nuevo)
+      .sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0))
+  )
+  .then(limitarProductos)   // sigue usando tu función para limitar la cantidad en portada
+  .then(lista => {
+    const c = $("#pedidos-disponibles");
+    if (!c) return;
+    c.innerHTML = '';
 
-      const div=document.createElement('div');
-      div.className='producto'+(p.soloDesktop?' mostrar-solo-desktop':'');
-      div.innerHTML=`
-        <img src="${p.imagen}" alt="${escapeHtml(p.nombre)}" class="img" loading="lazy">
-        <div class="nombre">${escapeHtml(p.nombre)}</div>
-        <div class="precio">
-          ✈️ S/. ${precA}<br>
-          🚢 S/. ${precB}
-        </div>
-        <div class="estado">${escapeHtml(p.estado)}</div>
-        <a href="https://wa.me/51985135331?text=${encodeURIComponent('Hola, me interesa el producto: '+p.nombre)}"
-           class="boton" target="_blank">📩 Pedir por WhatsApp</a>`;
+    lista.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'producto' + (p.soloDesktop ? ' mostrar-solo-desktop' : '');
+
+      const nombre = escapeHtml(p.nombre || '');
+
+      const img = p.imagen && p.imagen.trim()
+        ? p.imagen.trim()
+        : 'https://via.placeholder.com/300x300?text=Producto+a+pedido';
+
+      const mensajeWA = `Hola, me interesa este producto a pedido: ${nombre}`;
+      const urlWA = `https://wa.me/51985135331?text=${encodeURIComponent(mensajeWA)}`;
+
+      div.innerHTML = `
+        <img src="${img}" alt="${nombre}" class="img" loading="lazy">
+        <div class="nombre">${nombre}</div>
+        <div class="estado">Producto a pedido</div>
+        <a href="${urlWA}"
+           class="boton"
+           target="_blank"
+           rel="noopener noreferrer">
+           📩 Cotizar por WhatsApp
+        </a>
+      `;
+
       c.appendChild(div);
     });
   })
@@ -171,4 +187,5 @@ show();
 window.addEventListener('storage', (ev)=>{
   if ([KEYS.TOKEN, KEYS.NAME].includes(ev.key)) ensureCuentaButton();
 });
+
 
