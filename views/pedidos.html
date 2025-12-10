@@ -91,38 +91,45 @@
     }
 
     /* ====== PAGINACIÓN ====== */
-    .paginacion{
-      display:flex;
-      justify-content:center;
-      flex-wrap:wrap;
-      gap:8px;
-      margin: 10px auto 40px;
-      padding: 0 16px;
-    }
-    .paginacion button{
-      min-width:32px;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.3);
-      background:rgba(0,0,0,.4);
-      color:#fff;
-      font-size:14px;
-      cursor:pointer;
-      transition:background .15s ease, transform .15s ease, box-shadow .15s ease;
-    }
-    .paginacion button:hover:not(:disabled){
-      transform:translateY(-1px);
-      box-shadow:0 6px 16px rgba(0,0,0,.35);
-    }
-    .paginacion button:disabled{
-      opacity:.4;
-      cursor:default;
-    }
-    .paginacion button.activa{
-      background:#00bcd4;
-      border-color:#00bcd4;
-      font-weight:700;
-    }
+.paginacion{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin: 10px auto 40px;
+  padding: 0 16px;
+}
+.paginacion button{
+  min-width:32px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid #00bcd4;
+  background:#00bcd4;
+  color:#fff;
+  font-size:14px;
+  cursor:pointer;
+  transition:background .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.paginacion button:hover:not(:disabled){
+  transform:translateY(-1px);
+  box-shadow:0 6px 16px rgba(0,0,0,.35);
+}
+.paginacion button:disabled{
+  opacity:.4;
+  cursor:default;
+}
+.paginacion button.activa{
+  background:#ff9800;          /* naranja para la página actual */
+  border-color:#ff9800;
+  font-weight:700;
+}
+
+/* Puntos suspensivos "..." */
+.paginacion .page-ellipsis{
+  padding:6px 4px;
+  min-width:auto;
+  color:rgba(255,255,255,.7);
+}
 
     /* ====== GRID DE PEDIDOS ====== */
     .grid-pedidos{
