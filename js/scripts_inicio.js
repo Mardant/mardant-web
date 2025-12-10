@@ -155,7 +155,7 @@ fetchJSON('productos')
 
 /* ====== Preventas (home, rotativas entre todas las preventas) ====== */
 fetchJSON('preventas')
-  .then(lista => elegirBloqueRotativo(lista, MAX_HOME_ITEMS, { modo:'dia', clave:'preventas' }))
+  .then(lista => elegirBloqueRotativo(lista, MAX_HOME_ITEMS, { modo:'hora', clave:'preventas' }))
   .then(lista => {
     const c = $("#productos-preventa");
     if (!c) return;
@@ -230,7 +230,7 @@ fetchJSON('productos')
     .filter(p => p.oferta && !isNaN(p.oferta))
     .sort((a,b) => Number(b.id ?? 0) - Number(a.id ?? 0))
   )
-  .then(lista => elegirBloqueRotativo(lista, MAX_HOME_ITEMS, { modo:'dia', clave:'ofertas' }))
+  .then(lista => elegirBloqueRotativo(lista, MAX_HOME_ITEMS, { modo:'hora', clave:'ofertas' }))
   .then(lista => {
     const c = $("#productos-oferta");
     if (!c) return;
@@ -279,6 +279,7 @@ if (ind && slides.length) {
 window.addEventListener('storage', (ev)=>{
   if ([KEYS.TOKEN, KEYS.NAME].includes(ev.key)) ensureCuentaButton();
 });
+
 
 
 
