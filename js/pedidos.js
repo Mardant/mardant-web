@@ -4,7 +4,7 @@ import { actualizarCarritoUI } from './carrito-utils.js';
 
 const $ = (s) => document.querySelector(s);
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 21;
 
 let allPedidos      = [];  // todo lo que viene de la API
 let pedidos         = [];  // filtrado por categoría/estado
@@ -182,25 +182,59 @@ function dibujarPaginacion() {
   pag.innerHTML = '';
   if (totalPaginas <= 1) return;
 
-  let html = '';
+  const partes = [];
 
-  const prevPage = paginaActual - 1;
-  html += `<button class="page-btn" data-page="${prevPage}" ${
-    paginaActual === 1 ? 'disabled' : ''
-  }>&laquo;</button>`;
+  // Helper para crear botones
+  const btn = (page, label = page, disabled = false) => {
+    return `<button class="page-btn ${page === paginaActual ? 'activa' : ''}"
+                    data-page="${page}"
+                    ${disabled ? 'disabled' : ''}>
+              ${label}
+            </button>`;
+  };
 
-  for (let i = 1; i <= totalPaginas; i++) {
-    html += `<button class="page-btn ${
-      i === paginaActual ? 'activa' : ''
-    }" data-page="${i}">${i}</button>`;
+  // Botón « (anterior)
+  const prevPage = Math.max(1, paginaActual - 1);
+  partes.push(btn(prevPage, '«', paginaActual === 1));
+
+  // --- Lógica de páginas con "..." ---
+  if (totalPaginas <= 7) {
+    // Pocas páginas: mostramos todas
+    for (let i = 1; i <= totalPaginas; i++) {
+      partes.push(btn(i));
+    }
+  } else {
+    if (paginaActual <= 3) {
+      // Cerca del inicio: 1 2 3 4 ... N
+      for (let i = 1; i <= 4; i++) {
+        partes.push(btn(i));
+      }
+      partes.push('<span class="page-ellipsis">…</span>');
+      partes.push(btn(totalPaginas));
+    } else if (paginaActual >= totalPaginas - 2) {
+      // Cerca del final: 1 ... N-3 N-2 N-1 N
+      partes.push(btn(1));
+      partes.push('<span class="page-ellipsis">…</span>');
+      for (let i = totalPaginas - 3; i <= totalPaginas; i++) {
+        partes.push(btn(i));
+      }
+    } else {
+      // En medio: 1 ... P-1 P P+1 ... N
+      partes.push(btn(1));
+      partes.push('<span class="page-ellipsis">…</span>');
+      for (let i = paginaActual - 1; i <= paginaActual + 1; i++) {
+        partes.push(btn(i));
+      }
+      partes.push('<span class="page-ellipsis">…</span>');
+      partes.push(btn(totalPaginas));
+    }
   }
 
-  const nextPage = paginaActual + 1;
-  html += `<button class="page-btn" data-page="${nextPage}" ${
-    paginaActual === totalPaginas ? 'disabled' : ''
-  }>&raquo;</button>`;
+  // Botón » (siguiente)
+  const nextPage = Math.min(totalPaginas, paginaActual + 1);
+  partes.push(btn(nextPage, '»', paginaActual === totalPaginas));
 
-  pag.innerHTML = html;
+  pag.innerHTML = partes.join('');
 }
 
 /* ──────────────────────────────────────── */
