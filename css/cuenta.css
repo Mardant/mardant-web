@@ -316,3 +316,43 @@ tbody td{
   text-align:center; color:#64748b; font-weight:800;
   padding:18px 12px; margin:30px 0 10px;
 }
+
+/* ================= Avisos (importante) ================= */
+.notice{
+  margin-top:14px;
+  padding:14px 14px;
+  border-radius:12px;
+  border:1px solid #e6ecf2;
+  background:#fff;
+}
+
+.notice-title{
+  font-weight:900;
+  letter-spacing:.3px;
+  text-transform:uppercase;
+  color:#0a2540;
+  margin-bottom:8px;
+}
+
+.notice p{
+  margin:8px 0;
+  font-weight:800;
+  color:#334155;
+  line-height:1.35;
+}
+
+.notice .q{
+  margin-top:12px;
+}
+
+.notice-warn{
+  border-color: rgba(255,152,0,.35);
+  background: rgba(255,152,0,.10);
+  border-left:6px solid var(--warn);
+}
+
+.notice-info{
+  border-color: rgba(0,188,212,.35);
+  background: rgba(0,188,212,.08);
+  border-left:6px solid var(--accent);
+}
