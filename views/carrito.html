@@ -62,14 +62,56 @@
       }
     });
 
-    document.getElementById('finalizar-compra').addEventListener('click', () => {
-      const mensaje = carrito.map(p => `➤ ${p.nombre} - S/.${p.precio.toFixed(2)}`).join('\n');
-      const total = carrito.reduce((sum, p) => sum + p.precio, 0);
-      const url = `https://wa.me/51985135331?text=${encodeURIComponent(
-        `¡Hola! Quiero comprar:\n${mensaje}\n\nTOTAL: S/. ${total.toFixed(2)}`
-      )}`;
-      window.open(url, '_blank');
-    });
+document.getElementById('finalizar-compra').addEventListener('click', () => {
+  const cart = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
+  if (!cart.length) return;
+
+  // Agrupar por id (si existe) o por nombre
+  const groups = new Map();
+  for (const item of cart) {
+    const key = (item.id && String(item.id).trim()) ? `id:${String(item.id).trim()}` : `name:${item.nombre}`;
+    const g = groups.get(key) || { ...item, qty: 0 };
+    g.qty += 1;
+    groups.set(key, g);
+  }
+
+  const origin = location.origin; // en mardant.com quedará perfecto
+  const lines = [];
+  let total = 0;
+
+  let i = 1;
+  for (const g of groups.values()) {
+    const unit = Number(g.precio) || 0;
+    const sub  = unit * g.qty;
+    total += sub;
+
+    lines.push(
+      `${i}) ${g.qty} x ${g.nombre} — S/. ${unit.toFixed(2)} c/u — Subtotal: S/. ${sub.toFixed(2)}`
+    );
+
+    // Link detalle solo si hay id
+    if (g.id && String(g.id).trim()) {
+      const link = `${origin}/views/producto.html?id=${encodeURIComponent(String(g.id).trim())}`;
+      lines.push(`   🔗 ${link}`);
+    }
+
+    i++;
+  }
+
+  const mensaje = [
+    '¡Hola! Quiero hacer un pedido en Mardant Perú. ✨🛍️',
+    '',
+    '🛒 Mi pedido:',
+    ...lines,
+    '',
+    `TOTAL: S/. ${total.toFixed(2)}`,
+    '',
+    'Tipo de entrega: ¿Delivery o recojo en punto de entrega gratuito en Lima?'
+  ].join('\n');
+
+  const wa = `https://wa.me/51985135331?text=${encodeURIComponent(mensaje)}`;
+  window.open(wa, '_blank');
+});
 
     renderCarrito();
   </script>
