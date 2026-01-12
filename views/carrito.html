@@ -6,7 +6,7 @@
   <title>Carrito - Mardant</title>
   <!-- favicon -->
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
-  
+
   <link rel="stylesheet" href="../css/estilos.css">
 </head>
 <body>
@@ -24,18 +24,36 @@
   </div>
 
   <script type="module">
-    import { actualizarCarritoUI, mostrarMiniCarrito } from '../js/carrito-utils.js';
-    import { API_URL } from '../js/config.js';
+    import { actualizarCarritoUI } from '../js/carrito-utils.js';
 
-    const carrito = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
     const contenedor = document.getElementById('lista-carrito');
     const totalSpan = document.getElementById('total-carrito');
-    
+
+    function waCleanText(str){
+      // Quita caracteres invisibles/problemáticos
+      str = String(str || '')
+        .replace(/\u00A0/g, ' ')   // NBSP
+        .replace(/\u200B/g, '')    // zero-width space
+        .replace(/\uFEFF/g, '')    // BOM
+        .replace(/\r\n/g, '\n');
+
+      // Quita símbolos/emojis que terminan como “��” en algunos WhatsApp
+      // (mantiene español: tildes, ñ, ¿?, etc.)
+      str = str.replace(/[^\x09\x0A\x0D\x20-\x7E\u00A1-\u00FF]/g, '');
+
+      // Limpia espacios extra
+      str = str.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n');
+
+      return str.trim();
+    }
+
     function renderCarrito() {
+      const carritoLocal = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
+
       contenedor.innerHTML = '';
-      const total = carrito.reduce((sum, item) => sum + item.precio, 0);
-      
-      carrito.forEach((item, index) => {
+      const total = carritoLocal.reduce((sum, item) => sum + item.precio, 0);
+
+      carritoLocal.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = 'carrito-item';
         div.innerHTML = `
@@ -48,74 +66,83 @@
         `;
         contenedor.appendChild(div);
       });
-      
+
       totalSpan.textContent = `Total: S/. ${total.toFixed(2)}`;
     }
 
     document.addEventListener('click', (e) => {
-      if(e.target.classList.contains('eliminar')) {
-        const index = e.target.dataset.index;
-        carrito.splice(index, 1);
-        localStorage.setItem('carritoMardant', JSON.stringify(carrito));
+      if (e.target.classList.contains('eliminar')) {
+        const index = Number(e.target.dataset.index);
+        const carritoLocal = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
+        carritoLocal.splice(index, 1);
+        localStorage.setItem('carritoMardant', JSON.stringify(carritoLocal));
+
         renderCarrito();
         actualizarCarritoUI();
       }
     });
 
-document.getElementById('finalizar-compra').addEventListener('click', () => {
-  const cart = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
-  if (!cart.length) return;
+    document.getElementById('finalizar-compra').addEventListener('click', (e) => {
+      e.preventDefault();
 
-  // Agrupar por id (si existe) o por nombre
-  const groups = new Map();
-  for (const item of cart) {
-    const key = (item.id && String(item.id).trim()) ? `id:${String(item.id).trim()}` : `name:${item.nombre}`;
-    const g = groups.get(key) || { ...item, qty: 0 };
-    g.qty += 1;
-    groups.set(key, g);
-  }
+      const cart = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
+      if (!cart.length) return;
 
-  const origin = location.origin; // en mardant.com quedará perfecto
-  const lines = [];
-  let total = 0;
+      // Agrupar por id (si existe) o por nombre
+      const groups = new Map();
+      for (const item of cart) {
+        const key = (item.id && String(item.id).trim())
+          ? `id:${String(item.id).trim()}`
+          : `name:${item.nombre}`;
 
-  let i = 1;
-  for (const g of groups.values()) {
-    const unit = Number(g.precio) || 0;
-    const sub  = unit * g.qty;
-    total += sub;
+        const g = groups.get(key) || { ...item, qty: 0 };
+        g.qty += 1;
+        groups.set(key, g);
+      }
 
-    lines.push(
-      `${i}) ${g.qty} x ${g.nombre} — S/. ${unit.toFixed(2)} c/u — Subtotal: S/. ${sub.toFixed(2)}`
-    );
+      const origin = location.origin;
+      const lines = [];
+      let total = 0;
 
-    // Link detalle solo si hay id
-    if (g.id && String(g.id).trim()) {
-      const link = `${origin}/views/producto.html?id=${encodeURIComponent(String(g.id).trim())}`;
-      lines.push(`   🔗 ${link}`);
-    }
+      let i = 1;
+      for (const g of groups.values()) {
+        const unit = Number(g.precio) || 0;
+        const sub  = unit * g.qty;
+        total += sub;
 
-    i++;
-  }
+        lines.push(
+          `${i}) ${g.qty} x ${g.nombre} — S/. ${unit.toFixed(2)} c/u — Subtotal: S/. ${sub.toFixed(2)}`
+        );
 
-  const mensaje = [
-    '¡Hola! Quiero hacer un pedido en Mardant Perú. ✨🛍️',
-    '',
-    '🛒 Mi pedido:',
-    ...lines,
-    '',
-    `TOTAL: S/. ${total.toFixed(2)}`,
-    '',
-    'Tipo de entrega: ¿Delivery o recojo en punto de entrega gratuito en Lima?'
-  ].join('\n');
+        // Link detalle solo si hay id
+        if (g.id && String(g.id).trim()) {
+          const link = `${origin}/views/producto.html?id=${encodeURIComponent(String(g.id).trim())}`;
+          lines.push(`   ${link}`);
+        }
 
-  const wa = `https://wa.me/51985135331?text=${encodeURIComponent(mensaje)}`;
-  window.open(wa, '_blank');
-});
+        i++;
+      }
+
+      const mensaje = [
+        '¡Hola! Quiero hacer un pedido en Mardant Perú.',
+        '',
+        'Mi pedido:',
+        ...lines,
+        '',
+        `TOTAL: S/. ${total.toFixed(2)}`,
+        '',
+        'Tipo de entrega: ¿Delivery o recojo en punto de entrega gratuito en Lima?'
+      ].join('\n');
+
+      const clean = waCleanText(mensaje);
+      const wa = `https://wa.me/51985135331?text=${encodeURIComponent(clean)}`;
+      window.open(wa, '_blank');
+    });
 
     renderCarrito();
   </script>
+
   <!-- Tracking (FB Pixel + GA4 + eventos) -->
-<script type="module" src="../js/tracking.js"></script>
+  <script type="module" src="../js/tracking.js"></script>
 </body>
 </html>
