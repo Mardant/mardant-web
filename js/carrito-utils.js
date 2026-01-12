@@ -5,20 +5,24 @@ import { CARRITO_LOCAL_KEY } from './config.js';
 
 /* ====== API PÚBLICA (exportada) ====== */
 export function agregarAlCarrito(prod) {
-  /*  prod es el objeto completo del producto  */
   const carrito = JSON.parse(localStorage.getItem(CARRITO_LOCAL_KEY) || '[]');
 
+  const precioUnit = Number(
+    (prod.precio != null ? prod.precio :
+      (prod.oferta && !isNaN(prod.oferta) ? prod.oferta : prod.precio)
+    )
+  ) || 0;
+
   carrito.push({
-    nombre:  prod.nombre,
-    precio:  parseFloat(
-      prod.oferta && !isNaN(prod.oferta) ? prod.oferta : prod.precio
-    ),
-    imagen:  prod.imagen || 'https://via.placeholder.com/300x300?text=Sin+imagen',
+    id: String(prod.id ?? '').trim(), // <-- NUEVO (para link detalle)
+    nombre: String(prod.nombre || '').trim(),
+    precio: precioUnit,
+    imagen: prod.imagen || 'https://via.placeholder.com/300x300?text=Sin+imagen',
   });
 
-  localStorage.setItem('carritoMardant', JSON.stringify(carrito));
+  localStorage.setItem(CARRITO_LOCAL_KEY, JSON.stringify(carrito));
   actualizarCarritoUI();
-  mostrarNotificacion('✅ Producto añadido al carrito');
+  notificar('✅ Producto añadido al carrito', 'success'); // (tu noti ya existe)
 }
 
 export function actualizarCarritoUI() {
@@ -95,7 +99,7 @@ window.eliminarProductoMini = function (nombre) {
   let carrito = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
   const idx   = carrito.findIndex((p) => p.nombre === nombre);
   if (idx !== -1) carrito.splice(idx, 1);
-  localStorage.setItem('carritoMardant', JSON.stringify(carrito));
+  localStorage.setItem(CARRITO_LOCAL_KEY, JSON.stringify(carrito));
   actualizarCarritoUI();
   mostrarMiniCarrito();
 };
