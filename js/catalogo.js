@@ -217,6 +217,7 @@ function cardProducto(p) {
     <button class="agregar-carrito" ${estado === 'AGOTADO' ? 'disabled' : ''}>
       Añadir al carrito
     </button>
+    <a class="boton ver-detalle" href="./producto.html?id=${encodeURIComponent(p.id)}">Ver detalle</a>
   `;
 
   if (estado !== 'AGOTADO') {
