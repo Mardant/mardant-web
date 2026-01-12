@@ -194,13 +194,17 @@ async function loadStatus(){
   preTbody.innerHTML     = '';
 
   try{
-    const res = await fetch(API_URL + '?route=status&token=' + encodeURIComponent(token));
-    const data = await res.json();
+  const res = await fetch(API_URL + '?route=status', {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ token })
+  });
+  const data = await res.json();
 
-    if (!data.ok){
-      if (data.error === 'invalid_token'){ clearAuth(); showLogin(); return; }
-      throw new Error(data.error||'error');
-    }
+  if (!data.ok){
+    if (data.error === 'invalid_token'){ clearAuth(); showLogin(); return; }
+    throw new Error(data.error||'error');
+  }
 
     // KPIs
     diasGratisEl.textContent    = data.dias_gratis;
