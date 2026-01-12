@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Producto - Mardant</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+  <link rel="stylesheet" href="../css/estilos.css">
+  <link rel="stylesheet" href="../css/producto.css">
+</head>
+<body>
+
+  <div class="pdp-wrap">
+    <div class="pdp-top">
+      <a class="pdp-back" href="./catalogo.html">← Volver al catálogo</a>
+    </div>
+
+    <div id="pdp-error" class="pdp-error" style="display:none;"></div>
+
+    <div id="pdp" class="pdp" style="display:none;">
+      <div class="pdp-grid">
+        <div class="pdp-media">
+          <img id="pdp-img" class="pdp-img" alt="">
+        </div>
+
+        <div class="pdp-info">
+          <div class="pdp-badges">
+            <span id="pdp-estado" class="pdp-badge"></span>
+            <span id="pdp-id" class="pdp-badge pdp-badge-muted"></span>
+          </div>
+
+          <h1 id="pdp-nombre" class="pdp-title"></h1>
+
+          <div id="pdp-precio" class="pdp-precio"></div>
+
+          <div class="pdp-actions">
+            <button id="pdp-add" class="boton">🛒 Añadir al carrito</button>
+            <button id="pdp-copy" class="boton pdp-btn-sec">🔗 Copiar link</button>
+            <a id="pdp-wa" class="boton pdp-btn-wa" href="#" target="_blank" rel="noopener">💬 Pedir por WhatsApp</a>
+          </div>
+
+          <div class="pdp-meta">
+            <div><strong>Categoría:</strong> <span id="pdp-cat">-</span></div>
+            <div><strong>Subcategoría:</strong> <span id="pdp-sub">-</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón flotante carrito + mini-carrito -->
+  <a class="boton-carrito-flotante" href="./carrito.html" aria-label="Ir al carrito">
+    🛒 <span id="contador-carrito" class="contador-carrito"></span>
+  </a>
+  <div id="mini-carrito" class="mini-carrito"></div>
+
+  <script type="module" src="../js/producto.js"></script>
+  <script type="module" src="../js/tracking.js"></script>
+</body>
+</html>
