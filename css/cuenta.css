@@ -356,3 +356,43 @@ tbody td{
   background: rgba(0,188,212,.08);
   border-left:6px solid var(--accent);
 }
+
+/* ============================================================
+   MEJORAS PARA TAB "PEDIDO" + BOTÓN WHATSAPP
+   (Pegar al final del cuenta.css)
+============================================================ */
+
+/* 1) Que .btn funcione bien también en <a> (WhatsApp) */
+.btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none; /* quita subrayado en <a> */
+}
+
+/* 2) Variación pequeña (la usa el botón "PEDIR POR WHATSAPP") */
+.btn.small{
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 900;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+/* 3) Tabla de Pedido: forzar un ancho mínimo (para que el scroll sea controlado) */
+#tab-pedido table.table{
+  min-width: 860px; /* ajusta si quieres más/menos */
+}
+
+/* 4) Tabla de Pedido: permitir salto de línea SOLO en la columna "Producto / URL" */
+#tab-pedido tbody td:nth-child(2){
+  white-space: normal;
+}
+
+/* Opcional: mejora visual del bloque dentro de "Producto / URL" */
+#tab-pedido tbody td:nth-child(2) .muted{
+  font-size: 12px;
+  line-height: 1.35;
+}
+
