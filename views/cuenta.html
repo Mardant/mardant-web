@@ -72,6 +72,7 @@
       <div class="tabs">
         <button class="tab-btn active" data-tab="almacen">Almacén</button>
         <button class="tab-btn" data-tab="preventas">Preventas</button>
+        <button class="tab-btn" data-tab="pedido">Pedido</button>
       </div>
 
       <!-- TAB: ALMACÉN -->
@@ -88,24 +89,25 @@
           </table>
         </div>
         <div class="msg small" id="almacenMsg"></div>
-<div class="notice notice-warn">
-  <div class="notice-title">⚠️ IMPORTANTE</div>
 
-  <p>
-    Usted cuenta con <strong>50 DÍAS GRATUITOS</strong> de almacenaje. Una vez superado este plazo, los productos serán
-    considerados en condición de <strong>ABANDONO</strong>.
-  </p>
+        <div class="notice notice-warn">
+          <div class="notice-title">⚠️ IMPORTANTE</div>
 
-  <p class="q"><strong>¿QUÉ OCURRE SI MI PRODUCTO PASA A ABANDONO?</strong></p>
-  <p>
-    De forma automática, el producto será <strong>DESECHADO</strong> y no procederá <strong>NINGÚN TIPO DE RECLAMO</strong>.
-  </p>
+          <p>
+            Usted cuenta con <strong>50 DÍAS GRATUITOS</strong> de almacenaje. Una vez superado este plazo, los productos serán
+            considerados en condición de <strong>ABANDONO</strong>.
+          </p>
 
-  <p class="q"><strong>¿DESEA AGREGAR MÁS PRODUCTOS PARA CONSOLIDAR SU ENVÍO?</strong></p>
-  <p>
-    Le invitamos a visitar nuestra web, donde podrá revisar nuestro catálogo y seleccionar los productos de su interés.
-  </p>
-</div>
+          <p class="q"><strong>¿QUÉ OCURRE SI MI PRODUCTO PASA A ABANDONO?</strong></p>
+          <p>
+            De forma automática, el producto será <strong>DESECHADO</strong> y no procederá <strong>NINGÚN TIPO DE RECLAMO</strong>.
+          </p>
+
+          <p class="q"><strong>¿DESEA AGREGAR MÁS PRODUCTOS PARA CONSOLIDAR SU ENVÍO?</strong></p>
+          <p>
+            Le invitamos a visitar nuestra web, donde podrá revisar nuestro catálogo y seleccionar los productos de su interés.
+          </p>
+        </div>
       </div>
 
       <!-- TAB: PREVENTAS -->
@@ -125,26 +127,104 @@
           </table>
         </div>
         <div class="msg small" id="preMsg"></div>
-<div class="notice notice-info">
-  <div class="notice-title">📌 IMPORTANTE</div>
 
-  <p>
-    Los productos con estado <strong>EN_ALMACEN_PERU</strong> cuentan con un plazo máximo de <strong>30 DÍAS</strong>
-    para <strong>CANCELAR EL TOTAL</strong> del producto. De no completarse el pago dentro de este periodo, el pedido será
-    considerado en condición de <strong>ABANDONO</strong>.
-  </p>
+        <div class="notice notice-info">
+          <div class="notice-title">📌 IMPORTANTE</div>
 
-  <p class="q"><strong>¿QUÉ OCURRE SI MI PRODUCTO PASA A ABANDONO?</strong></p>
-  <p>
-    De forma automática, el producto será <strong>DESECHADO</strong> y no procederá <strong>NINGÚN TIPO DE RECLAMO</strong>.
-  </p>
+          <p>
+            Los productos con estado <strong>EN_ALMACEN_PERU</strong> cuentan con un plazo máximo de <strong>30 DÍAS</strong>
+            para <strong>CANCELAR EL TOTAL</strong> del producto. De no completarse el pago dentro de este periodo, el pedido será
+            considerado en condición de <strong>ABANDONO</strong>.
+          </p>
 
-  <p class="q"><strong>¿LAS CAJAS PUEDEN PRESENTAR DAÑOS?</strong></p>
-  <p>
-    Sí. Las cajas pueden presentar daños ocasionados por el transporte, tanto <strong>MARÍTIMO</strong> como <strong>AÉREO</strong>.
-  </p>
-</div>
+          <p class="q"><strong>¿QUÉ OCURRE SI MI PRODUCTO PASA A ABANDONO?</strong></p>
+          <p>
+            De forma automática, el producto será <strong>DESECHADO</strong> y no procederá <strong>NINGÚN TIPO DE RECLAMO</strong>.
+          </p>
+
+          <p class="q"><strong>¿LAS CAJAS PUEDEN PRESENTAR DAÑOS?</strong></p>
+          <p>
+            Sí. Las cajas pueden presentar daños ocasionados por el transporte, tanto <strong>MARÍTIMO</strong> como <strong>AÉREO</strong>.
+          </p>
+        </div>
       </div>
+
+      <!-- TAB: PEDIDO (COTIZACIÓN) -->
+      <div id="tab-pedido" style="display:none;">
+        <h3>Solicitud de cotización</h3>
+
+        <div class="notice notice-info">
+          <div class="notice-title">🛒 PEDIDO / COTIZACIÓN</div>
+          <p>
+            En esta sección puedes enviarnos el enlace directo del producto de tu interés (Mercari, Amazon JP, etc.).
+            Revisaremos si es posible realizar la compra y te mostraremos la cotización en tu cuenta.
+          </p>
+        </div>
+
+        <form id="pedidoForm" class="form">
+          <div class="row">
+            <div class="field">
+              <label class="label" for="pedidoUrl">Pega el URL (obligatorio)</label>
+              <input id="pedidoUrl" type="url" required placeholder="https://jp.mercari.com/item/..." />
+            </div>
+            <div class="field">
+              <label class="label" for="pedidoNombre">Nombre del producto (opcional)</label>
+              <input id="pedidoNombre" type="text" maxlength="120" placeholder="Ej: Figura / Plush / etc." />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label class="label" for="pedidoPeso">Peso (opcional)</label>
+              <input id="pedidoPeso" type="text" maxlength="40" placeholder="Ej: 750g o 0.75kg" />
+            </div>
+            <div class="field">
+              <label class="label" for="pedidoTamano">Tamaño (opcional)</label>
+              <input id="pedidoTamano" type="text" maxlength="60" placeholder="Ej: 20x15x10 cm" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label class="label" for="pedidoYenes">Precio en yenes (opcional)</label>
+              <input id="pedidoYenes" type="number" min="0" step="1" placeholder="Ej: 3000" />
+            </div>
+            <div class="field actions">
+              <button class="btn" type="submit">Enviar solicitud</button>
+              <div id="pedidoFormMsg" class="msg"></div>
+            </div>
+          </div>
+        </form>
+
+        <div class="notice notice-warn" style="margin-top:12px">
+          <div class="notice-title">⚠️ IMPORTANTE</div>
+          <p>
+            Los costos finales pueden variar por peso o volumen del producto.
+            La cotización se calcula con la información disponible, pero el monto final se confirma cuando el producto
+            llegue a nuestro almacén en Japón.
+          </p>
+        </div>
+
+        <h3 style="margin-top:14px">Mis cotizaciones</h3>
+        <div id="pedidosMsg" class="muted">Cargando...</div>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Producto / URL</th>
+                <th>Estado</th>
+                <th class="right">Aéreo</th>
+                <th class="right">Marítimo</th>
+                <th class="right">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="pedidosTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
     </section>
   </main>
 
