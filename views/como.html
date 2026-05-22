@@ -1,14 +1,14 @@
-<!-- views/como.html -->
+﻿<!-- views/como.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cómo Comprar – Mardant</title>
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 
   <!-- hoja de estilos unificada -->
-  <link rel="stylesheet" href="../css/estilos.css" />
+  <link rel="stylesheet" href="../css/estilos.css?v=11" />
 
   <!-- ajustes ligeros propios de esta vista -->
   <style>
@@ -29,16 +29,16 @@
       text-decoration:none;
       background:
         linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
-        #00bcd4;
-      box-shadow:0 10px 24px rgba(0,188,212,.25);
+        #a8322a;
+      box-shadow:0 10px 24px rgba(168,50,42,.22);
       transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
     }
-    .btn-pill:hover{ transform:translateY(-1px); box-shadow:0 14px 28px rgba(0,188,212,.32); filter:saturate(1.05); }
+    .btn-pill:hover{ transform:translateY(-1px); box-shadow:0 14px 28px rgba(23,20,17,.28); filter:saturate(1.03); }
     .btn-pill.alt{
       background:
         linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
-        #31c48d;
-      box-shadow:0 10px 24px rgba(49,196,141,.25);
+        #171411;
+      box-shadow:0 10px 24px rgba(23,20,17,.24);
     }
 
     /* micro-ajustes de tipografía para los pasos */
@@ -56,19 +56,19 @@
   <!-- Pasos de la guía -->
   <div class="contenedor-guia">
     <div class="paso">
-      <img src="https://i.imgur.com/0apS5FN.png" alt="Paso 1: Explora el catálogo" />
+      <img src="https://i.imgur.com/0apS5FN.png" alt="Paso 1: Explora el catálogo" referrerpolicy="no-referrer" />
       <h2>1. Explora todo nuestro catálogo</h2>
       <p>Entra a “Catálogo” o “Productos a Pedido” para ver figuras, peluches, accesorios y más. ¡Todo 100 % original desde Japón!</p>
     </div>
 
     <div class="paso">
-      <img src="https://i.imgur.com/U40x9Da.png" alt="Paso 2: Busca tu personaje" />
+      <img src="https://i.imgur.com/U40x9Da.png" alt="Paso 2: Busca tu personaje" referrerpolicy="no-referrer" />
       <h2>2. Busca tu anime o personaje favorito</h2>
       <p>Usa el buscador o filtra por categorías como Pokémon, Naruto o Jujutsu Kaisen. Añade lo que te guste al carrito.</p>
     </div>
 
     <div class="paso">
-      <img src="https://i.imgur.com/254fLYY.png" alt="Paso 3: Finaliza por WhatsApp" />
+      <img src="https://i.imgur.com/254fLYY.png" alt="Paso 3: Finaliza por WhatsApp" referrerpolicy="no-referrer" />
       <h2>3. Finaliza tu compra por WhatsApp</h2>
       <p>Toca el carrito (abajo a la derecha) y pulsa <em>“Finalizar compra por WhatsApp”</em>. ¡Te atendemos al toque!</p>
     </div>
@@ -85,5 +85,6 @@
 
   <!-- Tracking (FB Pixel + GA4 + eventos) -->
   <script type="module" src="../js/tracking.js"></script>
+  <script type="module" src="../js/account-widget.js?v=2"></script>
 </body>
 </html>

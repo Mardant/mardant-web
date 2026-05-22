@@ -1,14 +1,14 @@
-<!-- views/preventa.html -->
+﻿<!-- views/preventa.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <title>Preventa – Mardant</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 
   <!-- hoja de estilos global -->
-  <link rel="stylesheet" href="../css/estilos.css" />
+  <link rel="stylesheet" href="../css/estilos.css?v=11" />
 
   <style>
     /* ====== AJUSTES LOCALES SOLO PARA ESTA VISTA ====== */
@@ -28,21 +28,24 @@
       text-decoration:none;
       background:
         linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)) ,
-        #00bcd4;                           /* cian principal */
-      box-shadow:0 10px 24px rgba(0,188,212,.25);
+        #a8322a;
+      box-shadow:0 10px 24px rgba(168,50,42,.22);
       transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
     }
     .btn-pill:hover{
       transform:translateY(-1px);
-      box-shadow:0 14px 28px rgba(0,188,212,.32);
-      filter:saturate(1.05);
+      box-shadow:0 14px 28px rgba(23,20,17,.28);
+      filter:saturate(1.03);
     }
     .btn-pill.alt{
       background:
         linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)) ,
-        #31c48d;                           /* verde catálogo */
-      box-shadow:0 10px 24px rgba(49,196,141,.25);
+        #171411;
+      box-shadow:0 10px 24px rgba(23,20,17,.24);
     }
+
+    .titulo-seccion{ color:#171411; }
+    .titulo-seccion::after{ background:#a8322a; }
 
     /* Contenedor de los botones – sin fondo detrás */
     .cta-preventa{
@@ -93,6 +96,24 @@
       display:block;
       margin-bottom:10px;
     }
+    .grid-preventa .producto a.boton{
+      background:linear-gradient(180deg, #b13a31, #8f2722);
+      border:1px solid rgba(244,208,111,.30);
+      border-radius:8px;
+      color:#fff;
+      font-weight:900;
+      letter-spacing:.04em;
+      box-shadow:0 8px 18px rgba(0,0,0,.22);
+    }
+    .grid-preventa .producto a.boton:hover{
+      background:linear-gradient(180deg, #c04438, #982b25);
+      transform:translateY(-1px);
+      box-shadow:0 12px 24px rgba(0,0,0,.28);
+    }
+    .grid-preventa .producto .estado{
+      color:#d7c8ae;
+      font-weight:900;
+    }
 
     /* --------- Responsivo --------- */
     @media (max-width:1100px){
@@ -132,7 +153,7 @@
   <!-- Banner superior -->
   <img src="https://i.imgur.com/ZMGeepN.png"
        alt="Preventa Mardant"
-       style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #00bcd4;" />
+       style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #a8322a;" referrerpolicy="no-referrer" />
 
   <!-- Título -->
   <div class="contacto-centro">
@@ -201,5 +222,6 @@
 
   <!-- Tracking (FB Pixel + GA4 + eventos) -->
   <script type="module" src="../js/tracking.js"></script>
+  <script type="module" src="../js/account-widget.js?v=2"></script>
 </body>
 </html>

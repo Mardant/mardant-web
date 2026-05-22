@@ -1,4 +1,4 @@
-<!-- views/nosotros.html -->
+﻿<!-- views/nosotros.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sobre Nosotros – Mardant</title>
 
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <!-- Estilos globales -->
-  <link rel="stylesheet" href="../css/estilos.css?v=4" />
+  <link rel="stylesheet" href="../css/estilos.css?v=11" />
 </head>
 <body>
 
@@ -16,7 +16,7 @@
   <img
     class="banner-top"
     src="https://i.imgur.com/bXMSQ3E.png"
-    alt="Sobre Nosotros Mardant"
+    alt="Sobre Nosotros Mardant" referrerpolicy="no-referrer"
   />
 
   <section class="seccion sobre-nosotros">
@@ -55,20 +55,20 @@
     </div>
     <div class="galeria-nosotros">
       <a href="#lb1">
-        <img src="https://i.imgur.com/tzNqItz.png" alt="Entregas Mardant 1" loading="lazy">
+        <img src="https://i.imgur.com/tzNqItz.png" alt="Entregas Mardant 1" loading="lazy" referrerpolicy="no-referrer">
       </a>
       <a href="#lb2">
-        <img src="https://i.imgur.com/lFOVEmv.png" alt="Entregas Mardant 2" loading="lazy">
+        <img src="https://i.imgur.com/lFOVEmv.png" alt="Entregas Mardant 2" loading="lazy" referrerpolicy="no-referrer">
       </a>
     </div>
 
     <!-- Lightbox (CSS puro con :target) -->
     <div id="lb1" class="lightbox-overlay">
-      <img src="https://i.imgur.com/tzNqItz.png" alt="Entregas Mardant 1">
+      <img src="https://i.imgur.com/tzNqItz.png" alt="Entregas Mardant 1" referrerpolicy="no-referrer">
       <a href="#" class="lightbox-close" aria-label="Cerrar">×</a>
     </div>
     <div id="lb2" class="lightbox-overlay">
-      <img src="https://i.imgur.com/lFOVEmv.png" alt="Entregas Mardant 2">
+      <img src="https://i.imgur.com/lFOVEmv.png" alt="Entregas Mardant 2" referrerpolicy="no-referrer">
       <a href="#" class="lightbox-close" aria-label="Cerrar">×</a>
     </div>
 
@@ -94,7 +94,7 @@
       max-width: 980px;
       margin: 0 auto 14px;
       line-height: 1.7;
-      color: #333;
+      color: #4d4034;
       padding: 0 16px;
       text-align: left;
     }
@@ -120,7 +120,7 @@
       height: 220px;
       object-fit: cover;
       border-radius: 14px;
-      background: #e9eef4;
+      background: #efe3d2;
       box-shadow: 0 10px 24px rgba(0,0,0,.18);
       transition: transform .2s ease, box-shadow .2s ease;
     }
@@ -165,7 +165,6 @@
 
   <!-- Tracking -->
   <script type="module" src="../js/tracking.js"></script>
+  <script type="module" src="../js/account-widget.js?v=2"></script>
 </body>
 </html>
-
-

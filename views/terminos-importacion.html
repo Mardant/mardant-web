@@ -3,119 +3,242 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Términos para pedidos importados de Japón | Mardant</title>
-
+  <title>Términos de importación | Mardant Perú</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/estilos.css?v=11">
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #111827;
-      color: #f9fafb;
-      line-height: 1.6;
+    body{
+      margin:0;
+      background:#f5efe6;
+      color:#171411;
+      font-family:Montserrat, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height:1.65;
     }
-
-    .contenedor {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 30px 18px 60px;
+    .legal-nav{
+      position:sticky;
+      top:0;
+      z-index:10;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      padding:14px 22px;
+      background:rgba(245,239,230,.94);
+      border-bottom:1px solid rgba(168,50,42,.22);
+      backdrop-filter:blur(12px);
     }
-
-    .card {
-      background: #1f2937;
-      border-radius: 18px;
-      padding: 28px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.35);
-      border: 1px solid rgba(255,255,255,0.08);
+    .legal-brand{
+      color:#171411;
+      font-size:16px;
+      font-weight:1000;
+      text-decoration:none;
+      white-space:nowrap;
     }
-
-    h1 {
-      color: #f97316;
-      font-size: 28px;
-      margin-bottom: 10px;
-      text-align: center;
+    .legal-menu{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:18px;
+      flex-wrap:wrap;
     }
-
-    h2 {
-      color: #38bdf8;
-      margin-top: 32px;
-      font-size: 21px;
-      border-bottom: 1px solid rgba(255,255,255,0.12);
-      padding-bottom: 8px;
+    .legal-menu a{
+      color:#2e2620;
+      font-size:14px;
+      font-weight:900;
+      text-decoration:none;
+      border-bottom:2px solid transparent;
+      padding-bottom:3px;
     }
-
-    h3 {
-      color: #facc15;
-      margin-top: 24px;
-      font-size: 18px;
+    .legal-menu a:hover{
+      color:#a8322a;
+      border-color:#a8322a;
     }
-
-    p {
-      margin: 10px 0;
+    .legal-wrap{
+      max-width:980px;
+      margin:0 auto;
+      padding:28px 18px 56px;
     }
-
-    ul, ol {
-      padding-left: 22px;
+    .legal-hero,
+    .legal-panel{
+      background:linear-gradient(90deg, rgba(168,50,42,.08), rgba(255,255,255,.72) 42%, rgba(255,255,255,.92));
+      border:1px solid rgba(181,139,92,.38);
+      border-left:5px solid #a8322a;
+      border-radius:8px;
+      box-shadow:0 16px 34px rgba(44,34,25,.08);
     }
-
-    li {
-      margin-bottom: 8px;
+    .legal-hero{
+      padding:24px 26px;
+      margin-bottom:18px;
     }
-
-    .nota {
-      background: rgba(249, 115, 22, 0.12);
-      border-left: 4px solid #f97316;
-      padding: 14px 16px;
-      border-radius: 10px;
-      margin: 18px 0;
+    .legal-kicker{
+      display:inline-flex;
+      margin-bottom:8px;
+      color:#8a6f57;
+      font-size:12px;
+      font-weight:1000;
+      letter-spacing:.12em;
+      text-transform:uppercase;
     }
-
-    .confirmacion {
-      background: rgba(34, 197, 94, 0.12);
-      border-left: 4px solid #22c55e;
-      padding: 16px;
-      border-radius: 10px;
-      margin-top: 28px;
+    h1{
+      margin:0;
+      color:#050505;
+      font-size:clamp(28px, 5vw, 44px);
+      line-height:1.05;
+      letter-spacing:0;
     }
-
-    .boton-volver {
-      display: inline-block;
-      margin-top: 25px;
-      background: #f97316;
-      color: white;
-      text-decoration: none;
-      padding: 12px 18px;
-      border-radius: 999px;
-      font-weight: bold;
+    .fecha{
+      margin:12px 0 0;
+      color:#705f50;
+      font-size:14px;
+      font-weight:800;
     }
-
-    .boton-volver:hover {
-      background: #ea580c;
+    .legal-panel{
+      padding:24px 26px 28px;
     }
-
-    .fecha {
-      text-align: center;
-      color: #d1d5db;
-      font-size: 14px;
-      margin-bottom: 24px;
+    h2{
+      margin:30px 0 10px;
+      color:#171411;
+      font-size:clamp(20px, 3vw, 26px);
+      line-height:1.2;
     }
-
-    strong {
-      color: #ffffff;
+    h2::after{
+      content:"";
+      display:block;
+      width:120px;
+      height:3px;
+      margin-top:8px;
+      background:#a8322a;
+      border-radius:999px;
+    }
+    h3{
+      margin:22px 0 8px;
+      color:#5a4432;
+      font-size:17px;
+      line-height:1.25;
+    }
+    p{
+      margin:10px 0;
+      color:#3f342d;
+      font-weight:650;
+    }
+    ul{
+      margin:10px 0 16px;
+      padding-left:22px;
+      color:#3f342d;
+      font-weight:650;
+    }
+    li{
+      margin-bottom:8px;
+    }
+    strong{
+      color:#171411;
+      font-weight:1000;
+    }
+    .nota,
+    .confirmacion{
+      margin:18px 0;
+      padding:15px 16px;
+      border-radius:8px;
+      background:rgba(168,50,42,.08);
+      border:1px solid rgba(168,50,42,.22);
+      border-left:5px solid #a8322a;
+    }
+    .confirmacion{
+      background:rgba(189,165,107,.13);
+      border-color:rgba(189,165,107,.36);
+      border-left-color:#bda56b;
+    }
+    .legal-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:24px;
+    }
+    .legal-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:42px;
+      padding:10px 16px;
+      border-radius:999px;
+      background:linear-gradient(180deg,#b13a31,#8f2722);
+      color:#fff;
+      font-size:14px;
+      font-weight:1000;
+      text-decoration:none;
+      box-shadow:0 10px 20px rgba(168,50,42,.20);
+      transition:transform .18s ease, box-shadow .18s ease;
+    }
+    .legal-btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 14px 26px rgba(168,50,42,.26);
+    }
+    .legal-btn.alt{
+      background:linear-gradient(180deg,#2b2520,#171411);
+      box-shadow:0 10px 20px rgba(23,20,17,.18);
+    }
+    .legal-footer{
+      padding:18px 12px 22px;
+      background:#000;
+      color:#8f8173;
+      text-align:center;
+      font-size:13px;
+      font-weight:800;
+    }
+    .legal-footer a{
+      color:#bfae99;
+      text-decoration:none;
+      border-bottom:1px solid rgba(191,174,153,.42);
+    }
+    .legal-footer a:hover{
+      color:#f4d06f;
+      border-color:#f4d06f;
+    }
+    @media (max-width:700px){
+      .legal-nav{
+        align-items:flex-start;
+        flex-direction:column;
+        padding:12px 16px;
+      }
+      .legal-menu{
+        justify-content:flex-start;
+        gap:12px 16px;
+      }
+      .legal-wrap{
+        padding:18px 12px 44px;
+      }
+      .legal-hero,
+      .legal-panel{
+        padding:18px 16px;
+      }
+      .legal-panel{
+        border-radius:7px;
+      }
     }
   </style>
 </head>
-
 <body>
-  <main class="contenedor">
-    <section class="card">
-      <h1>🎌 Cómo adquirir un producto importado de Japón con Mardant 🎌</h1>
+  <nav class="legal-nav" aria-label="Navegación principal">
+    <a class="legal-brand" href="./inicio.html">Mardant Perú</a>
+    <div class="legal-menu">
+      <a href="./catalogo.html">Catálogo</a>
+      <a href="./preventa.html">Preventas</a>
+      <a href="./pedidos.html">A pedido</a>
+      <a href="./cuenta.html">Mi cuenta</a>
+    </div>
+  </nav>
 
+  <main class="legal-wrap">
+    <header class="legal-hero">
+      <span class="legal-kicker">Importación desde Japón</span>
+      <h1>Términos de importación</h1>
       <p class="fecha">Última actualización: mayo 2026</p>
+    </header>
 
+    <article class="legal-panel">
       <p>
-        ¡Gracias por tu interés en nuestros productos importados directamente desde Japón!
-        Antes de realizar un pedido, te pedimos leer cuidadosamente nuestras condiciones para que el proceso sea claro, seguro y ordenado.
+        Gracias por tu interés en nuestros productos importados directamente desde Japón.
+        Antes de realizar un pedido, te pedimos leer cuidadosamente estas condiciones para que el proceso sea claro, seguro y ordenado.
       </p>
 
       <div class="nota">
@@ -124,11 +247,11 @@
         confirmas que leíste y aceptas las condiciones indicadas a continuación.
       </div>
 
-      <h2>✅ Pasos para realizar tu pedido</h2>
+      <h2>Pasos para realizar tu pedido</h2>
 
       <h3>1. Solicitud del producto</h3>
       <p>
-        Envíanos el nombre del personaje, anime, marca, tienda, link o una imagen del producto que deseas.
+        Envíanos el nombre del personaje, anime, marca, tienda, enlace o una imagen del producto que deseas.
         También puedes indicarnos tu presupuesto aproximado y te ayudaremos a buscar opciones dentro de ese rango.
       </p>
 
@@ -142,40 +265,33 @@
       <p>
         Te enviaremos una cotización con el precio estimado en Perú. El precio puede incluir, según corresponda:
       </p>
-
       <ul>
         <li>Producto en Japón.</li>
+        <li>Gestión de compra.</li>
         <li>Envío internacional estimado.</li>
       </ul>
 
-      <h2>📌 Validez de la cotización</h2>
-
+      <h2>Validez de la cotización</h2>
       <p>
         Toda cotización enviada por Mardant tendrá una validez máxima de <strong>1 hora</strong>
         desde el momento en que es enviada al cliente.
       </p>
-
       <p>
         Esto se debe a que los precios en tiendas japonesas pueden cambiar rápidamente, el producto puede agotarse,
         cambiar de vendedor, variar por tipo de cambio, comisión, disponibilidad o condiciones de compra.
       </p>
-
       <p>
         Para mantener la cotización vigente, el cliente deberá realizar el pago inicial dentro del plazo indicado.
       </p>
-
       <p>
         Enviar datos personales, nombre, DNI, dirección, número de contacto o cualquier información para el pedido
         no asegura ni reserva el producto si el pago inicial no se realiza dentro del plazo de validez de la cotización.
       </p>
-
       <p>
         Si el cliente realiza un pago fuera del plazo de validez sin una nueva confirmación de Mardant,
         el pedido no se considerará automáticamente aceptado.
       </p>
-
       <p>En ese caso, Mardant podrá:</p>
-
       <ul>
         <li>Revalidar la cotización según el precio, disponibilidad, vendedor, tipo de cambio y condiciones actuales.</li>
         <li>Solicitar el pago de la diferencia si el precio cambió.</li>
@@ -184,44 +300,38 @@
         <li>Aplicar un cargo administrativo por revalidación o devolución, si corresponde.</li>
       </ul>
 
-      <h2>📌 Cargo administrativo por pago fuera de vigencia</h2>
-
+      <h2>Cargo administrativo por pago fuera de vigencia</h2>
       <p>
         Si el cliente realiza el pago después de vencida la cotización y luego solicita la devolución por no aceptar
         la nueva cotización actualizada, Mardant podrá descontar un cargo administrativo de <strong>S/10</strong>
         por verificación, gestión y reproceso del pago.
       </p>
-
       <p>
         Este cargo no aplica si el error fue directamente atribuible a Mardant o si Mardant decide no procesar
         el pedido por falta de disponibilidad del producto.
       </p>
 
-      <h2>📌 Importante sobre la reserva del producto</h2>
-
+      <h2>Reserva del producto</h2>
       <p>
         El producto solo se considera reservado o en proceso de compra cuando el pago inicial ha sido recibido
         dentro del plazo de validez y Mardant confirma que la compra será procesada.
       </p>
-
       <p>
         Hasta que el pago inicial sea confirmado dentro del plazo indicado, el producto puede variar de precio,
         agotarse o cambiar de vendedor sin previo aviso.
       </p>
 
-      <h2>📌 Importante sobre el envío</h2>
-
+      <h2>Envío internacional</h2>
       <p>
         En algunos productos, especialmente figuras, cajas grandes, lotes o artículos de peso incierto,
         el envío internacional se confirmará cuando el producto llegue al almacén japonés.
       </p>
-
       <p>
         Si el producto llega con una diferencia de peso respecto al estimado inicial, el envío internacional
         se ajustará según el peso real informado por el almacén japonés.
       </p>
 
-      <h2>💳 Modalidades de pago</h2>
+      <h2>Modalidades de pago</h2>
 
       <h3>Clientes nuevos o sin historial de compra</h3>
       <p>
@@ -229,7 +339,6 @@
         En productos a pedido, este monto puede corresponder al valor del producto, gestión de compra
         y costos necesarios para asegurar la compra en Japón.
       </p>
-
       <p>
         El envío internacional podrá calcularse y pagarse después, cuando el producto llegue al almacén japonés
         y se confirme el peso real.
@@ -240,23 +349,19 @@
         La modalidad de 50% de adelanto y 50% cuando el producto llega a Perú estará disponible únicamente
         para clientes con historial de compra positivo o previa aprobación de Mardant.
       </p>
-
       <p>
         Esta modalidad puede no aplicar para productos de alto valor, productos pesados, lotes grandes,
         productos difíciles de revender, pedidos especiales o compras con riesgo elevado.
       </p>
 
-      <h2>📦 Pago pendiente, consolidación y envío internacional</h2>
-
+      <h2>Pago pendiente, consolidación y envío internacional</h2>
       <p>
         Cuando el producto llegue al almacén japonés, se notificará al cliente para confirmar el peso real,
         el monto del envío internacional y, si corresponde, el pago pendiente del pedido.
       </p>
-
       <p>
         Desde la notificación, el cliente tendrá un plazo máximo de <strong>30 días calendario</strong> para:
       </p>
-
       <ul>
         <li>Cancelar el pago pendiente correspondiente.</li>
         <li>Cancelar el envío internacional.</li>
@@ -275,47 +380,40 @@
         como caso de abandono según corresponda.
       </p>
 
-      <h2>⏳ Tiempo de envío</h2>
-
+      <h2>Tiempo de envío</h2>
       <ul>
-        <li>🚀 Vía aérea: 30 a 45 días aprox.</li>
-        <li>🚢 Vía marítima: 90 días aprox.</li>
+        <li>Vía aérea: 30 a 45 días aprox.</li>
+        <li>Vía marítima: 90 días aprox.</li>
       </ul>
-
       <p>
         El tiempo estimado de llegada empieza a contarse desde que el producto llega al almacén japonés,
         se confirma el peso real, se cancela el envío internacional correspondiente y el pedido queda listo
         para despacho hacia Perú.
       </p>
-
       <p>
         Los plazos pueden extenderse por procesos aduaneros, congestión logística, revisiones, demoras del transportista
         o situaciones fuera de nuestro control.
       </p>
 
-      <h2>🔎 Seguimiento del pedido</h2>
-
+      <h2>Seguimiento del pedido</h2>
       <p>
         Los clientes contarán con una plataforma en nuestra web donde podrán revisar el proceso de su producto.
         Desde ahí podrán ver el estado del pedido desde que se realiza la compra en Japón, su llegada al almacén japonés,
         el cálculo del envío internacional y el avance hasta su envío hacia Perú.
       </p>
 
-      <h2>📌 Prioridad en cotizaciones</h2>
-
+      <h2>Prioridad en cotizaciones</h2>
       <p>
         Damos prioridad a clientes que confirman sus pedidos. Si solicitas una cotización y no concretas la compra,
         tus próximas solicitudes podrán ingresar a una cola de espera sin prioridad.
       </p>
-
       <p>
         Si un cliente solicita cotizaciones de forma recurrente, envía datos para preparar pedidos y no realiza el pago
         dentro del plazo de validez indicado, sus futuras solicitudes podrán ser atendidas sin prioridad o requerir
         pago completo por adelantado, según evaluación de Mardant.
       </p>
 
-      <h2>📌 Condiciones importantes</h2>
-
+      <h2>Condiciones importantes</h2>
       <ul>
         <li>Una vez confirmado el pedido y realizado el abono dentro del plazo de validez, el pedido se considera aceptado.</li>
         <li>El abono inicial no es reembolsable si el producto ya fue comprado en Japón o si la gestión de compra ya fue iniciada.</li>
@@ -331,21 +429,19 @@
         <li>Todos nuestros productos son 100% originales importados desde Japón.</li>
       </ul>
 
-      <h2>📦 Sobre productos en abandono</h2>
-
+      <h2>Productos en abandono</h2>
       <p>
         Cuando el producto llegue a Perú, se notificará al cliente para completar el saldo pendiente y coordinar entrega o envío local.
       </p>
-
       <p>
         El cliente tendrá un plazo máximo de <strong>20 días calendario</strong> desde la notificación de arribo a Perú
         para cancelar cualquier saldo pendiente y coordinar la entrega.
       </p>
-
-      <p>Si el cliente no completa el saldo, no responde o no coordina la entrega dentro del plazo indicado, el pedido podrá ser considerado en abandono.</p>
-
+      <p>
+        Si el cliente no completa el saldo, no responde o no coordina la entrega dentro del plazo indicado,
+        el pedido podrá ser considerado en abandono.
+      </p>
       <p>En caso de abandono:</p>
-
       <ul>
         <li>Se pierde el abono realizado.</li>
         <li>El producto podrá ser puesto nuevamente a la venta para recuperar costos.</li>
@@ -354,19 +450,34 @@
       </ul>
 
       <div class="confirmacion">
-        <h2>💬 Confirmación</h2>
+        <h2>Confirmación</h2>
         <p>
           Para iniciar la búsqueda o compra del producto, puedes responder:
-          <strong>“Estoy de acuerdo”</strong>.
+          <strong>"Estoy de acuerdo"</strong>.
         </p>
         <p>
           Al continuar con la solicitud después de recibir estas condiciones, confirmas que leíste y aceptas
-          los términos del pedido. 🚀✨
+          los términos del pedido.
         </p>
       </div>
 
-      <a class="boton-volver" href="/">Volver a Mardant</a>
-    </section>
+      <div class="legal-actions">
+        <a class="legal-btn" href="./inicio.html">Volver al inicio</a>
+        <a class="legal-btn alt" href="./pedidos.html">Solicitar cotización</a>
+      </div>
+    </article>
   </main>
+
+  <footer class="legal-footer">
+    © 2026 Mardant Perú · <a href="./terminos-importacion.html">Términos de importación</a>
+  </footer>
+
+  <a href="./cuenta.html" class="boton-cuenta-flotante" id="btnCuenta" title="Mi cuenta">
+    <span class="emoji">👤</span>
+    <span class="texto" id="cuentaTexto">Entrar</span>
+  </a>
+
+  <script type="module" src="../js/tracking.js"></script>
+  <script type="module" src="../js/account-widget.js?v=2"></script>
 </body>
 </html>

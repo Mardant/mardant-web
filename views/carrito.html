@@ -5,9 +5,9 @@
   <meta charset="utf-8">
   <title>Carrito - Mardant</title>
   <!-- favicon -->
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 
-  <link rel="stylesheet" href="../css/estilos.css">
+  <link rel="stylesheet" href="../css/estilos.css?v=11">
 </head>
 <body>
   <div class="carrito-container">
@@ -25,6 +25,7 @@
 
   <script type="module">
     import { actualizarCarritoUI } from '../js/carrito-utils.js';
+    import { whatsappLink } from '../js/config.js';
 
     const contenedor = document.getElementById('lista-carrito');
     const totalSpan = document.getElementById('total-carrito');
@@ -47,6 +48,15 @@
       return str.trim();
     }
 
+    function escapeHtml(str){
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     function renderCarrito() {
       const carritoLocal = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
 
@@ -57,9 +67,9 @@
         const div = document.createElement('div');
         div.className = 'carrito-item';
         div.innerHTML = `
-          <img src="${item.imagen}" alt="${item.nombre}">
+          <img src="${escapeHtml(item.imagen)}" alt="${escapeHtml(item.nombre)}" referrerpolicy="no-referrer">
           <div class="carrito-info">
-            <div class="nombre">${item.nombre}</div>
+            <div class="nombre">${escapeHtml(item.nombre)}</div>
             <div class="precio">S/. ${item.precio.toFixed(2)}</div>
           </div>
           <button class="eliminar" data-index="${index}">✕</button>
@@ -135,7 +145,7 @@
       ].join('\n');
 
       const clean = waCleanText(mensaje);
-      const wa = `https://wa.me/51985135331?text=${encodeURIComponent(clean)}`;
+      const wa = whatsappLink(clean);
       window.open(wa, '_blank');
     });
 
@@ -144,5 +154,6 @@
 
   <!-- Tracking (FB Pixel + GA4 + eventos) -->
   <script type="module" src="../js/tracking.js"></script>
+  <script type="module" src="../js/account-widget.js?v=2"></script>
 </body>
 </html>

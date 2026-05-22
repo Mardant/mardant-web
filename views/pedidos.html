@@ -1,4 +1,4 @@
-<!-- views/pedidos.html -->
+﻿<!-- views/pedidos.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Productos a Pedido – Mardant</title>
 
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="../css/estilos.css" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/estilos.css?v=11" />
 
   <style>
     /* ====== AJUSTES LOCALES SOLO PARA ESTA VISTA ====== */
@@ -41,17 +41,20 @@
       text-decoration:none;
       background:
         linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
-        #00bcd4;
-      box-shadow:0 10px 24px rgba(0,188,212,.25);
+        #a8322a;
+      box-shadow:0 10px 24px rgba(168,50,42,.22);
       transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
     }
-    .btn-pill:hover{ transform:translateY(-1px); box-shadow:0 14px 28px rgba(0,188,212,.32); filter:saturate(1.05); }
+    .btn-pill:hover{ transform:translateY(-1px); box-shadow:0 14px 28px rgba(23,20,17,.28); filter:saturate(1.03); }
     .btn-pill.alt{
       background:
         linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
-        #31c48d;
-      box-shadow:0 10px 24px rgba(49,196,141,.25);
+        #171411;
+      box-shadow:0 10px 24px rgba(23,20,17,.24);
     }
+
+    .titulo-seccion{ color:#171411; }
+    .titulo-seccion::after{ background:#a8322a; }
 
     /* ====== BOTONES DE ANIME ARRIBA (centrados) ====== */
     .grid-animes{
@@ -73,16 +76,16 @@
       color:#fff;
       font-weight:700;
       text-decoration:none;
-      border:1px solid rgba(0,188,212,.5);
-      box-shadow:0 10px 22px rgba(0,188,212,.25);
+      border:1px solid rgba(216,198,170,.6);
+      box-shadow:0 10px 22px rgba(23,20,17,.20);
       font-size:14px;
       transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
       white-space:nowrap;
     }
     .grid-animes .anime-pill:hover{
       transform:translateY(-1px);
-      box-shadow:0 14px 30px rgba(0,188,212,.35);
-      filter:saturate(1.05);
+      box-shadow:0 14px 30px rgba(23,20,17,.28);
+      filter:saturate(1.03);
     }
     .grid-animes .anime-pill img{
       height:32px;
@@ -103,8 +106,8 @@
   min-width:32px;
   padding:6px 10px;
   border-radius:999px;
-  border:1px solid #00bcd4;
-  background:#00bcd4;
+  border:1px solid #a8322a;
+  background:#a8322a;
   color:#fff;
   font-size:14px;
   cursor:pointer;
@@ -119,8 +122,8 @@
   cursor:default;
 }
 .paginacion button.activa{
-  background:#ff9800;          /* naranja para la página actual */
-  border-color:#ff9800;
+  background:#171411;
+  border-color:#171411;
   font-weight:700;
 }
 
@@ -174,7 +177,17 @@
       margin-top:10px;
       margin-bottom:6px;
       text-align:center;
-      font-weight:700;
+      font-weight:900;
+      letter-spacing:.04em;
+      background:linear-gradient(180deg, #263b37, #162421);
+      border:1px solid rgba(216,198,170,.34);
+      color:#fff;
+      box-shadow:0 8px 18px rgba(0,0,0,.22);
+    }
+    .boton-cotizar:hover{
+      background:linear-gradient(180deg, #304842, #1b2b27);
+      transform:translateY(-1px);
+      box-shadow:0 12px 24px rgba(0,0,0,.28);
     }
 
     /* Lightbox coherente con catálogo */
@@ -201,7 +214,7 @@
   <!-- Banner -->
   <img src="https://i.imgur.com/dcPrIuh.png"
        alt="Productos a Pedido"
-       style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #00bcd4;" />
+       style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #a8322a;" referrerpolicy="no-referrer" />
 
   <!-- Título -->
   <div class="contacto-centro">
@@ -288,6 +301,6 @@
 
   <!-- Tracking (FB Pixel + GA4 + eventos) -->
   <script type="module" src="../js/tracking.js"></script>
+  <script type="module" src="../js/account-widget.js?v=2"></script>
 </body>
 </html>
-

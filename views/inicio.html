@@ -1,15 +1,16 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <title>Inicio – Mardant</title>
 
   <!-- 1) Estilos globales -->
-  <link rel="stylesheet" href="../css/estilos.css" />
+  <link rel="stylesheet" href="../css/estilos.css?v=11" />
 
   <!-- 2) Estilos exclusivos de la portada (DEBEN ir después para pisar al global) -->
-  <link rel="stylesheet" href="../css/estilos_inicio.css">
+  <link rel="stylesheet" href="../css/estilos_inicio.css?v=15">
 </head>
 <body>
 <section id="vista-inicio">
@@ -18,54 +19,87 @@
   <header class="banner">
     <img src="https://i.imgur.com/wfOe9n4.png"
          alt="Banner Anime Mardant"
-         loading="lazy">
+         loading="lazy" referrerpolicy="no-referrer">
     <div class="bienvenida"></div>
   </header>
 
   <!-- Menú visual -->
   <nav class="menu-visual">
-    <a href="./catalogo.html"><img src="https://i.imgur.com/B5T6n58.png"   alt="Catálogo"               class="boton-imagen"></a>
-    <a href="./preventa.html"><img  src="https://i.imgur.com/8wy78gh.png"   alt="Preventa"               class="boton-imagen"></a>
-    <a href="./pedidos.html"><img  src="https://i.imgur.com/g1SsXa2.png"   alt="Producto a Pedido"       class="boton-imagen"></a>
-    <a href="./contacto.html"><img  src="https://i.imgur.com/IJ7YYxR.png"   alt="Contacto"               class="boton-imagen"></a>
-    <a href="./como.html"><img      src="https://i.imgur.com/mIZddDA.png"   alt="Cómo Comprar"           class="boton-imagen"></a>
-    <a href="./faq.html"><img       src="https://i.imgur.com/MbxHkvB.png"   alt="Preguntas Frecuentes"   class="boton-imagen"></a>
-    <a href="./nosotros.html"><img  src="https://i.imgur.com/0aUfeE9.png"   alt="Sobre Nosotros"         class="boton-imagen"></a>
+    <a href="./catalogo.html"><img src="https://i.imgur.com/B5T6n58.png"   alt="Catálogo"               class="boton-imagen" referrerpolicy="no-referrer"></a>
+    <a href="./preventa.html"><img  src="https://i.imgur.com/8wy78gh.png"   alt="Preventa"               class="boton-imagen" referrerpolicy="no-referrer"></a>
+    <a href="./pedidos.html"><img  src="https://i.imgur.com/g1SsXa2.png"   alt="Producto a Pedido"       class="boton-imagen" referrerpolicy="no-referrer"></a>
+    <a href="./contacto.html"><img  src="https://i.imgur.com/IJ7YYxR.png"   alt="Contacto"               class="boton-imagen" referrerpolicy="no-referrer"></a>
+    <a href="./como.html"><img      src="https://i.imgur.com/mIZddDA.png"   alt="Cómo Comprar"           class="boton-imagen" referrerpolicy="no-referrer"></a>
+    <a href="./faq.html"><img       src="https://i.imgur.com/MbxHkvB.png"   alt="Preguntas Frecuentes"   class="boton-imagen" referrerpolicy="no-referrer"></a>
+    <a href="./nosotros.html"><img  src="https://i.imgur.com/0aUfeE9.png"   alt="Sobre Nosotros"         class="boton-imagen" referrerpolicy="no-referrer"></a>
   </nav>
 
   <!-- Carrusel -->
   <div class="carrusel">
-    <img src="https://i.imgur.com/OxLXhEQ.png" class="activo" alt="Slide 1">
-    <img src="https://i.imgur.com/ms4dJaZ.png"               alt="Slide 2">
-    <img src="https://i.imgur.com/Zh8zamG.png"               alt="Slide 3">
+    <img src="https://i.imgur.com/OxLXhEQ.png" class="activo" alt="Slide 1" referrerpolicy="no-referrer">
+    <img src="https://i.imgur.com/ms4dJaZ.png"               alt="Slide 2" referrerpolicy="no-referrer">
+    <img src="https://i.imgur.com/Zh8zamG.png"               alt="Slide 3" referrerpolicy="no-referrer">
     <div class="carrusel-indicadores" id="indicadores"></div>
   </div>
 
   <!-- Secciones -->
 
-  <section class="seccion">
-    <h2><a href="./catalogo.html?orden=oferta" class="titulo-link">PRODUCTOS EN OFERTA</a></h2>
+  <section class="seccion seccion-ofertas">
+    <div class="home-section-head">
+      <a href="./catalogo.html?orden=oferta" class="titulo-link home-title-link">
+        <span class="section-icon" aria-hidden="true">特価</span>
+        <span class="section-title-copy">
+          <span class="section-kicker">OFERTAS DESTACADAS</span>
+          <span class="section-title">PRODUCTOS EN OFERTA</span>
+        </span>
+      </a>
+    </div>
     <div id="productos-oferta" class="grid-productos"></div>
   </section>
 
-  <section class="seccion">
-    <h2><a href="./catalogo.html?orden=recientes" class="titulo-link">ÚLTIMAS IMPORTACIONES</a></h2>
+  <section class="seccion seccion-ultimas">
+    <div class="home-section-head">
+      <a href="./catalogo.html?orden=recientes" class="titulo-link home-title-link">
+        <span class="section-icon" aria-hidden="true">新着</span>
+        <span class="section-title-copy">
+          <span class="section-kicker">NUEVOS PRODUCTOS</span>
+          <span class="section-title">ÚLTIMAS IMPORTACIONES</span>
+        </span>
+      </a>
+    </div>
     <div id="ultimas-importaciones" class="grid-productos"></div>
   </section>
 
-  <section class="seccion">
-    <h2><a href="./preventa.html" class="titulo-link">PREVENTAS</a></h2>
+  <section class="seccion seccion-preventas">
+    <div class="home-section-head">
+      <a href="./preventa.html" class="titulo-link home-title-link">
+        <span class="section-icon" aria-hidden="true">予約</span>
+        <span class="section-title-copy">
+          <span class="section-kicker">RESERVA DESDE S/ 15</span>
+          <span class="section-title">PREVENTAS</span>
+        </span>
+      </a>
+    </div>
     <div id="productos-preventa" class="grid-productos"></div>
   </section>
 
-  <section class="seccion">
-    <h2><a href="./pedidos.html" class="titulo-link">PRODUCTOS A PEDIDO</a></h2>
+  <section class="seccion seccion-pedidos">
+    <div class="home-section-head">
+      <a href="./pedidos.html" class="titulo-link home-title-link">
+        <span class="section-icon" aria-hidden="true">取寄</span>
+        <span class="section-title-copy">
+          <span class="section-kicker">PÍDELO DESDE JAPÓN</span>
+          <span class="section-title">PRODUCTOS A PEDIDO</span>
+        </span>
+      </a>
+    </div>
     <div id="pedidos-disponibles" class="grid-productos"></div>
   </section>
 
   <!-- Pie -->
   <footer class="pie">
     <p>© 2026 Mardant Perú • Todos los derechos reservados</p>
+    <a class="footer-legal-link" href="./terminos-importacion.html">Términos de importación</a>
   </footer>
 
   <!-- Botón Mi Cuenta -->
@@ -88,7 +122,7 @@
 </section>
 
 <!-- Lógica de portada -->
-<script type="module" src="../js/scripts_inicio.js"></script>
+<script type="module" src="../js/scripts_inicio.js?v=2"></script>
 
 <!-- Lightbox para imágenes de cards -->
 <script>

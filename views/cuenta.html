@@ -3,9 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <title>Mi Cuenta - Mardant</title>
   <!-- cache-busting -->
-  <link rel="stylesheet" href="../css/cuenta.css?v=8">
+  <link rel="stylesheet" href="../css/estilos.css?v=11">
+  <link rel="stylesheet" href="../css/cuenta.css?v=13">
 </head>
 <body>
   <header class="topbar">
@@ -25,6 +27,24 @@
       <div class="hero-copy">
         <h1>Mi Cuenta</h1>
         <p>Consulta tus días de almacenaje y sigue el estado de tus preventas.</p>
+      </div>
+    </section>
+
+    <section class="client-access-note card">
+      <div class="note-seal" aria-hidden="true">会員</div>
+      <div class="note-copy">
+        <h2>Acceso exclusivo para clientes</h2>
+        <p>
+          La cuenta en nuestra plataforma es exclusiva para clientes que ya compraron con nosotros,
+          reservaron preventas o solicitaron productos a pedido. Si eres cliente y aún no tienes
+          cuenta, escríbenos para activarla.
+        </p>
+        <a
+          class="btn btn-whatsapp"
+          href="https://wa.me/51985135331?text=Hola%2C%20soy%20cliente%20de%20Mardant%20y%20quiero%20activar%20mi%20cuenta."
+          target="_blank"
+          rel="noopener"
+        >Contactar por WhatsApp</a>
       </div>
     </section>
 
@@ -60,6 +80,10 @@
           </div>
         </div>
         <button id="logoutBtn" class="btn secondary">Cerrar sesión</button>
+        <div class="points-mini" id="pointsMini">
+          <span>Puntos Mardant</span>
+          <strong><span id="puntosMiniDisponibles">0</span> pts</strong>
+        </div>
       </div>
 
       <div class="kpis">
@@ -70,13 +94,14 @@
       </div>
 
       <div class="tabs">
-        <button class="tab-btn active" data-tab="almacen">Almacén</button>
-        <button class="tab-btn" data-tab="preventas">Preventas</button>
-        <button class="tab-btn" data-tab="pedido">Pedido</button>
+        <button class="tab-btn active" data-tab="preventas">Preventas</button>
+        <button class="tab-btn" data-tab="almacen">Almacén</button>
+        <button class="tab-btn" data-tab="pedido">Cotizar</button>
+        <button class="tab-btn" data-tab="puntos">Puntos</button>
       </div>
 
       <!-- TAB: ALMACÉN -->
-      <div id="tab-almacen">
+      <div id="tab-almacen" style="display:none;">
         <h3>Ítems en almacén</h3>
         <div class="table-wrap">
           <table id="itemsTable">
@@ -111,7 +136,7 @@
       </div>
 
       <!-- TAB: PREVENTAS -->
-      <div id="tab-preventas" style="display:none;">
+      <div id="tab-preventas">
         <h3>Mis preventas</h3>
         <div class="table-wrap">
           <table id="preTable">
@@ -149,14 +174,80 @@
         </div>
       </div>
 
+      <!-- TAB: PUNTOS -->
+      <div id="tab-puntos" style="display:none;">
+        <h3>Puntos Mardant</h3>
+
+        <div class="points-panel" id="pointsPanel" aria-live="polite">
+          <div class="points-main">
+            <div>
+              <div class="points-eyebrow">Saldo disponible</div>
+              <div class="points-total"><span id="puntosDisponibles">0</span> pts</div>
+            </div>
+            <div class="points-status" id="puntosEstado">Cargando puntos...</div>
+          </div>
+
+          <div class="points-grid">
+            <div class="points-kpi">
+              <span>Ganados</span>
+              <strong id="puntosGanados">0</strong>
+            </div>
+            <div class="points-kpi">
+              <span>Usados</span>
+              <strong id="puntosUsados">0</strong>
+            </div>
+            <div class="points-kpi">
+              <span>Faltan para 5%</span>
+              <strong id="puntosFaltan">100</strong>
+            </div>
+          </div>
+
+          <div class="points-progress" aria-hidden="true">
+            <div class="points-progress-bar" id="puntosProgress"></div>
+          </div>
+        </div>
+
+        <div class="points-rewards">
+          <h4>Canjes disponibles</h4>
+          <div class="reward-grid">
+            <article class="reward-card" data-reward-card="ENTREGA_GRATIS_3">
+              <div class="reward-points">20 pts</div>
+              <h5>Entrega en punto gratis</h5>
+              <p>Cubre una entrega en punto de entrega con costo máximo de S/ 3.00.</p>
+              <button class="btn small reward-btn" type="button" data-reward="ENTREGA_GRATIS_3">Solicitar canje</button>
+            </article>
+
+            <article class="reward-card" data-reward-card="ENVIO_GRATIS_8">
+              <div class="reward-points">50 pts</div>
+              <h5>Envío gratis</h5>
+              <p>Cubre un envío con costo máximo de S/ 8.00.</p>
+              <button class="btn small reward-btn" type="button" data-reward="ENVIO_GRATIS_8">Solicitar canje</button>
+            </article>
+
+            <article class="reward-card" data-reward-card="DESCUENTO_5">
+              <div class="reward-points">100 pts</div>
+              <h5>5% de descuento</h5>
+              <p>Aplica 5% de descuento a una preventa o pedido seleccionado.</p>
+              <label class="reward-select-label" for="puntosPreventaSelect">Preventa para descuento</label>
+              <select id="puntosPreventaSelect"></select>
+              <button class="btn small reward-btn" type="button" data-reward="DESCUENTO_5">Solicitar canje</button>
+            </article>
+          </div>
+          <div class="msg small" id="puntosCanjeMsg"></div>
+        </div>
+
+        <h4 class="points-history-title">Movimientos recientes</h4>
+        <div class="points-movements" id="puntosMovimientos"></div>
+      </div>
+
       <!-- TAB: PEDIDO (COTIZACIÓN) -->
       <div id="tab-pedido" style="display:none;">
         <h3>Solicitud de cotización</h3>
 
         <div class="notice notice-info">
-          <div class="notice-title">🛒 PEDIDO / COTIZACIÓN</div>
+          <div class="notice-title">🛒 COTIZACIÓN</div>
           <p>
-            En esta sección puedes enviarnos el enlace directo del producto de tu interés (Mercari, Amazon JP, etc.).
+            En esta sección puedes enviarnos el enlace directo del producto de tu interés (Mercari, Rakuten, etc.).
             Revisaremos si es posible realizar la compra y te mostraremos la cotización en tu cuenta.
           </p>
         </div>
@@ -229,7 +320,8 @@
   </main>
 
   <footer class="site-footer">
-    © 2026 Mardant Perú
+    <span>© 2026 Mardant Perú</span>
+    <a class="footer-legal-link" href="./terminos-importacion.html">Términos de importación</a>
   </footer>
 
   <!-- ===== Lightbox de imágenes (Mi cuenta) ===== -->
@@ -240,6 +332,8 @@
     </div>
   </div>
 
-  <script type="module" src="../js/cuenta.js"></script>
+  <script type="module" src="../js/tracking.js"></script>
+  <script type="module" src="../js/cuenta.js?v=4"></script>
+  <script type="module" src="../js/account-widget.js?v=2"></script>
 </body>
 </html>

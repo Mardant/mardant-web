@@ -1,16 +1,16 @@
-<!-- views/catalogo.html -->
+﻿<!-- views/catalogo.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Catálogo Mardant</title>
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 
   <!-- estilos globales -->
-  <link rel="stylesheet" href="../css/estilos.css" />
+  <link rel="stylesheet" href="../css/estilos.css?v=11" />
   <!-- extras del catálogo -->
-  <link rel="stylesheet" href="../css/catalogo.css" />
+  <link rel="stylesheet" href="../css/catalogo.css?v=10" />
 
   <style>
     /* ====== AJUSTES LOCALES (sólo esta vista) ====== */
@@ -47,16 +47,16 @@
       text-decoration:none;
       background:
         linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
-        #00bcd4;
-      box-shadow:0 10px 24px rgba(0,188,212,.25);
+        #a8322a;
+      box-shadow:0 10px 24px rgba(168,50,42,.22);
       transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
     }
-    .btn-pill:hover{ transform:translateY(-1px); box-shadow:0 14px 28px rgba(0,188,212,.32); filter:saturate(1.05); }
+    .btn-pill:hover{ transform:translateY(-1px); box-shadow:0 14px 28px rgba(23,20,17,.28); filter:saturate(1.03); }
     .btn-pill.alt{
       background:
         linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
-        #31c48d;
-      box-shadow:0 10px 24px rgba(49,196,141,.25);
+        #171411;
+      box-shadow:0 10px 24px rgba(23,20,17,.24);
     }
 
     /* Buscador centrado con aire vertical */
@@ -94,7 +94,7 @@
   <!-- Banner superior -->
   <img src="https://i.imgur.com/K7nyK2A.png"
        alt="Catálogo Mardant"
-       style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #00bcd4" />
+       style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #a8322a" referrerpolicy="no-referrer" />
 
   <div class="page-wrap"><!-- abre contenedor central -->
 
@@ -111,111 +111,109 @@
     <div class="filtros" id="filtros">
       <div id="filtro-categorias" class="grupo-filtro">
         <button type="button" class="categoria-imagen" data-categoria="">
-          <img src="https://i.imgur.com/gy6LkfG.png" alt="Todos" height="60">
+          <img src="https://i.imgur.com/gy6LkfG.png" alt="Todos" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="POKEMON">
-          <img src="https://i.imgur.com/z7fPTus.png" alt="Pokemon" height="60">
+          <img src="https://i.imgur.com/z7fPTus.png" alt="Pokemon" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="MY HERO ACADEMIA">
-          <img src="https://i.imgur.com/PB85qrv.png" alt="My Hero Academia" height="60">
+          <img src="https://i.imgur.com/PB85qrv.png" alt="My Hero Academia" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="DRAGON BALL">
-          <img src="https://i.imgur.com/UUtpYIJ.png" alt="Dragon Ball" height="60">
+          <img src="https://i.imgur.com/UUtpYIJ.png" alt="Dragon Ball" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="JUJUTSU KAISEN">
-          <img src="https://i.imgur.com/WklTLco.png" alt="Jujutsu Kaisen" height="60">
+          <img src="https://i.imgur.com/WklTLco.png" alt="Jujutsu Kaisen" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="DEMON SLAYER">
-          <img src="https://i.imgur.com/4teP5Jy.png" alt="Demon Slayer" height="60">
+          <img src="https://i.imgur.com/4teP5Jy.png" alt="Demon Slayer" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="SAILOR MOON">
-          <img src="https://i.imgur.com/BbxtzzD.png" alt="Sailor Moon" height="60">
+          <img src="https://i.imgur.com/BbxtzzD.png" alt="Sailor Moon" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="DR. STONE">
-          <img src="https://i.imgur.com/4gX4Ews.png" alt="Dr. Stone" height="60">
+          <img src="https://i.imgur.com/4gX4Ews.png" alt="Dr. Stone" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="KAIJU NO 8">
-          <img src="https://i.imgur.com/VQdQJAa.png" alt="Kaiju no 8" height="60">
+          <img src="https://i.imgur.com/VQdQJAa.png" alt="Kaiju no 8" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="NARUTO">
-          <img src="https://i.imgur.com/UXZCDIm.png" alt="Naruto" height="60">
+          <img src="https://i.imgur.com/UXZCDIm.png" alt="Naruto" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="ONE PIECE">
-          <img src="https://i.imgur.com/phbUt2h.png" alt="One Piece" height="60">
+          <img src="https://i.imgur.com/phbUt2h.png" alt="One Piece" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="OVERLORD">
-          <img src="https://i.imgur.com/imABoHo.png" alt="Overlord" height="60">
+          <img src="https://i.imgur.com/imABoHo.png" alt="Overlord" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="THAT TIME I GOT REINCARNATED AS A SLIME">
-          <img src="https://i.imgur.com/q0Ya6vQ.png" alt="That time i got reincarnated as a slime" height="60">
+          <img src="https://i.imgur.com/q0Ya6vQ.png" alt="That time i got reincarnated as a slime" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="TOKYO REVENGERS">
-          <img src="https://i.imgur.com/uDP1bDn.png" alt="Tokyo revengers" height="60">
+          <img src="https://i.imgur.com/uDP1bDn.png" alt="Tokyo revengers" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="GUNDAM">
-          <img src="https://i.imgur.com/eV0ZYQm.png" alt="Gundam" height="60">
+          <img src="https://i.imgur.com/eV0ZYQm.png" alt="Gundam" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="SPY X FAMILY">
-          <img src="https://i.imgur.com/QLyUTVz.png" alt="Spy x Family" height="60">
+          <img src="https://i.imgur.com/QLyUTVz.png" alt="Spy x Family" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="HATSUNE MIKU">
-          <img src="https://i.imgur.com/TVdbddi.png" alt="Hatsune miku" height="60">
+          <img src="https://i.imgur.com/TVdbddi.png" alt="Hatsune miku" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="SAKAMOTO DAYS">
-          <img src="https://i.imgur.com/Ac5PiXg.png" alt="Sakamoto Days" height="60">
+          <img src="https://i.imgur.com/Ac5PiXg.png" alt="Sakamoto Days" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="THE APOTHECARY DIARIES">
-          <img src="https://i.imgur.com/ZPADHps.png" alt="The Apothecary Diaries" height="60">
+          <img src="https://i.imgur.com/ZPADHps.png" alt="The Apothecary Diaries" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="UMAMUSUME">
-          <img src="https://i.imgur.com/A92haES.png" alt="Umamusume" height="60">
+          <img src="https://i.imgur.com/A92haES.png" alt="Umamusume" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="LOVE LIVE">
-          <img src="https://i.imgur.com/AWmcCZW.png" alt="Love Live" height="60">
+          <img src="https://i.imgur.com/AWmcCZW.png" alt="Love Live" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="BANG DREAM">
-          <img src="https://i.imgur.com/furYIdH.png" alt="Bang Dream" height="60">
+          <img src="https://i.imgur.com/furYIdH.png" alt="Bang Dream" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="I MAY BE A GUILD RECEPTIONIST">
-          <img src="https://i.imgur.com/lI0g7Xd.png" alt="I may be a guild receptionist" height="60">
+          <img src="https://i.imgur.com/lI0g7Xd.png" alt="I may be a guild receptionist" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="SHIRONEKO PROJECT">
-          <img src="https://i.imgur.com/MUI917T.png" alt="Shironeko Project" height="60">
+          <img src="https://i.imgur.com/MUI917T.png" alt="Shironeko Project" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="RUROUNI KENSHIN">
-          <img src="https://i.imgur.com/tP4ijnm.png" alt="Rurouni Kenshin" height="60">
+          <img src="https://i.imgur.com/tP4ijnm.png" alt="Rurouni Kenshin" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="YU-GI-OH">
-          <img src="https://i.imgur.com/dF9G2bR.png" alt="YU-GI-OH" height="60">
+          <img src="https://i.imgur.com/dF9G2bR.png" alt="YU-GI-OH" height="60" referrerpolicy="no-referrer">
         </button>
         <button type="button" class="categoria-imagen" data-categoria="RE ZERO">
-          <img src="https://i.imgur.com/vaHDYor.png" alt="Re Zero" height="60">
+          <img src="https://i.imgur.com/vaHDYor.png" alt="Re Zero" height="60" referrerpolicy="no-referrer">
         </button>
           <button type="button" class="categoria-imagen" data-categoria="NIKKE">
-          <img src="https://i.imgur.com/xH5JrqZ.png" alt="NIKKE" height="60">
+          <img src="https://i.imgur.com/xH5JrqZ.png" alt="NIKKE" height="60" referrerpolicy="no-referrer">
         </button>
           <button type="button" class="categoria-imagen" data-categoria="OSHI NO KO">
-          <img src="https://i.imgur.com/aAZMAJN.png" alt="OSHI NO KO" height="60">
+          <img src="https://i.imgur.com/aAZMAJN.png" alt="OSHI NO KO" height="60" referrerpolicy="no-referrer">
         </button>       
           <button type="button" class="categoria-imagen" data-categoria="LYCORIS RECOIL">
-          <img src="https://i.imgur.com/q8zgSkW.png" alt="LYCORIS RECOIL" height="60">
+          <img src="https://i.imgur.com/q8zgSkW.png" alt="LYCORIS RECOIL" height="60" referrerpolicy="no-referrer">
         </button>
-        </button>       
           <button type="button" class="categoria-imagen" data-categoria="BERSERK">
-          <img src="https://i.imgur.com/6yCqiRm.png" alt="BERSERK" height="60">
+          <img src="https://i.imgur.com/6yCqiRm.png" alt="BERSERK" height="60" referrerpolicy="no-referrer">
         </button>  
-        </button>       
           <button type="button" class="categoria-imagen" data-categoria="DIGIMON">
-          <img src="https://i.imgur.com/m8A4SZU.png" alt="DIGIMON" height="60">
+          <img src="https://i.imgur.com/m8A4SZU.png" alt="DIGIMON" height="60" referrerpolicy="no-referrer">
         </button>  
           <button type="button" class="categoria-imagen" data-categoria="DANDADAN">
-          <img src="https://i.imgur.com/ByVPUre.png" alt="DANDADAN" height="60">
+          <img src="https://i.imgur.com/ByVPUre.png" alt="DANDADAN" height="60" referrerpolicy="no-referrer">
         </button> 
           <button type="button" class="categoria-imagen" data-categoria="EVANGELION">
-          <img src="https://i.imgur.com/q1UpVyT.png" alt="EVANGELION" height="60">
+          <img src="https://i.imgur.com/q1UpVyT.png" alt="EVANGELION" height="60" referrerpolicy="no-referrer">
         </button> 
           <button type="button" class="categoria-imagen" data-categoria="DC COMICS">
-          <img src="https://i.imgur.com/PtnUOZx.png" alt="DC COMICS" height="60">
+          <img src="https://i.imgur.com/PtnUOZx.png" alt="DC COMICS" height="60" referrerpolicy="no-referrer">
         </button>
       </div>
     </div>
@@ -268,7 +266,7 @@
   </div>
 
   <!-- Lógica del catálogo -->
-  <script type="module" src="../js/catalogo.js"></script>
+  <script type="module" src="../js/catalogo.js?v=2"></script>
 
   <!-- Abrir imágenes del listado en el lightbox -->
   <script>
@@ -304,5 +302,6 @@
 
   <!-- Tracking -->
   <script type="module" src="../js/tracking.js"></script>
+  <script type="module" src="../js/account-widget.js?v=2"></script>
 </body>
 </html>
