@@ -31,8 +31,8 @@
 .categoria-imagen{
   -webkit-appearance:none;
   appearance:none;
-  background:#fff;
-  border:2px solid #00bcd4;
+  background:#fffaf2;
+  border:1px solid #d8c6aa;
   border-radius:12px;
   padding:2px;
   width:140px;
@@ -45,8 +45,8 @@
   line-height:0;
   transition:box-shadow .2s ease, transform .15s ease, border-color .2s;
 }
-.categoria-imagen:hover{ transform:translateY(-1px); box-shadow:0 6px 14px rgba(0,188,212,.25); }
-.categoria-imagen.selected{ border-color:#ff4081; box-shadow:0 0 12px rgba(255,64,129,.35); }
+.categoria-imagen:hover{ transform:translateY(-1px); box-shadow:0 10px 22px rgba(23,20,17,.18); }
+.categoria-imagen.selected{ border-color:#a8322a; box-shadow:0 0 0 3px rgba(168,50,42,.14); }
 
 /* Imagen dentro del botón */
 .categoria-imagen img{
@@ -60,8 +60,8 @@
 #subfiltro-contenedor{ margin:15px 0; text-align:center; }
 
 #subcategoria-select{
-  background:#f8f9fa;
-  border:2px solid #00bcd4;
+  background:#fffaf2;
+  border:1px solid #d8c6aa;
   padding:10px 15px;
   font-size:16px;
   border-radius:8px;
@@ -85,13 +85,13 @@
   min-width:44px;
   padding:10px 12px;
   border-radius:12px;
-  background:#00bcd4;
+  background:linear-gradient(180deg, #b13a31, #8f2722);
   color:#fff;
   font-weight:800;
   transition:transform .2s, filter .2s;
 }
 #paginacion .boton:hover{ transform:translateY(-2px); filter:saturate(1.05); }
-#paginacion .activo{ background:#ff9800 !important; }
+#paginacion .activo{ background:#171411 !important; border-color:rgba(244,208,111,.42); }
 
 /* ====== TARJETA DE PRODUCTO ====== */
 .producto{
@@ -103,7 +103,7 @@
   content:"";
   position:absolute;
   inset:0;
-  background:linear-gradient(45deg, rgba(0,188,212,.10), transparent);
+  background:linear-gradient(45deg, rgba(168,50,42,.12), transparent);
   opacity:0;
   transition:opacity .3s;
   pointer-events:none;
@@ -123,7 +123,7 @@
   gap:10px 14px;
   margin:6px 0 10px;
 }
-.orden label{ font-weight:700; color:#1976d2; }
+.orden label{ font-weight:700; color:#4d4034; }
 
 /* ====== RESPONSIVE / CATEGORÍAS EN MÓVIL ====== */
 @media (max-width:680px){

@@ -33,11 +33,11 @@
   max-width:520px;
   border-radius: 14px;
   object-fit: cover;
-  border: 1px solid #e6eef5;
+  border: 1px solid #d8c6aa;
 }
 
 .pdp-info{ display:flex; flex-direction:column; gap:12px; }
-.pdp-title{ margin:0; text-align:left; color: #111; font-size: clamp(22px, 3vw, 34px); }
+.pdp-title{ margin:0; text-align:left; color: #171411; font-size: clamp(22px, 3vw, 34px); }
 
 .pdp-badges{ display:flex; gap:10px; flex-wrap:wrap; }
 .pdp-badge{
@@ -48,10 +48,10 @@
   border-radius:999px;
   font-weight:900;
   font-size:12px;
-  background: rgba(0,188,212,.12);
-  color: #006b78;
+  background: rgba(168,50,42,.10);
+  color: #8f2722;
 }
-.pdp-badge-muted{ background:#eef2f6; color:#334; }
+.pdp-badge-muted{ background:#efe3d2; color:#4d4034; }
 
 .pdp-precio{ font-size:18px; font-weight:900; }
 .pdp-old{ text-decoration: line-through; color:#777; font-weight:700; }
@@ -59,7 +59,7 @@
 
 .pdp-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:6px; }
 .pdp-actions .boton{ text-decoration:none; display:inline-flex; align-items:center; justify-content:center; }
-.pdp-btn-sec{ background:#6c757d !important; }
-.pdp-btn-wa{ background:#25D366 !important; }
+.pdp-btn-sec{ background:#171411 !important; }
+.pdp-btn-wa{ background:linear-gradient(180deg, #263b37, #162421) !important; }
 
-.pdp-meta{ margin-top:10px; color:#2c3e50; }
+.pdp-meta{ margin-top:10px; color:#4d4034; }
