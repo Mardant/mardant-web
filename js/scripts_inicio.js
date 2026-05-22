@@ -1,6 +1,7 @@
 // === js/scripts_inicio.js ===
-import { API_URL, AUTH_KEYS } from './config.js';
+import { API_URL, AUTH_KEYS, whatsappLink } from './config.js';
 import { actualizarCarritoUI } from './carrito-utils.js';
+import { ensureAccountWidget } from './account-widget.js?v=2';
 
 /* Utilidades */
 const $ = sel => document.querySelector(sel);
@@ -61,6 +62,8 @@ const KEYS = {
 };
 
 function ensureCuentaButton() {
+  ensureAccountWidget();
+  return;
   // Si el HTML ya trae el botón (con id="btnCuenta"), lo usamos; si no, lo creamos.
   let btn = document.getElementById('btnCuenta');
   if (!btn) {
@@ -98,6 +101,19 @@ const fetchJSON = accion =>
   fetch(`${API_URL}?accion=${accion}`)
     .then(r => { if(!r.ok) throw new Error('API'); return r.json(); });
 
+function estadoClass(texto){
+  const estado = String(texto || '')
+    .toUpperCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+
+  if (estado.includes('OFERTA')) return 'estado-oferta';
+  if (estado.includes('AGOTADO') || estado.includes('SIN STOCK')) return 'estado-agotado';
+  if (estado.includes('DISPONIBLE')) return 'estado-disponible';
+  return 'estado-neutro';
+}
+
 /* ====== Últimas importaciones (rotan entre las 15 últimas) ====== */
 let ultimasLista15 = [];
 let ultimasIndiceInicio = 0;
@@ -119,17 +135,18 @@ function renderUltimas() {
   }
 
   visibles.forEach(p => {
-    const estado = (p.estado || '').toUpperCase().includes('SIN STOCK') ? 'AGOTADO' : 'DISPONIBLE';
-    const estadoClase = estado === 'DISPONIBLE' ? 'estado en-stock' : 'estado';
+    const rawEstado = (p.estado || '').toUpperCase();
+    const estado = (rawEstado.includes('SIN STOCK') || rawEstado.includes('AGOTADO')) ? 'AGOTADO' : 'DISPONIBLE';
+    const estadoClase = `estado ${estadoClass(estado)}`;
     const div = document.createElement('div');
     div.className = 'producto' + (p.soloDesktop ? ' mostrar-solo-desktop' : '');
     div.innerHTML = `
-      <img src="${p.imagen}" alt="${escapeHtml(p.nombre)}" class="img" loading="lazy">
+      <img src="${p.imagen}" alt="${escapeHtml(p.nombre)}" class="img" loading="lazy" referrerpolicy="no-referrer">
       <div class="nombre">${escapeHtml(p.nombre)}</div>
       <div class="precio">S/. ${parseFloat(p.precio).toFixed(2)}</div>
       <div class="${estadoClase}">${estado}</div>
-      <a href="https://wa.me/51985135331?text=${encodeURIComponent('Hola, me interesa el producto: ' + p.nombre)}"
-         class="boton" target="_blank">📢 Pedir por WhatsApp</a>`;
+      <a href="${whatsappLink('Hola, quiero comprar ahora este producto: ' + p.nombre)}"
+         class="boton" target="_blank">COMPRAR AHORA</a>`;
     c.appendChild(div);
   });
 }
@@ -164,16 +181,15 @@ fetchJSON('preventas')
       const img = p.imagen?.trim()
         ? escapeHtml(p.imagen)
         : 'https://via.placeholder.com/300x300?text=Sin+imagen';
-      const urlWA = 'https://wa.me/51985135331?text=' +
-                    encodeURIComponent('Hola, estoy interesado en la preventa: ' + p.nombre);
+      const urlWA = whatsappLink('Hola, quiero reservar esta preventa con S/ 15: ' + p.nombre);
       const div = document.createElement('div');
       div.className = 'producto' + (p.soloDesktop ? ' mostrar-solo-desktop' : '');
       div.innerHTML = `
-        <img src="${img}" alt="${escapeHtml(p.nombre)}" class="img" loading="lazy">
+        <img src="${img}" alt="${escapeHtml(p.nombre)}" class="img" loading="lazy" referrerpolicy="no-referrer">
         <div class="nombre">${escapeHtml(p.nombre)}</div>
         <div class="precio">S/. ${( +p.precio || 0 ).toFixed(2)}</div>
-        <div class="estado">📦 Llega: ${escapeHtml(p['fecha aprox llegada peru'] || 'Próximamente')}</div>
-        <a href="${urlWA}" target="_blank" class="boton">📩 Pedir por WhatsApp</a>`;
+        <div class="estado estado-preventa">Llega: ${escapeHtml(p['fecha aprox llegada peru'] || 'Próximamente')}</div>
+        <a href="${urlWA}" target="_blank" class="boton">RESERVAR CON S/ 15</a>`;
       c.appendChild(div);
     });
   })
@@ -208,17 +224,17 @@ fetchJSON('pedidosDisponibles')
 
       // Texto que se manda a WhatsApp
       const mensajeWA = p.nombre && p.nombre.trim()
-        ? `Deseo cotizar el producto: ${nombreBase}`
-        : `Deseo cotizar la figura N° ${idRaw || 'sin ID'}`;
+        ? `Deseo pedir desde Japón este producto: ${nombreBase}`
+        : `Deseo pedir desde Japón la figura N° ${idRaw || 'sin ID'}`;
 
       const div = document.createElement('div');
       div.className = 'producto' + (p.soloDesktop ? ' mostrar-solo-desktop' : '');
       div.innerHTML = `
-        <img src="${p.imagen}" alt="${escapeHtml(nombreBase)}" class="img" loading="lazy">
+        <img src="${p.imagen}" alt="${escapeHtml(nombreBase)}" class="img" loading="lazy" referrerpolicy="no-referrer">
         <div class="nombre">${escapeHtml(nombreBase)}</div>
-        <div class="estado">${escapeHtml(p.estado || 'DISPONIBLE A PEDIDO')}</div>
-        <a href="https://wa.me/51985135331?text=${encodeURIComponent(mensajeWA)}"
-           class="boton" target="_blank">📩 Cotizar figura</a>`;
+        <div class="estado ${estadoClass(p.estado || 'DISPONIBLE A PEDIDO')}">${escapeHtml(p.estado || 'DISPONIBLE A PEDIDO')}</div>
+        <a href="${whatsappLink(mensajeWA)}"
+           class="boton" target="_blank">PEDIR DESDE JAPÓN</a>`;
       c.appendChild(div);
     });
   })
@@ -236,19 +252,20 @@ fetchJSON('productos')
     if (!c) return;
     c.innerHTML = '';
     lista.forEach(p => {
-      const nombre = escapeHtml(p.nombre);
+      const nombreTexto = p.nombre || '';
+      const nombre = escapeHtml(nombreTexto);
       const div = document.createElement('div');
       div.className = 'producto' + (p.soloDesktop ? ' mostrar-solo-desktop' : '');
       div.innerHTML = `
-        <img src="${p.imagen}" alt="${nombre}" class="img" loading="lazy">
+        <img src="${p.imagen}" alt="${nombre}" class="img" loading="lazy" referrerpolicy="no-referrer">
         <div class="nombre">${nombre}</div>
         <div class="precio">
           <span style="text-decoration:line-through;color:#bbb;">S/. ${parseFloat(p.precio).toFixed(2)}</span><br>
-          <span style="color:#ffee58;font-weight:bold;font-size:22px;">S/. ${parseFloat(p.oferta).toFixed(2)}</span>
+          <span class="precio-oferta">S/. ${parseFloat(p.oferta).toFixed(2)}</span>
         </div>
-        <div class="estado en-stock">OFERTA</div>
-        <a href="https://wa.me/51985135331?text=${encodeURIComponent('Hola, me interesa el producto: ' + nombre)}"
-           class="boton" target="_blank">🔥 Pedir por WhatsApp</a>`;
+        <div class="estado estado-oferta">OFERTA</div>
+        <a href="${whatsappLink('Hola, quiero aprovechar esta oferta: ' + nombreTexto)}"
+           class="boton" target="_blank">APROVECHAR OFERTA</a>`;
       c.appendChild(div);
     });
   })

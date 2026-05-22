@@ -1,5 +1,5 @@
 /* js/catalogo.js - Versión Final Corregida */
-import { API_URL } from './config.js';
+import { API_URL, PRODUCTOS_POR_PAGINA } from './config.js';
 import { 
   agregarAlCarrito,
   actualizarCarritoUI,
@@ -7,7 +7,7 @@ import {
   actualizarContador
 } from './carrito-utils.js';
 
-const productosPorPagina = 21;
+const productosPorPagina = PRODUCTOS_POR_PAGINA;
 let productosGlobal = [];
 let categoriaActual = '';
 let paginaActual = 1;
@@ -22,16 +22,20 @@ function aplicarFiltros() {
   const subcat = ($('#subfiltro-contenedor select')?.value || '').toLowerCase();
 
   let lista = productosGlobal.filter((p) => {
-    const catOK = !categoriaActual || p.categoria.toUpperCase() === categoriaActual;
-    const subOK = !subcat || p.subcategoria.toLowerCase() === subcat;
-    const txtOK = p.nombre.toLowerCase().includes(texto) ||
-                  p.categoria.toLowerCase().includes(texto) ||
-                  p.subcategoria.toLowerCase().includes(texto);
+    const nombre = String(p.nombre || '').toLowerCase();
+    const categoria = String(p.categoria || '').toUpperCase();
+    const subcategoria = String(p.subcategoria || '').toLowerCase();
+    const catOK = !categoriaActual || categoria === categoriaActual;
+    const subOK = !subcat || subcategoria === subcat;
+    const txtOK = nombre.includes(texto) ||
+                  categoria.toLowerCase().includes(texto) ||
+                  subcategoria.includes(texto);
 
     const estado = (p.estado || '').toUpperCase();
+    const isAgotado = estado.includes('SIN STOCK') || estado.includes('AGOTADO');
     const estadoOK = estadoFiltro === 'todos' ||
-                    (estadoFiltro === 'disponible' && !estado.includes('SIN STOCK')) ||
-                    (estadoFiltro === 'agotado' && estado.includes('SIN STOCK'));
+                    (estadoFiltro === 'disponible' && !isAgotado) ||
+                    (estadoFiltro === 'agotado' && isAgotado);
 
     return catOK && subOK && txtOK && estadoOK;
   });
@@ -151,8 +155,9 @@ function fillSubcategorias() {
   const subs = [
     ...new Set(
       productosGlobal
-        .filter(p => p.categoria.toUpperCase() === categoriaActual)
-        .map(p => p.subcategoria)
+        .filter(p => String(p.categoria || '').toUpperCase() === categoriaActual)
+        .map(p => String(p.subcategoria || '').trim())
+        .filter(Boolean)
     ),
   ].sort();
 
@@ -161,7 +166,7 @@ function fillSubcategorias() {
   const select = document.createElement('select');
   select.id = 'subcategoria-select';
   select.innerHTML = '<option value="">Todos los personajes</option>' +
-    subs.map(s => `<option value="${s}">${s}</option>`).join('');
+    subs.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
   select.addEventListener('change', aplicarFiltros);
   cont.appendChild(select);
 }
@@ -195,11 +200,17 @@ function cardProducto(p) {
   const ofertaNum = parseFloat(p.oferta) || precioNum;
   const tieneOferta = !isNaN(ofertaNum) && ofertaNum < precioNum;
   
-  const estado = tieneOferta ? 'OFERTA' : 
-    (p.estado || '').toUpperCase().includes('SIN STOCK') ? 'AGOTADO' : 'DISPONIBLE';
+  const rawEstado = (p.estado || '').toUpperCase();
+  const estado = tieneOferta ? 'OFERTA' :
+    (rawEstado.includes('SIN STOCK') || rawEstado.includes('AGOTADO')) ? 'AGOTADO' : 'DISPONIBLE';
+  const estadoClass = estado === 'OFERTA'
+    ? 'estado-oferta'
+    : estado === 'AGOTADO'
+      ? 'estado-agotado'
+      : 'estado-disponible';
 
   card.innerHTML = `
-    <img src="${img}" alt="${nombre}" class="img" loading="lazy">
+    <img src="${img}" alt="${nombre}" class="img" loading="lazy" referrerpolicy="no-referrer">
     <div class="nombre" title="${nombre}">${nombre}</div>
     <div class="precio">
       ${tieneOferta ? `
@@ -213,7 +224,7 @@ function cardProducto(p) {
           S/. ${precioNum.toFixed(2)}
         </span>`}
     </div>
-    <div class="estado">${estado}</div>
+    <div class="estado ${estadoClass}">${estado}</div>
     <button class="agregar-carrito" ${estado === 'AGOTADO' ? 'disabled' : ''}>
       Añadir al carrito
     </button>

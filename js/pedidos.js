@@ -1,5 +1,5 @@
 /* js/pedidos.js */
-import { API_URL }             from './config.js';
+import { API_URL, whatsappLink } from './config.js';
 import { actualizarCarritoUI } from './carrito-utils.js';
 
 const $ = (s) => document.querySelector(s);
@@ -251,19 +251,20 @@ function card(p) {
     ? escapeHtml(p.imagen.trim())
     : 'https://via.placeholder.com/300x300?text=Sin+imagen';
 
-  const mensajeWA = `Deseo cotizar la figura N° ${etiquetaId}`;
-  const urlWA = `https://wa.me/51985135331?text=${encodeURIComponent(mensajeWA)}`;
+  const mensajeWA = `Deseo pedir desde Japón la figura N° ${etiquetaId}`;
+  const urlWA = whatsappLink(mensajeWA);
 
   div.innerHTML = `
     <img src="${imagen}"
          alt="Figura N° ${etiquetaId}"
          class="img"
-         loading="lazy">
+         loading="lazy"
+         referrerpolicy="no-referrer">
     <div class="nombre"><b>Figura N° ${etiquetaId}</b></div>
     <a href="${urlWA}"
        target="_blank"
        rel="noopener noreferrer"
-       class="boton boton-cotizar">📩 Cotizar figura</a>
+       class="boton boton-cotizar">PEDIR DESDE JAPÓN</a>
   `;
 
   return div;
@@ -280,4 +281,3 @@ function showErr(e) {
   }
   if (pag) pag.innerHTML = '';
 }
-

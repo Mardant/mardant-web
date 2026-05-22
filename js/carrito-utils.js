@@ -7,11 +7,11 @@ import { CARRITO_LOCAL_KEY } from './config.js';
 export function agregarAlCarrito(prod) {
   const carrito = JSON.parse(localStorage.getItem(CARRITO_LOCAL_KEY) || '[]');
 
-  const precioUnit = Number(
-    (prod.precio != null ? prod.precio :
-      (prod.oferta && !isNaN(prod.oferta) ? prod.oferta : prod.precio)
-    )
-  ) || 0;
+  const oferta = Number(prod.oferta);
+  const precioBase = Number(prod.precio);
+  const precioUnit = Number.isFinite(oferta) && oferta > 0 && oferta < precioBase
+    ? oferta
+    : (Number.isFinite(precioBase) ? precioBase : 0);
 
   carrito.push({
     id: String(prod.id ?? '').trim(), // <-- NUEVO (para link detalle)
@@ -51,16 +51,29 @@ export function mostrarMiniCarrito() {
   carrito.forEach((i) => (grup[i.nombre] = (grup[i.nombre] || 0) + 1));
 
   Object.entries(grup).forEach(([nombre, cant]) => {
-    const item = carrito.find((p) => p.nombre === nombre);     // sólo para precio / imagen
+    const item = carrito.find((p) => p.nombre === nombre);
     const div  = document.createElement('div');
     div.className = 'mini-carrito-item';
-    div.innerHTML = `
-      <img src="${item.imagen}" alt="${nombre}">
-      <div class="info">${nombre}<br>
-        <strong>S/. ${item.precio} × ${cant}</strong>
-      </div>
-      <button onclick="eliminarProductoMini('${nombre}')">✕</button>
-    `;
+
+    const img = document.createElement('img');
+    img.src = item.imagen;
+    img.alt = nombre;
+    img.referrerPolicy = 'no-referrer';
+
+    const info = document.createElement('div');
+    info.className = 'info';
+    info.append(document.createTextNode(nombre), document.createElement('br'));
+
+    const strong = document.createElement('strong');
+    strong.textContent = `S/. ${Number(item.precio || 0).toFixed(2)} x ${cant}`;
+    info.appendChild(strong);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = 'x';
+    btn.addEventListener('click', () => eliminarProductoMini(nombre));
+
+    div.append(img, info, btn);
     mini.appendChild(div);
   });
 
@@ -95,14 +108,16 @@ export function notificar(mensaje, tipo = 'success') {
 
 /* ====== helpers globales (window.*) ====== */
 /* – los necesita el botón ✕ de cada línea del mini-carrito */
-window.eliminarProductoMini = function (nombre) {
+function eliminarProductoMini(nombre) {
   let carrito = JSON.parse(localStorage.getItem('carritoMardant') || '[]');
   const idx   = carrito.findIndex((p) => p.nombre === nombre);
   if (idx !== -1) carrito.splice(idx, 1);
   localStorage.setItem(CARRITO_LOCAL_KEY, JSON.stringify(carrito));
   actualizarCarritoUI();
   mostrarMiniCarrito();
-};
+}
+
+window.eliminarProductoMini = eliminarProductoMini;
 
 export const carrito = {
   obtener: () => JSON.parse(localStorage.getItem(CARRITO_LOCAL_KEY)) || [],

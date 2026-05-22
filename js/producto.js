@@ -1,4 +1,4 @@
-import { API_URL } from './config.js';
+import { API_URL, whatsappLink } from './config.js';
 import {
   agregarAlCarrito,
   actualizarCarritoUI,
@@ -8,7 +8,6 @@ import {
 } from './carrito-utils.js';
 
 const $ = (s) => document.querySelector(s);
-const WA_NUMBER = '51985135331';
 
 document.addEventListener('DOMContentLoaded', () => {
   initMiniCarritoHover();
@@ -93,6 +92,7 @@ function renderProducto(p){
   const imgEl = $('#pdp-img');
   imgEl.src = img || 'https://via.placeholder.com/900x900?text=Sin+imagen';
   imgEl.alt = nombre;
+  imgEl.referrerPolicy = 'no-referrer';
 
   // Precio
   const precioEl = $('#pdp-precio');
@@ -130,7 +130,7 @@ function renderProducto(p){
     `• Link: ${location.href}`
   ].filter(Boolean).join('\n');
 
-  const waUrl = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+  const waUrl = whatsappLink(msg);
   const waBtn = $('#pdp-wa');
   waBtn.href = waUrl;
 }

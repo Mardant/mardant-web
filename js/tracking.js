@@ -44,14 +44,15 @@ gtag('config', 'G-MJ9XGF9EZ8');
 /* ---------- 3. Eventos personalizados ---------- */
 document.addEventListener('DOMContentLoaded', () => {
   /* clic en enlaces WhatsApp */
-  document.querySelectorAll('a[href*="wa.me"]').forEach((link) => {
-    link.addEventListener('click', () => {
+  document.body.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href*="wa.me"]');
+    if (link) {
       fbq('track', 'Contact');
       gtag('event', 'click_whatsapp', {
         event_category: 'Interacción',
         event_label: 'Clic en botón de WhatsApp',
       });
-    });
+    }
   });
 
   /* clic en “Añadir al carrito” */
@@ -73,4 +74,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
-

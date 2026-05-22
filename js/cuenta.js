@@ -1,5 +1,5 @@
 // === js/cuenta.js ===
-import { API_URL, AUTH_KEYS } from './config.js';
+import { API_URL, AUTH_KEYS, WHATSAPP_NUMBER } from './config.js';
 
 /* =================================
    CONFIG WHATSAPP
@@ -7,13 +7,14 @@ import { API_URL, AUTH_KEYS } from './config.js';
      pon tu número con código país, SOLO dígitos. Ej: 51987654321 (Perú)
    - Si lo dejas vacío, se abrirá WhatsApp con el texto y el cliente elige el chat.
 ================================= */
-const WHATSAPP_NUMBER = '51985135331'; // <-- EJ: '51987654321'
+// El numero se define en config.js para mantener una sola fuente de verdad.
 
 /* ---------------------------------
    Elementos del DOM
 ---------------------------------- */
 const loginSection  = document.getElementById('loginSection');
 const statusSection = document.getElementById('statusSection');
+const clientAccessNote = document.querySelector('.client-access-note');
 const loginForm     = document.getElementById('loginForm');
 const loginMsg      = document.getElementById('loginMsg');
 const togglePassBtn = document.getElementById('togglePass');
@@ -25,6 +26,19 @@ const diasGratisEl    = document.getElementById('diasGratis');
 const diasUsadosEl    = document.getElementById('diasUsados');
 const diasRestantesEl = document.getElementById('diasRestantes');
 const diasExcedidosEl = document.getElementById('diasExcedidos');
+
+const puntosPanelEl       = document.getElementById('pointsPanel');
+const puntosDisponiblesEl = document.getElementById('puntosDisponibles');
+const puntosGanadosEl     = document.getElementById('puntosGanados');
+const puntosUsadosEl      = document.getElementById('puntosUsados');
+const puntosFaltanEl      = document.getElementById('puntosFaltan');
+const puntosEstadoEl      = document.getElementById('puntosEstado');
+const puntosProgressEl    = document.getElementById('puntosProgress');
+const puntosMovimientosEl = document.getElementById('puntosMovimientos');
+const puntosMiniDisponiblesEl = document.getElementById('puntosMiniDisponibles');
+const puntosCanjeMsg      = document.getElementById('puntosCanjeMsg');
+const puntosPreventaSelect = document.getElementById('puntosPreventaSelect');
+const rewardBtns          = document.querySelectorAll('.reward-btn');
 
 const itemsTbody      = document.querySelector('#itemsTable tbody');
 const preTbody        = document.querySelector('#preTable tbody');
@@ -38,6 +52,7 @@ const tabBtns         = document.querySelectorAll('.tab-btn');
 const tabAlmacen      = document.getElementById('tab-almacen');
 const tabPreventas    = document.getElementById('tab-preventas');
 const tabPedido       = document.getElementById('tab-pedido'); // ✅ NUEVO
+const tabPuntos       = document.getElementById('tab-puntos');
 
 // Pedido (form + tabla)
 const pedidoForm      = document.getElementById('pedidoForm');
@@ -85,6 +100,25 @@ if (lb){
    Helpers
 ---------------------------------- */
 const PEN = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
+const PUNTOS_DESCUENTO_5 = 100;
+const REWARD_CONFIG = {
+  ENTREGA_GRATIS_3: {
+    points: 20,
+    label: 'Entrega en punto gratis',
+    origen: 'ENTREGA'
+  },
+  ENVIO_GRATIS_8: {
+    points: 50,
+    label: 'Envío gratis',
+    origen: 'ENVIO'
+  },
+  DESCUENTO_5: {
+    points: PUNTOS_DESCUENTO_5,
+    label: '5% de descuento',
+    origen: 'PREVENTA',
+    needsPreventa: true
+  }
+};
 
 const getToken = () => localStorage.getItem(AUTH_KEYS.TOKEN);
 const setAuth  = (t,id,name)=>{
@@ -101,10 +135,12 @@ const clearAuth= ()=>{
 const showLogin= ()=>{
   if (statusSection) statusSection.style.display='none';
   if (loginSection)  loginSection.style.display='block';
+  if (clientAccessNote) clientAccessNote.style.display='flex';
 };
 const showPanel= ()=>{
   if (loginSection)  loginSection.style.display='none';
   if (statusSection) statusSection.style.display='block';
+  if (clientAccessNote) clientAccessNote.style.display='none';
 };
 
 function escapeHtml(s){
@@ -199,12 +235,17 @@ function setActiveTab(tabName){
   if (tabAlmacen)   tabAlmacen.style.display   = (tabName === 'almacen')   ? 'block' : 'none';
   if (tabPreventas) tabPreventas.style.display = (tabName === 'preventas') ? 'block' : 'none';
   if (tabPedido)    tabPedido.style.display    = (tabName === 'pedido')    ? 'block' : 'none';
+  if (tabPuntos)    tabPuntos.style.display    = (tabName === 'puntos')    ? 'block' : 'none';
 }
 
 tabBtns.forEach(btn=>{
   btn.addEventListener('click', ()=>{
     setActiveTab(btn.dataset.tab);
   });
+});
+
+rewardBtns.forEach(btn => {
+  btn.addEventListener('click', () => solicitarCanje(btn.dataset.reward));
 });
 
 /* Estado (badge) */
@@ -226,13 +267,143 @@ function stateBadge(text){
   return `<span class="${cls}">${escapeHtml(text||'-')}</span>`;
 }
 
+function fmtPoints(value){
+  const n = Number(value);
+  if (!isFinite(n) || isNaN(n)) return '0';
+  return Math.trunc(n).toLocaleString('es-PE');
+}
+
+function renderPuntos(puntos){
+  if (!puntosPanelEl) return;
+
+  const disponibles = Number(puntos?.disponibles || 0);
+  const ganados = Number(puntos?.ganados || 0);
+  const usados = Number(puntos?.usados || 0);
+  const faltan = Math.max(0, PUNTOS_DESCUENTO_5 - disponibles);
+  const progress = Math.max(0, Math.min(100, (disponibles / PUNTOS_DESCUENTO_5) * 100));
+  const firstReward = Object.values(REWARD_CONFIG)
+    .sort((a, b) => a.points - b.points)
+    .find(reward => disponibles < reward.points);
+
+  if (puntosDisponiblesEl) puntosDisponiblesEl.textContent = fmtPoints(disponibles);
+  if (puntosMiniDisponiblesEl) puntosMiniDisponiblesEl.textContent = fmtPoints(disponibles);
+  if (puntosGanadosEl) puntosGanadosEl.textContent = fmtPoints(ganados);
+  if (puntosUsadosEl) puntosUsadosEl.textContent = fmtPoints(usados);
+  if (puntosFaltanEl) puntosFaltanEl.textContent = fmtPoints(faltan);
+  if (puntosProgressEl) puntosProgressEl.style.width = `${progress}%`;
+
+  if (puntosEstadoEl) {
+    puntosEstadoEl.textContent = firstReward
+      ? `Te faltan ${fmtPoints(firstReward.points - disponibles)} puntos para ${firstReward.label.toLowerCase()}.`
+      : 'Tienes canjes disponibles. Elige un beneficio abajo.';
+  }
+
+  updateRewardCards(disponibles);
+
+  if (!puntosMovimientosEl) return;
+  const movimientos = Array.isArray(puntos?.movimientos) ? puntos.movimientos.slice(0, 8) : [];
+  if (!movimientos.length) {
+    puntosMovimientosEl.innerHTML = '<span class="muted">Aun no hay movimientos de puntos.</span>';
+    return;
+  }
+
+  puntosMovimientosEl.innerHTML = movimientos.map(m => {
+    const pts = Number(m.puntos || 0);
+    const sign = pts > 0 ? '+' : '';
+    const cls = pts >= 0 ? 'gain' : 'spend';
+    const ref = m.referencia_id || m.mov_id || '-';
+    const desc = m.descripcion || m.tipo || 'Movimiento';
+    return `
+      <div class="points-move">
+        <span class="points-move-ref">${escapeHtml(ref)}</span>
+        <span class="points-move-desc">${escapeHtml(desc)}</span>
+        <strong class="${cls}">${sign}${fmtPoints(pts)} pts</strong>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateRewardCards(disponibles){
+  rewardBtns.forEach(btn => {
+    const reward = REWARD_CONFIG[btn.dataset.reward];
+    if (!reward) return;
+    const available = disponibles >= reward.points;
+    btn.disabled = !available;
+    btn.textContent = available ? 'Solicitar canje' : `Faltan ${fmtPoints(reward.points - disponibles)} pts`;
+    btn.closest('.reward-card')?.classList.toggle('is-disabled', !available);
+  });
+}
+
+function renderPuntosPreventaOptions(preventas){
+  if (!puntosPreventaSelect) return;
+  const options = Array.isArray(preventas) ? preventas : [];
+  if (!options.length) {
+    puntosPreventaSelect.innerHTML = '<option value="">Sin preventas disponibles</option>';
+    return;
+  }
+
+  puntosPreventaSelect.innerHTML = options.map(p => {
+    const id = p.pre_id || '';
+    const desc = p.descripcion || 'Preventa';
+    return `<option value="${escapeHtml(id)}">${escapeHtml(id)} - ${escapeHtml(desc)}</option>`;
+  }).join('');
+}
+
+async function solicitarCanje(tipoCanje){
+  const reward = REWARD_CONFIG[tipoCanje];
+  const token = getToken();
+  if (!reward || !token) return;
+
+  const body = {
+    token,
+    tipo_canje: tipoCanje,
+    origen: reward.origen
+  };
+
+  if (reward.needsPreventa) {
+    const ref = String(puntosPreventaSelect?.value || '').trim();
+    if (!ref) {
+      if (puntosCanjeMsg) puntosCanjeMsg.textContent = 'Selecciona una preventa para aplicar el descuento.';
+      return;
+    }
+    body.referencia_id = ref;
+  }
+
+  try {
+    if (puntosCanjeMsg) puntosCanjeMsg.textContent = 'Registrando solicitud de canje...';
+    const res = await fetch(API_URL + '?route=puntos_solicitar_canje', {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+
+    if (!data.ok) {
+      const map = {
+        invalid_token: 'Sesión inválida. Vuelve a iniciar sesión.',
+        puntos_insuficientes: 'Aún no tienes puntos suficientes para este canje.',
+        referencia_no_encontrada: 'No encontramos esa preventa en tu cuenta.',
+        canje_existente: 'Ya existe una solicitud de canje para esa referencia.',
+        tipo_canje_no_soportado: 'Este canje aún no está disponible.'
+      };
+      throw new Error(map[data.error] || (data.error || 'No se pudo registrar el canje.'));
+    }
+
+    if (puntosCanjeMsg) puntosCanjeMsg.textContent = data.mensaje || 'Solicitud de canje registrada.';
+    await loadStatus();
+    setActiveTab('puntos');
+  } catch (err) {
+    if (puntosCanjeMsg) puntosCanjeMsg.textContent = err.message || String(err);
+  }
+}
+
 /* Miniatura -> abre lightbox */
 function thumb(url){
   const u = (url||'').trim();
   if (!u) return `<div class="thumb"><span class="muted">–</span></div>`;
   return `
     <button type="button" class="thumb" data-lb-src="${escapeHtml(u)}" aria-label="Ampliar foto">
-      <img src="${escapeHtml(u)}" alt="foto" loading="lazy">
+      <img src="${escapeHtml(u)}" alt="foto" loading="lazy" referrerpolicy="no-referrer">
     </button>
   `;
 }
@@ -354,6 +525,8 @@ async function loadStatus(){
 
   if (pedidosMsg) pedidosMsg.textContent   = 'Cargando…';
   if (pedidosTbody) pedidosTbody.innerHTML = '';
+  if (puntosCanjeMsg) puntosCanjeMsg.textContent = '';
+  renderPuntos(null);
 
   try{
     const res = await fetch(API_URL + '?route=status', {
@@ -373,6 +546,7 @@ async function loadStatus(){
     if (diasUsadosEl)    diasUsadosEl.textContent    = data.dias_usados;
     if (diasRestantesEl) diasRestantesEl.textContent = data.dias_restantes;
     if (diasExcedidosEl) diasExcedidosEl.textContent = data.dias_excedidos;
+    renderPuntos(data.puntos);
 
     /* ---------- ALMACÉN ---------- */
     const items = data.almacen || data.items || [];
@@ -408,6 +582,7 @@ async function loadStatus(){
 
     /* ---------- PREVENTAS ---------- */
     const prevs = data.preventas || [];
+    renderPuntosPreventaOptions(prevs);
     if (preTbody) preTbody.innerHTML = '';
     prevs.forEach(p=>{
       const pagado = (Number(p.deposito)||0) + (Number(p.pagos_adic)||0);
@@ -438,6 +613,7 @@ async function loadStatus(){
     if (almacenMsg) almacenMsg.textContent = msg;
     if (preMsg)     preMsg.textContent     = msg;
     if (pedidosMsg) pedidosMsg.textContent = msg;
+    if (puntosEstadoEl) puntosEstadoEl.textContent = 'No se pudo cargar puntos.';
   }
 }
 
@@ -463,8 +639,8 @@ loginForm?.addEventListener('submit', async (ev)=>{
     setAuth(data.token, data.client_id, data.name);
     if (loginMsg) loginMsg.textContent = '';
 
-    // Al entrar, muestra almacén por defecto
-    setActiveTab('almacen');
+    // Al entrar, muestra preventas por defecto.
+    setActiveTab('preventas');
 
     await loadStatus();
   }catch(err){
@@ -550,6 +726,6 @@ logoutBtn?.addEventListener('click', ()=>{
   showLogin();
 });
 
-// Al cargar, por defecto tab almacén
-setActiveTab('almacen');
+// Al cargar, por defecto tab preventas.
+setActiveTab('preventas');
 getToken() ? loadStatus() : showLogin();

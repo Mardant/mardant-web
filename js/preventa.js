@@ -1,5 +1,5 @@
 /* js/preventa.js — versión corregida */
-import { API_URL }             from './config.js';
+import { API_URL, whatsappLink } from './config.js';
 import { actualizarCarritoUI } from './carrito-utils.js';
 
 const $ = (s) => document.querySelector(s);
@@ -43,18 +43,17 @@ function card(p) {
     ? escapeHtml(p.imagen)
     : 'https://via.placeholder.com/300x300?text=Sin+imagen';
 
-  const urlWA = 'https://wa.me/51985135331?text=' +
-                encodeURIComponent('Hola, estoy interesado en la preventa: ' + p.nombre);
+  const urlWA = whatsappLink('Hola, quiero reservar esta preventa con S/ 15: ' + p.nombre);
 
   const div = document.createElement('div');
   div.className = 'producto';
   div.innerHTML = `
-    <img src="${img}" alt="${escapeHtml(p.nombre)}" class="img" loading="lazy">
+    <img src="${img}" alt="${escapeHtml(p.nombre)}" class="img" loading="lazy" referrerpolicy="no-referrer">
     <div class="nombre">${escapeHtml(p.nombre)}</div>
     <div class="categoria">${escapeHtml(p.categoria)}${p.subcategoria ? ' – ' + escapeHtml(p.subcategoria) : ''}</div>
     <div class="precio">S/. ${(+p.precio||0).toFixed(2)}</div>
-    <div class="estado">📦 Llega: ${escapeHtml(p['fecha aprox llegada peru'] || 'Próximamente')}</div>
-    <a href="${urlWA}" target="_blank" class="boton">📩 Pedir por WhatsApp</a>`;
+    <div class="estado">Llega: ${escapeHtml(p['fecha aprox llegada peru'] || 'Próximamente')}</div>
+    <a href="${urlWA}" target="_blank" class="boton">RESERVAR CON S/ 15</a>`;
   return div;
 }
 
@@ -62,4 +61,3 @@ function showErr(e){
   $('#contenedor').innerHTML = '<p style="color:red;">Error al cargar productos.</p>';
   console.error('❌ Error API:', e);
 }
-

@@ -41,7 +41,7 @@ function card(p) {
   const div = document.createElement('div');
   div.className = 'producto';
   div.innerHTML = `
-      <img src="${esc(p.imagen)}" class="img" alt="${esc(p.nombre)}" loading="lazy">
+      <img src="${esc(p.imagen)}" class="img" alt="${esc(p.nombre)}" loading="lazy" referrerpolicy="no-referrer">
       <div class="nombre"        title="${esc(p.nombre)}">${esc(p.nombre)}</div>
       <div class="categoria">${esc(p.categoria)} – ${esc(p.subcategoria)}</div>
       <div class="precio">S/. ${parseFloat(p.precio).toFixed(2)}</div>
