@@ -101,6 +101,7 @@ if (lb){
 ---------------------------------- */
 const PEN = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
 const PUNTOS_DESCUENTO_5 = 100;
+const DESCUENTO_MAXIMO_5 = 30;
 const REWARD_CONFIG = {
   ENTREGA_GRATIS_3: {
     points: 20,
@@ -114,9 +115,10 @@ const REWARD_CONFIG = {
   },
   DESCUENTO_5: {
     points: PUNTOS_DESCUENTO_5,
-    label: '5% de descuento',
+    label: `5% de descuento máximo S/ ${DESCUENTO_MAXIMO_5}`,
     origen: 'PREVENTA',
-    needsPreventa: true
+    needsPreventa: true,
+    maxDiscount: DESCUENTO_MAXIMO_5
   }
 };
 
@@ -168,6 +170,45 @@ function fmtPenMaybe(v){
   const n = Number(s.replace(/[^\d.,-]/g,'').replace(',','.'));
   if (!isFinite(n) || isNaN(n)) return '—';
   return PEN.format(n);
+}
+
+function parseDateValue(value){
+  const raw = String(value || '').trim();
+  if (!raw) return 0;
+
+  const isoLike = raw.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  if (isoLike) {
+    return new Date(
+      Number(isoLike[1]),
+      Number(isoLike[2]) - 1,
+      Number(isoLike[3])
+    ).getTime();
+  }
+
+  const dmyLike = raw.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+  if (dmyLike) {
+    return new Date(
+      Number(dmyLike[3]),
+      Number(dmyLike[2]) - 1,
+      Number(dmyLike[1])
+    ).getTime();
+  }
+
+  const parsed = Date.parse(raw);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+function preIdNumber(preId){
+  const match = String(preId || '').match(/(\d+)/);
+  return match ? Number(match[1]) : 0;
+}
+
+function sortPreventasNewestFirst(preventas){
+  return [...(Array.isArray(preventas) ? preventas : [])].sort((a, b) => {
+    const dateDiff = parseDateValue(b.fecha_pedido) - parseDateValue(a.fecha_pedido);
+    if (dateDiff !== 0) return dateDiff;
+    return preIdNumber(b.pre_id) - preIdNumber(a.pre_id);
+  });
 }
 
 function canWhatsapp(c){
@@ -581,7 +622,7 @@ async function loadStatus(){
     }
 
     /* ---------- PREVENTAS ---------- */
-    const prevs = data.preventas || [];
+    const prevs = sortPreventasNewestFirst(data.preventas || []);
     renderPuntosPreventaOptions(prevs);
     if (preTbody) preTbody.innerHTML = '';
     prevs.forEach(p=>{
