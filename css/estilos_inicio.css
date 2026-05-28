@@ -46,6 +46,39 @@ html,body{
   border-radius:14px;
   outline-offset:5px;
 }
+.menu-visual .menu-japon-card{
+  width:188px;
+  height:70px;
+  box-sizing:border-box;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:2px;
+  padding:6px 8px;
+  background:
+    linear-gradient(90deg, rgba(168,50,42,.055), rgba(255,255,255,.86)),
+    #fff;
+  border:1px solid #d8c6aa;
+  border-radius:12px;
+  box-shadow:0 6px 16px rgba(0,0,0,.18);
+  color:#171411;
+  font-family:'Montserrat',sans-serif;
+  font-size:15px;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:0;
+  text-align:center;
+  text-decoration:none;
+  transform:translateY(0) scale(1);
+  transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  will-change:transform;
+}
+.menu-japon-kanji{
+  color:#a8322a;
+  font-size:20px;
+  font-weight:900;
+  line-height:1;
+}
 .menu-visual img.boton-imagen{
   height:70px; width:auto; background:#fff; border-radius:12px;
   padding:6px 8px; box-shadow:0 6px 16px rgba(0,0,0,.18); display:block;
@@ -55,13 +88,18 @@ html,body{
   will-change:transform;
 }
 .menu-visual a:hover img.boton-imagen,
-.menu-visual a:focus-visible img.boton-imagen{
+.menu-visual a:focus-visible img.boton-imagen,
+.menu-visual .menu-japon-card:hover,
+.menu-visual .menu-japon-card:focus-visible{
   transform:translateY(-7px) scale(1.08);
   box-shadow:0 16px 30px rgba(23,20,17,.26);
   filter:contrast(1.04) brightness(1.02);
   animation:menu-pop .34s ease;
 }
 .menu-visual a:active img.boton-imagen{
+  transform:translateY(-2px) scale(1.03);
+}
+.menu-visual .menu-japon-card:active{
   transform:translateY(-2px) scale(1.03);
 }
 .menu-visual a:focus-visible{
@@ -77,16 +115,29 @@ html,body{
     transition:none;
   }
   .menu-visual a:hover img.boton-imagen,
-  .menu-visual a:focus-visible img.boton-imagen{
+  .menu-visual a:focus-visible img.boton-imagen,
+  .menu-visual .menu-japon-card:hover,
+  .menu-visual .menu-japon-card:focus-visible{
     animation:none;
   }
 }
 @media (max-width:680px){
   .menu-visual{ gap:12px; padding:12px 10px 0; }
   .menu-visual img.boton-imagen{ height:56px; padding:5px 7px; }
+  .menu-visual .menu-japon-card{
+    width:154px;
+    height:56px;
+    padding:7px 10px;
+    font-size:13px;
+  }
+  .menu-japon-kanji{font-size:17px}
 }
 @media (max-width:420px){
   .menu-visual img.boton-imagen{ height:52px; }
+  .menu-visual .menu-japon-card{
+    width:148px;
+    height:52px;
+  }
 }
 
 /* ---------------- Carrusel / banner deslizante ----------------
@@ -393,6 +444,67 @@ html,body{
 }
 .seccion-pedidos .producto .boton:hover{
   background:linear-gradient(180deg, #304842, #1b2b27);
+}
+
+.seccion-catalogo-japon{
+  padding-top:8px;
+}
+.seccion-catalogo-japon .titulo-link.home-title-link{
+  border-color:#d8c6aa;
+  border-left-color:#a8322a;
+  background:
+    linear-gradient(90deg, rgba(168,50,42,.045), rgba(255,255,255,.92)),
+    #fbf7ef;
+  box-shadow:0 8px 22px rgba(23,20,17,.08);
+}
+.seccion-catalogo-japon .titulo-link.home-title-link::before{
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  left:0;
+  width:6px;
+  background:#a8322a;
+  border-radius:8px 0 0 8px;
+  pointer-events:none;
+}
+.seccion-catalogo-japon .section-icon{
+  background:#a8322a;
+  color:#fff;
+  border:0;
+  opacity:1;
+}
+.seccion-catalogo-japon .titulo-link.home-title-link::after{
+  background:linear-gradient(90deg, rgba(168,50,42,.35), transparent);
+}
+.seccion-catalogo-japon .grid-japon-home{
+  margin-top:0;
+}
+.grid-japon-home .precio{
+  width:min(100%, 170px);
+  min-height:52px;
+  gap:3px;
+  font-size:13px;
+  line-height:1.25;
+  margin-left:auto;
+  margin-right:auto;
+}
+.precio-ruta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  width:100%;
+  color:#d7c8ae;
+  font-weight:800;
+}
+.precio-ruta strong{
+  color:#f6efe2;
+  font-weight:1000;
+  white-space:nowrap;
+}
+.grid-japon-home .estado{
+  text-transform:uppercase;
 }
 
 /* ---------------- Footer + flotantes ---------------- */

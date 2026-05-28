@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="../css/estilos.css?v=11" />
 
   <!-- 2) Estilos exclusivos de la portada (DEBEN ir después para pisar al global) -->
-  <link rel="stylesheet" href="../css/estilos_inicio.css?v=15">
+  <link rel="stylesheet" href="../css/estilos_inicio.css?v=17">
 </head>
 <body>
 <section id="vista-inicio">
@@ -28,6 +28,10 @@
     <a href="./catalogo.html"><img src="https://i.imgur.com/B5T6n58.png"   alt="Catálogo"               class="boton-imagen" referrerpolicy="no-referrer"></a>
     <a href="./preventa.html"><img  src="https://i.imgur.com/8wy78gh.png"   alt="Preventa"               class="boton-imagen" referrerpolicy="no-referrer"></a>
     <a href="./pedidos.html"><img  src="https://i.imgur.com/g1SsXa2.png"   alt="Producto a Pedido"       class="boton-imagen" referrerpolicy="no-referrer"></a>
+    <a href="./catalogo-japon.html" class="menu-japon-card" aria-label="Catálogo de productos en Japón">
+      <span class="menu-japon-kanji" aria-hidden="true">日本</span>
+      <span>CATÁLOGO JAPÓN</span>
+    </a>
     <a href="./contacto.html"><img  src="https://i.imgur.com/IJ7YYxR.png"   alt="Contacto"               class="boton-imagen" referrerpolicy="no-referrer"></a>
     <a href="./como.html"><img      src="https://i.imgur.com/mIZddDA.png"   alt="Cómo Comprar"           class="boton-imagen" referrerpolicy="no-referrer"></a>
     <a href="./faq.html"><img       src="https://i.imgur.com/MbxHkvB.png"   alt="Preguntas Frecuentes"   class="boton-imagen" referrerpolicy="no-referrer"></a>
@@ -96,6 +100,19 @@
     <div id="pedidos-disponibles" class="grid-productos"></div>
   </section>
 
+  <section class="seccion seccion-catalogo-japon">
+    <div class="home-section-head">
+      <a href="./catalogo-japon.html" class="titulo-link home-title-link">
+      <span class="section-icon" aria-hidden="true">日本</span>
+      <span class="section-title-copy">
+        <span class="section-kicker">CATÁLOGO EN JAPÓN</span>
+        <span class="section-title">PRODUCTOS EN JAPÓN</span>
+      </span>
+    </a>
+    </div>
+    <div id="catalogo-japon-home" class="grid-productos grid-japon-home"></div>
+  </section>
+
   <!-- Pie -->
   <footer class="pie">
     <p>© 2026 Mardant Perú • Todos los derechos reservados</p>
@@ -122,7 +139,7 @@
 </section>
 
 <!-- Lógica de portada -->
-<script type="module" src="../js/scripts_inicio.js?v=2"></script>
+<script type="module" src="../js/scripts_inicio.js?v=3"></script>
 
 <!-- Lightbox para imágenes de cards -->
 <script>

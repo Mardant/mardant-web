@@ -1,0 +1,589 @@
+html,
+body{
+  overflow-x:hidden;
+}
+
+body{
+  min-height:100vh;
+  background:#f5efe6;
+  color:#171411;
+}
+
+body.modal-open{
+  overflow:hidden;
+}
+
+.japan-banner-img{
+  display:block;
+  width:100%;
+  height:clamp(120px, 18vw, 200px);
+  object-fit:cover;
+  object-position:center;
+  border-bottom:3px solid #a8322a;
+  background:#171411;
+}
+
+.japan-title-block{
+  padding:10px 16px 0;
+}
+
+.cta-japan{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:14px;
+  margin:12px auto 28px;
+  padding:0 12px;
+}
+
+.btn-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  min-height:46px;
+  padding:12px 22px;
+  border-radius:999px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
+    #a8322a;
+  color:#fff;
+  font-weight:900;
+  line-height:1;
+  text-decoration:none;
+  box-shadow:0 10px 24px rgba(168,50,42,.22);
+  transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+
+.btn-pill:hover{
+  transform:translateY(-1px);
+  box-shadow:0 14px 28px rgba(23,20,17,.28);
+  filter:saturate(1.03);
+}
+
+.btn-pill.alt{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
+    #171411;
+  box-shadow:0 10px 24px rgba(23,20,17,.24);
+}
+
+.btn-pill.japan{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)),
+    #6f2b26;
+  border:1px solid rgba(244,208,111,.28);
+  box-shadow:0 10px 24px rgba(111,43,38,.22);
+}
+
+.japan-topbar{
+  position:sticky;
+  top:0;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:14px 22px;
+  background:rgba(245,239,230,.94);
+  border-bottom:1px solid rgba(168,50,42,.22);
+  backdrop-filter:blur(12px);
+}
+
+.japan-brand{
+  color:#171411;
+  font-size:16px;
+  font-weight:1000;
+  text-decoration:none;
+  white-space:nowrap;
+}
+
+.japan-nav{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:18px;
+  flex-wrap:wrap;
+}
+
+.japan-nav a{
+  color:#2e2620;
+  font-size:14px;
+  font-weight:900;
+  text-decoration:none;
+  border-bottom:2px solid transparent;
+  padding-bottom:3px;
+}
+
+.japan-nav a:hover,
+.japan-nav a.active{
+  color:#a8322a;
+  border-color:#a8322a;
+}
+
+.japan-page{
+  max-width:1220px;
+  margin:0 auto;
+  padding:0 14px 52px;
+}
+
+.japan-hero{
+  width:min(100%, 920px);
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  margin:0 auto 24px;
+  padding:16px 22px;
+  background:
+    linear-gradient(90deg, rgba(168,50,42,.06), rgba(255,255,255,.92)),
+    #fbf7ef;
+  border:1px solid #d8c6aa;
+  border-left:6px solid #a8322a;
+  border-radius:8px;
+  box-shadow:0 10px 26px rgba(44,34,25,.08);
+}
+
+.japan-hero .section-icon{
+  width:50px;
+  height:50px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:6px;
+  background:#a8322a;
+  color:#fff;
+  font-size:15px;
+  font-weight:1000;
+  letter-spacing:0;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.28);
+  transform:rotate(-2deg);
+  flex:0 0 auto;
+  margin:0;
+}
+
+.japan-kicker{
+  margin:0 0 3px;
+  color:#7a6756;
+  font-size:12px;
+  font-weight:1000;
+  letter-spacing:.12em;
+}
+
+.japan-hero h1{
+  margin:0;
+  color:#050505;
+  font-size:clamp(24px, 3.4vw, 36px);
+  line-height:1.05;
+  letter-spacing:0;
+}
+
+.japan-copy{
+  max-width:700px;
+  margin:8px 0 0;
+  color:#4d4034;
+  font-size:14px;
+  font-weight:800;
+  line-height:1.35;
+}
+
+.japan-feedback{
+  max-width:760px;
+  margin:0 auto 18px;
+  padding:13px 16px;
+  border:1px solid rgba(181,139,92,.34);
+  border-left:5px solid #a8322a;
+  border-radius:8px;
+  background:#fffaf2;
+}
+
+.japan-feedback strong{
+  display:block;
+  color:#171411;
+  font-size:15px;
+  font-weight:1000;
+}
+
+.japan-feedback strong.is-error{
+  color:#a8322a;
+}
+
+.japan-feedback span{
+  display:block;
+  margin-top:3px;
+  color:#7a6756;
+  font-size:13px;
+  font-weight:800;
+}
+
+.japan-grid{
+  display:grid;
+  grid-template-columns:repeat(5, minmax(0, 1fr));
+  grid-auto-rows:auto;
+  gap:16px;
+  align-items:stretch;
+}
+
+.japan-card{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  height:100%;
+  overflow:hidden;
+  background:#fffaf2;
+  border:1px solid #d8c6aa;
+  border-radius:8px;
+  box-shadow:0 8px 18px rgba(23,20,17,.10);
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.japan-card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(168,50,42,.38);
+  box-shadow:0 14px 26px rgba(23,20,17,.16);
+}
+
+.japan-image-wrap{
+  width:100%;
+  height:220px;
+  flex:0 0 220px;
+  background:#fff;
+  border-bottom:1px solid rgba(216,198,170,.80);
+  overflow:hidden;
+}
+
+.japan-image-button{
+  display:block;
+  width:100%;
+  height:100%;
+  min-height:0;
+  padding:10px;
+  border:0;
+  box-sizing:border-box;
+  background:transparent;
+  cursor:pointer;
+}
+
+.japan-image-button:hover img{
+  transform:scale(1.018);
+}
+
+.japan-image-wrap img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  transition:transform .18s ease;
+}
+
+.japan-no-image{
+  display:grid;
+  place-items:center;
+  height:100%;
+  color:#7a6756;
+  font-weight:900;
+}
+
+.japan-card-body{
+  display:flex;
+  flex:1;
+  flex-direction:column;
+  gap:11px;
+  padding:13px 14px 14px;
+}
+
+.japan-card-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.japan-card h2{
+  margin:0;
+  color:#171411;
+  font-size:18px;
+  line-height:1.15;
+  letter-spacing:0;
+  white-space:nowrap;
+}
+
+.japan-badge{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:24px;
+  padding:3px 9px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:1000;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.japan-badge.is-disponible{
+  color:#007f68;
+  border:1px solid rgba(0,127,104,.22);
+  background:rgba(0,127,104,.10);
+}
+
+.japan-badge.is-preventa{
+  color:#7a4300;
+  border:1px solid rgba(244,208,111,.68);
+  background:rgba(244,208,111,.38);
+}
+
+.japan-costs{
+  display:grid;
+  gap:0;
+  margin-top:2px;
+  color:#5e5146;
+  font-size:14px;
+}
+
+.japan-costs div{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  min-height:32px;
+  border-top:1px solid rgba(216,198,170,.82);
+}
+
+.japan-costs span{
+  color:#6f5b49;
+  font-weight:800;
+}
+
+.japan-costs strong{
+  color:#050505;
+  font-weight:1000;
+  text-align:right;
+}
+
+.japan-request{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  width:100%;
+  margin-top:auto;
+  border:0;
+  border-radius:8px;
+  background:#148f7b;
+  color:#fff;
+  font-weight:1000;
+  text-decoration:none;
+  box-shadow:0 8px 16px rgba(20,143,123,.18);
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.japan-request:hover{
+  background:#0f7565;
+  transform:translateY(-1px);
+  box-shadow:0 12px 22px rgba(20,143,123,.24);
+}
+
+.japan-pagination{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:30px auto 0;
+  padding:0 10px;
+}
+
+.japan-pagination[hidden]{
+  display:none;
+}
+
+.japan-pagination .boton{
+  min-width:44px;
+  min-height:42px;
+  padding:10px 14px;
+  border:1px solid rgba(168,50,42,.34);
+  border-radius:12px;
+  background:linear-gradient(180deg, #b13a31, #8f2722);
+  color:#fff;
+  font-size:14px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(168,50,42,.18);
+  transition:transform .18s ease, filter .18s ease, box-shadow .18s ease;
+}
+
+.japan-pagination .boton:hover:not(:disabled){
+  transform:translateY(-2px);
+  filter:saturate(1.05);
+  box-shadow:0 12px 22px rgba(168,50,42,.23);
+}
+
+.japan-pagination .boton:disabled{
+  opacity:.38;
+  cursor:default;
+}
+
+.japan-pagination .boton.active{
+  background:#171411;
+  border-color:rgba(244,208,111,.42);
+}
+
+.japan-pagination .page-dots{
+  color:#7a6756;
+  font-weight:900;
+  padding:0 2px;
+}
+
+.japan-footer{
+  padding:18px 12px 22px;
+  background:#000;
+  color:#8f8173;
+  text-align:center;
+  font-size:13px;
+  font-weight:800;
+}
+
+.japan-footer a{
+  color:#bfae99;
+  text-decoration:none;
+  border-bottom:1px solid rgba(191,174,153,.42);
+}
+
+.japan-footer a:hover{
+  color:#f4d06f;
+  border-color:#f4d06f;
+}
+
+.japan-modal{
+  position:fixed;
+  inset:0;
+  z-index:10020;
+  display:none;
+  padding:18px;
+  background:rgba(0,0,0,.82);
+}
+
+.japan-modal.open{
+  display:grid;
+  place-items:center;
+}
+
+.japan-modal-panel{
+  display:grid;
+  grid-template-rows:auto minmax(0, 1fr);
+  width:min(720px, 94vw);
+  height:min(640px, 86vh);
+  overflow:hidden;
+  border:1px solid rgba(216,198,170,.36);
+  border-radius:8px;
+  background:#171411;
+  box-shadow:0 22px 60px rgba(0,0,0,.45);
+}
+
+.japan-modal-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 14px;
+  border-bottom:1px solid rgba(216,198,170,.20);
+}
+
+.japan-modal-head strong{
+  color:#f4d06f;
+  font-weight:1000;
+}
+
+.japan-modal-head button{
+  min-height:36px;
+  border:1px solid rgba(216,198,170,.32);
+  border-radius:999px;
+  background:#2b2520;
+  color:#fff;
+  padding:6px 12px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.japan-modal-stage{
+  display:grid;
+  place-items:center;
+  min-height:0;
+  overflow:auto;
+  background:#0c0b0a;
+}
+
+.japan-modal-stage img{
+  display:block;
+  width:auto;
+  height:auto;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+}
+
+@media (max-width:1120px){
+  .japan-grid{
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width:900px){
+  .japan-grid{
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width:720px){
+  .japan-topbar{
+    align-items:flex-start;
+    flex-direction:column;
+    padding:12px 16px;
+  }
+  .japan-nav{
+    justify-content:flex-start;
+    gap:12px 16px;
+  }
+  .japan-hero{
+    align-items:flex-start;
+    flex-direction:column;
+    padding:16px;
+  }
+  .japan-grid{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+  .japan-image-wrap{
+    height:200px;
+    flex-basis:200px;
+  }
+  .japan-card h2{
+    font-size:16px;
+  }
+}
+
+@media (max-width:480px){
+  .japan-page{
+    padding:18px 10px 44px;
+  }
+  .japan-grid{
+    grid-template-columns:1fr;
+  }
+  .japan-card{
+    width:min(100%, 360px);
+    margin:0 auto;
+  }
+  .japan-image-wrap{
+    height:250px;
+    flex-basis:250px;
+  }
+  .japan-modal{
+    padding:12px;
+  }
+  .japan-modal-panel{
+    height:min(560px, 84vh);
+  }
+}

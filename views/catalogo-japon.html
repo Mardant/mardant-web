@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Catálogo de Productos en Japón - Mardant</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/estilos.css?v=11">
+  <link rel="stylesheet" href="../css/catalogo-japon.css?v=3">
+</head>
+<body>
+  <!-- Banner superior: reemplaza este src cuando tengas el banner final de Japón -->
+  <img
+    class="japan-banner-img"
+    src="https://i.imgur.com/K7nyK2A.png"
+    alt="Catálogo de productos en Japón"
+    referrerpolicy="no-referrer"
+  />
+
+  <div class="contacto-centro japan-title-block">
+    <h2 class="titulo-seccion">Catálogo de Productos en Japón</h2>
+  </div>
+
+  <div class="cta-japan">
+    <a href="../index.html" class="btn-pill">🏠 <span>Volver al inicio</span></a>
+    <a href="./preventa.html" class="btn-pill alt">📦 <span>Ver preventas</span></a>
+    <a href="./pedidos.html" class="btn-pill japan"><span>取寄</span><span>A pedido</span></a>
+  </div>
+
+  <main class="japan-page">
+    <section id="catalogoJaponFeedback" class="japan-feedback" aria-live="polite" hidden>
+      <strong id="catalogoJaponEstado">Cargando catálogo...</strong>
+      <span id="catalogoJaponFecha"></span>
+    </section>
+
+    <section id="catalogoJaponGrid" class="japan-grid" aria-live="polite"></section>
+
+    <nav id="catalogoJaponPagination" class="japan-pagination" aria-label="Paginación del catálogo Japón"></nav>
+  </main>
+
+  <footer class="japan-footer">
+    © 2026 Mardant Perú · <a href="./terminos-importacion.html">Términos de importación</a>
+  </footer>
+
+  <a href="./cuenta.html" class="boton-cuenta-flotante" id="btnCuenta" title="Mi cuenta">
+    <span class="emoji">👤</span>
+    <span class="texto" id="cuentaTexto">Entrar</span>
+  </a>
+
+  <a href="./carrito.html" class="boton-carrito-flotante" title="Ver carrito">
+    🛒<span id="contador-carrito" class="contador-carrito"></span>
+  </a>
+
+  <div id="catalogoJaponModal" class="japan-modal" aria-hidden="true">
+    <div class="japan-modal-panel" role="dialog" aria-modal="true" aria-label="Vista del producto">
+      <div class="japan-modal-head">
+        <strong id="catalogoJaponModalTitle">Lote</strong>
+        <button id="catalogoJaponClose" type="button" aria-label="Cerrar">Cerrar</button>
+      </div>
+      <div class="japan-modal-stage">
+        <img id="catalogoJaponModalImage" alt="">
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="../js/catalogo-japon.js?v=2"></script>
+  <script type="module" src="../js/tracking.js"></script>
+  <script type="module" src="../js/account-widget.js?v=2"></script>
+</body>
+</html>

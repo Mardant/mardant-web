@@ -114,6 +114,24 @@ function estadoClass(texto){
   return 'estado-neutro';
 }
 
+function loteNumber(value){
+  const match = String(value || '').match(/\d+/g);
+  return match ? Number(match.join('')) || 0 : 0;
+}
+
+function costoCatalogoJapon(value){
+  const text = String(value || '').trim();
+  if (!text) return 'Por confirmar';
+  if (/^(S\/|\$)/i.test(text)) return text;
+  return `S/ ${text}`;
+}
+
+function normalizarCatalogoJapon(data){
+  return Array.isArray(data)
+    ? data
+    : (Array.isArray(data?.productos) ? data.productos : []);
+}
+
 /* ====== Últimas importaciones (rotan entre las 15 últimas) ====== */
 let ultimasLista15 = [];
 let ultimasIndiceInicio = 0;
@@ -235,6 +253,41 @@ fetchJSON('pedidosDisponibles')
         <div class="estado ${estadoClass(p.estado || 'DISPONIBLE A PEDIDO')}">${escapeHtml(p.estado || 'DISPONIBLE A PEDIDO')}</div>
         <a href="${whatsappLink(mensajeWA)}"
            class="boton" target="_blank">PEDIR DESDE JAPÓN</a>`;
+      c.appendChild(div);
+    });
+  })
+  .catch(console.error);
+
+/* ====== Catálogo Japón (home, 3 lotes rotativos) ====== */
+fetchJSON('catalogoPreventasJapon')
+  .then(normalizarCatalogoJapon)
+  .then(lista => lista
+    .filter(p => p && p.id_lote && p.imagen_url)
+    .sort((a,b) => loteNumber(b.id_lote) - loteNumber(a.id_lote))
+  )
+  .then(lista => elegirBloqueRotativo(lista, 3, { modo:'hora', clave:'catalogo-japon' }))
+  .then(lista => {
+    const c = $("#catalogo-japon-home");
+    if (!c) return;
+    c.innerHTML = '';
+
+    lista.forEach(p => {
+      const id = String(p.id_lote || '').trim();
+      const etiqueta = String(p.etiqueta || 'disponible').trim().toLowerCase();
+      const estadoTexto = etiqueta === 'preventa' ? 'PREVENTA' : 'DISPONIBLE';
+      const estadoClase = etiqueta === 'preventa' ? 'estado-preventa' : 'estado-disponible';
+      const div = document.createElement('div');
+      div.className = 'producto';
+      div.innerHTML = `
+        <img src="${escapeHtml(p.imagen_url)}" alt="Lote #${escapeHtml(id)}" class="img" loading="lazy" referrerpolicy="no-referrer">
+        <div class="nombre">Lote #${escapeHtml(id)}</div>
+        <div class="precio">
+          <span class="precio-ruta"><span>Aéreo</span><strong>${escapeHtml(costoCatalogoJapon(p.costo_aereo))}</strong></span>
+          <span class="precio-ruta"><span>Marítimo</span><strong>${escapeHtml(costoCatalogoJapon(p.costo_maritimo))}</strong></span>
+        </div>
+        <div class="estado ${estadoClase}">${estadoTexto}</div>
+        <a href="${whatsappLink(`Hola, quiero consultar el lote #${id}`)}"
+           class="boton" target="_blank">SOLICITAR LOTE</a>`;
       c.appendChild(div);
     });
   })
