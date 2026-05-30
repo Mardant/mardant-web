@@ -489,6 +489,10 @@ html,body{
   margin-left:auto;
   margin-right:auto;
 }
+.grid-japon-home .precio-japon-producto{
+  min-height:64px;
+  justify-content:center;
+}
 .precio-ruta{
   display:flex;
   align-items:center;
@@ -502,6 +506,15 @@ html,body{
   color:#f6efe2;
   font-weight:1000;
   white-space:nowrap;
+}
+.precio-ruta.precio-unico{
+  justify-content:center;
+  gap:10px;
+}
+.precio-nota{
+  color:#bda56b;
+  font-size:12px;
+  font-weight:900;
 }
 .grid-japon-home .estado{
   text-transform:uppercase;

@@ -87,9 +87,10 @@ function card(item){
         <h2>Lote #${escapeHtml(id)}</h2>
         <span class="japan-badge ${etiqueta.className}">${etiqueta.text}</span>
       </div>
-      <div class="japan-costs">
-        <div><span>Aéreo</span><strong>${escapeHtml(money(item.costo_aereo))}</strong></div>
-        <div><span>Marítimo</span><strong>${escapeHtml(money(item.costo_maritimo))}</strong></div>
+      <div class="japan-price-box">
+        <span>Precio del producto</span>
+        <strong>${escapeHtml(money(item.precio_producto))}</strong>
+        <small>No incluye envío.</small>
       </div>
       <a class="japan-request" href="${whatsappLink(`Hola, quiero consultar el lote #${id}`)}" target="_blank" rel="noopener">Solicitar</a>
     </div>

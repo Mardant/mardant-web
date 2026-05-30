@@ -336,32 +336,34 @@ body.modal-open{
   background:rgba(244,208,111,.38);
 }
 
-.japan-costs{
+.japan-price-box{
   display:grid;
-  gap:0;
+  gap:4px;
   margin-top:2px;
-  color:#5e5146;
-  font-size:14px;
-}
-
-.japan-costs div{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  min-height:32px;
+  padding-top:11px;
   border-top:1px solid rgba(216,198,170,.82);
+  color:#5e5146;
+  text-align:left;
 }
 
-.japan-costs span{
+.japan-price-box span{
   color:#6f5b49;
-  font-weight:800;
+  font-size:13px;
+  font-weight:900;
 }
 
-.japan-costs strong{
+.japan-price-box strong{
   color:#050505;
+  font-size:22px;
   font-weight:1000;
-  text-align:right;
+  line-height:1;
+}
+
+.japan-price-box small{
+  color:#8a6f57;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.25;
 }
 
 .japan-request{

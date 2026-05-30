@@ -281,9 +281,9 @@ fetchJSON('catalogoPreventasJapon')
       div.innerHTML = `
         <img src="${escapeHtml(p.imagen_url)}" alt="Lote #${escapeHtml(id)}" class="img" loading="lazy" referrerpolicy="no-referrer">
         <div class="nombre">Lote #${escapeHtml(id)}</div>
-        <div class="precio">
-          <span class="precio-ruta"><span>Aéreo</span><strong>${escapeHtml(costoCatalogoJapon(p.costo_aereo))}</strong></span>
-          <span class="precio-ruta"><span>Marítimo</span><strong>${escapeHtml(costoCatalogoJapon(p.costo_maritimo))}</strong></span>
+        <div class="precio precio-japon-producto">
+          <span class="precio-ruta precio-unico"><span>Precio</span><strong>${escapeHtml(costoCatalogoJapon(p.precio_producto))}</strong></span>
+          <span class="precio-nota">No incluye envío</span>
         </div>
         <div class="estado ${estadoClase}">${estadoTexto}</div>
         <a href="${whatsappLink(`Hola, quiero consultar el lote #${id}`)}"
