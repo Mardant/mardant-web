@@ -188,6 +188,91 @@ body.modal-open{
   line-height:1.35;
 }
 
+.japan-filter-panel{
+  max-width:960px;
+  margin:0 auto 22px;
+  padding:13px;
+  border:1px solid #d8c6aa;
+  border-left:5px solid #a8322a;
+  border-radius:8px;
+  background:
+    linear-gradient(90deg, rgba(168,50,42,.045), rgba(255,255,255,.72)),
+    #fffaf2;
+  box-shadow:0 10px 24px rgba(44,34,25,.08);
+}
+
+.japan-filters{
+  display:grid;
+  grid-template-columns:minmax(190px, 1.2fr) repeat(2, minmax(130px, .75fr)) auto auto;
+  gap:10px;
+  align-items:end;
+}
+
+.japan-filters label{
+  display:grid;
+  gap:6px;
+  min-width:0;
+}
+
+.japan-filters label span{
+  color:#6f5b49;
+  font-size:12px;
+  font-weight:1000;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+}
+
+.japan-filters select,
+.japan-filters input{
+  width:100%;
+  min-width:0;
+  height:42px;
+  box-sizing:border-box;
+  border:1px solid #d8c6aa;
+  border-radius:8px;
+  background:#fffaf2;
+  color:#171411;
+  font:inherit;
+  font-weight:900;
+  padding:8px 11px;
+  outline:none;
+  transition:border-color .18s ease, box-shadow .18s ease;
+}
+
+.japan-filters select:focus,
+.japan-filters input:focus{
+  border-color:#a8322a;
+  box-shadow:0 0 0 3px rgba(168,50,42,.12);
+}
+
+.japan-filter-apply,
+.japan-filter-clear{
+  min-height:42px;
+  border:0;
+  border-radius:999px;
+  padding:10px 17px;
+  color:#fff;
+  font-weight:1000;
+  cursor:pointer;
+  transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+
+.japan-filter-apply{
+  background:linear-gradient(180deg, #b13a31, #8f2722);
+  box-shadow:0 9px 18px rgba(168,50,42,.18);
+}
+
+.japan-filter-clear{
+  background:#171411;
+  box-shadow:0 9px 18px rgba(23,20,17,.18);
+}
+
+.japan-filter-apply:hover,
+.japan-filter-clear:hover{
+  transform:translateY(-1px);
+  filter:saturate(1.05);
+}
+
 .japan-feedback{
   max-width:760px;
   margin:0 auto 18px;
@@ -538,6 +623,13 @@ body.modal-open{
   .japan-grid{
     grid-template-columns:repeat(3, minmax(0, 1fr));
   }
+  .japan-filters{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+  .japan-filter-apply,
+  .japan-filter-clear{
+    width:100%;
+  }
 }
 
 @media (max-width:720px){
@@ -570,6 +662,13 @@ body.modal-open{
 @media (max-width:480px){
   .japan-page{
     padding:18px 10px 44px;
+  }
+  .japan-filter-panel{
+    margin-bottom:18px;
+    padding:12px;
+  }
+  .japan-filters{
+    grid-template-columns:1fr;
   }
   .japan-grid{
     grid-template-columns:1fr;

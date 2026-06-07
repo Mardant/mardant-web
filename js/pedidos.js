@@ -7,9 +7,9 @@ const $ = (s) => document.querySelector(s);
 const ITEMS_PER_PAGE = 21;
 
 let allPedidos      = [];  // todo lo que viene de la API
-let pedidos         = [];  // filtrado por categoría/estado
+let pedidos         = [];  // filtrado por estado
 let paginaActual    = 1;
-let categoriaActual = 'TODOS';
+let ordenActual = 'newest';
 
 const escapeHtml = (t) =>
   typeof t === 'string'
@@ -35,12 +35,7 @@ const norm = (s) =>
 /* Init                                    */
 /* ──────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('📦 pedidos.js (categoría por URL) cargado');
-
-  // Leemos la categoría desde la URL: ?categoria=pokemon
-  const params = new URLSearchParams(window.location.search);
-  categoriaActual =
-    params.get('categoria') || params.get('anime') || params.get('cat') || 'TODOS';
+  console.log('📦 pedidos.js cargado');
 
   fetch(`${API_URL}?accion=pedidosDisponibles`)
     .then((r) => {
@@ -51,6 +46,20 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(showErr);
 
   actualizarCarritoUI();
+
+  const orderFilters = document.getElementById('pedidoOrdenFiltros');
+  if (orderFilters) {
+    orderFilters.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('button[data-order]');
+      if (!btn || btn.dataset.order === ordenActual) return;
+
+      ordenActual = btn.dataset.order === 'oldest' ? 'oldest' : 'newest';
+      orderFilters.querySelectorAll('.pedido-order-btn').forEach((item) => {
+        item.classList.toggle('is-active', item === btn);
+      });
+      aplicarFiltrosYRedibujar();
+    });
+  }
 
   // paginación
   const pag = $('#paginacion');
@@ -99,7 +108,6 @@ function renderLista(lista = []) {
   allPedidos = lista.map((p) => ({
     id:        (p.id ?? p.ID ?? '').toString().trim(),
     nombre:    (p.nombre ?? '').toString().trim(),
-    categoria: (p.categoria ?? '').toString().trim(),
     imagen:    (p.imagen ?? '').toString().trim(),
     estado:    (p.estado ?? '').toString().trim()
   }));
@@ -117,30 +125,25 @@ function aplicarFiltrosYRedibujar() {
     return;
   }
 
-  // 1) Filtrar por estado y categoría
+  // 1) Filtrar por estado
   pedidos = allPedidos.filter((p) => {
     const okEstado =
       !p.estado ||
       norm(p.estado) === 'DISPONIBLE' ||
       norm(p.estado) === 'DISPONIBLE A PEDIDO';
 
-    let okCat = true;
-    if (categoriaActual && norm(categoriaActual) !== 'TODOS') {
-      okCat = norm(p.categoria) === norm(categoriaActual);
-    }
-
-    return okEstado && okCat;
+    return okEstado;
   });
 
   // 2) ORDENAR: ID más grande = más nuevo (descendente)
   pedidos.sort((a, b) => {
     const na = Number(a.id) || 0;
     const nb = Number(b.id) || 0;
-    return nb - na; // primero el más nuevo
+    return ordenActual === 'oldest' ? na - nb : nb - na;
   });
 
   if (!pedidos.length) {
-    if (cont) cont.innerHTML = '<p>No hay productos en esta categoría por ahora.</p>';
+    if (cont) cont.innerHTML = '<p>No hay productos disponibles para cotizar por ahora.</p>';
     if (pag)  pag.innerHTML  = '';
     return;
   }

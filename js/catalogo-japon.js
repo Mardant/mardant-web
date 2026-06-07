@@ -12,8 +12,14 @@ const modalPanel = modal?.querySelector('.japan-modal-panel');
 const modalTitle = document.getElementById('catalogoJaponModalTitle');
 const modalImage = document.getElementById('catalogoJaponModalImage');
 const closeBtn = document.getElementById('catalogoJaponClose');
+const filterForm = document.getElementById('catalogoJaponFilters');
+const sortSelect = document.getElementById('catalogoJaponSort');
+const minInput = document.getElementById('catalogoJaponMin');
+const maxInput = document.getElementById('catalogoJaponMax');
+const clearFiltersBtn = document.getElementById('catalogoJaponClear');
 
 let catalogo = [];
+let filteredCatalogo = [];
 let currentPage = 1;
 
 function escapeHtml(value){
@@ -35,6 +41,42 @@ function money(value){
   if (!text) return 'Por confirmar';
   if (/^(S\/|\$)/i.test(text)) return text;
   return `S/ ${text}`;
+}
+
+function parsePrice(value){
+  const text = String(value ?? '').trim();
+  if (!text) return null;
+  const normalized = text
+    .replace(/\s/g, '')
+    .replace(/s\//i, '')
+    .replace(/,/g, '.')
+    .replace(/[^\d.]/g, '');
+  const parts = normalized.split('.');
+  const safeNumber = parts.length > 2
+    ? `${parts[0]}.${parts.slice(1).join('')}`
+    : normalized;
+  const number = Number(safeNumber);
+  return Number.isFinite(number) ? number : null;
+}
+
+function filterNumber(input){
+  const value = String(input?.value || '').trim();
+  if (!value) return null;
+  return parsePrice(value);
+}
+
+function compareByPrice(a, b, direction){
+  const priceA = parsePrice(a.precio_producto);
+  const priceB = parsePrice(b.precio_producto);
+  const fallback = loteNumber(b.id_lote) - loteNumber(a.id_lote);
+
+  if (priceA === null && priceB === null) return fallback;
+  if (priceA === null) return 1;
+  if (priceB === null) return -1;
+
+  return direction === 'desc'
+    ? (priceB - priceA) || fallback
+    : (priceA - priceB) || fallback;
 }
 
 function etiquetaInfo(value){
@@ -155,13 +197,51 @@ function renderPagination(totalPages){
 
 function render(){
   grid.replaceChildren();
-  const totalPages = Math.max(1, Math.ceil(catalogo.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(filteredCatalogo.length / PAGE_SIZE));
   currentPage = Math.min(Math.max(currentPage, 1), totalPages);
   const start = (currentPage - 1) * PAGE_SIZE;
-  const pageItems = catalogo.slice(start, start + PAGE_SIZE);
+  const pageItems = filteredCatalogo.slice(start, start + PAGE_SIZE);
 
   pageItems.forEach(item => grid.appendChild(card(item)));
   renderPagination(totalPages);
+
+  if (catalogo.length && !filteredCatalogo.length) {
+    feedback.hidden = false;
+    statusEl.textContent = 'No hay lotes con ese filtro';
+    statusEl.classList.remove('is-error');
+    dateEl.textContent = 'Prueba con otro rango de precio';
+  } else if (filteredCatalogo.length) {
+    feedback.hidden = true;
+    statusEl.classList.remove('is-error');
+    dateEl.textContent = '';
+  }
+}
+
+function applyFilters({ resetPage = true } = {}){
+  const minPrice = filterNumber(minInput);
+  const maxPrice = filterNumber(maxInput);
+  const sortMode = sortSelect?.value || 'newest';
+
+  filteredCatalogo = catalogo.filter(item => {
+    const price = parsePrice(item.precio_producto);
+    const hasRange = minPrice !== null || maxPrice !== null;
+
+    if (hasRange && price === null) return false;
+    if (minPrice !== null && price < minPrice) return false;
+    if (maxPrice !== null && price > maxPrice) return false;
+    return true;
+  });
+
+  if (sortMode === 'price_asc') {
+    filteredCatalogo.sort((a, b) => compareByPrice(a, b, 'asc'));
+  } else if (sortMode === 'price_desc') {
+    filteredCatalogo.sort((a, b) => compareByPrice(a, b, 'desc'));
+  } else {
+    filteredCatalogo.sort((a, b) => loteNumber(b.id_lote) - loteNumber(a.id_lote));
+  }
+
+  if (resetPage) currentPage = 1;
+  render();
 }
 
 async function loadCatalog(){
@@ -181,11 +261,8 @@ async function loadCatalog(){
     catalogo = (Array.isArray(data.productos) ? data.productos : [])
       .filter(item => item && item.id_lote)
       .sort((a, b) => loteNumber(b.id_lote) - loteNumber(a.id_lote));
-    currentPage = 1;
-    render();
-    if (catalogo.length) {
-      feedback.hidden = true;
-    } else {
+    applyFilters();
+    if (!catalogo.length) {
       feedback.hidden = false;
       statusEl.textContent = 'No hay lotes disponibles por ahora';
       dateEl.textContent = '';
@@ -200,6 +277,22 @@ async function loadCatalog(){
     dateEl.textContent = 'Revisa que el Apps Script esté desplegado con el endpoint nuevo';
   }
 }
+
+filterForm?.addEventListener('submit', event => {
+  event.preventDefault();
+  applyFilters();
+});
+
+sortSelect?.addEventListener('change', () => {
+  applyFilters();
+});
+
+clearFiltersBtn?.addEventListener('click', () => {
+  if (sortSelect) sortSelect.value = 'newest';
+  if (minInput) minInput.value = '';
+  if (maxInput) maxInput.value = '';
+  applyFilters();
+});
 
 grid.addEventListener('click', event => {
   const button = event.target.closest('.japan-image-button');

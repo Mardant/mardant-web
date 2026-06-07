@@ -12,6 +12,31 @@ let productosGlobal = [];
 let categoriaActual = '';
 let paginaActual = 1;
 
+function parseMoney(value) {
+  const text = String(value ?? '').trim();
+  if (!text) return null;
+
+  const normalized = text
+    .replace(/\s/g, '')
+    .replace(/s\/\.?/i, '')
+    .replace(/,/g, '.')
+    .replace(/[^\d.]/g, '');
+
+  const parts = normalized.split('.');
+  const safeNumber = parts.length > 2
+    ? `${parts[0]}.${parts.slice(1).join('')}`
+    : normalized;
+  const number = Number(safeNumber);
+
+  return Number.isFinite(number) ? number : null;
+}
+
+function precioReal(p) {
+  const precio = parseMoney(p?.precio) ?? 0;
+  const oferta = parseMoney(p?.oferta);
+  return oferta !== null && oferta > 0 && oferta < precio ? oferta : precio;
+}
+
 // ---------------------------
 // FUNCIÓN PRINCIPAL DE FILTROS (DECLARADA PRIMERO)
 // ---------------------------
@@ -20,6 +45,8 @@ function aplicarFiltros() {
   const orden = $('#orden').value;
   const estadoFiltro = $('#estado').value;
   const subcat = ($('#subfiltro-contenedor select')?.value || '').toLowerCase();
+  const precioMin = parseMoney($('#precio-min')?.value);
+  const precioMax = parseMoney($('#precio-max')?.value);
 
   let lista = productosGlobal.filter((p) => {
     const nombre = String(p.nombre || '').toLowerCase();
@@ -37,14 +64,17 @@ function aplicarFiltros() {
                     (estadoFiltro === 'disponible' && !isAgotado) ||
                     (estadoFiltro === 'agotado' && isAgotado);
 
-    return catOK && subOK && txtOK && estadoOK;
+    const precio = precioReal(p);
+    const precioOK =
+      (precioMin === null || precio >= precioMin) &&
+      (precioMax === null || precio <= precioMax);
+
+    return catOK && subOK && txtOK && estadoOK && precioOK;
   });
 
   if (orden === 'oferta') {
     lista = lista.filter(p => p.oferta && !isNaN(p.oferta));
   }
-
-  const precioReal = (p) => !isNaN(parseFloat(p.oferta)) ? parseFloat(p.oferta) : parseFloat(p.precio);
 
   switch (orden) {
     case 'recientes':   lista.sort((a, b) => b.id - a.id); break;
@@ -66,6 +96,15 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#orden').addEventListener('change', aplicarFiltros);
   $('#estado').addEventListener('change', aplicarFiltros);
   $('#buscador').addEventListener('input', debounce(aplicarFiltros, 300));
+  $('#precio-min')?.addEventListener('input', debounce(aplicarFiltros, 300));
+  $('#precio-max')?.addEventListener('input', debounce(aplicarFiltros, 300));
+  $('#limpiar-precio')?.addEventListener('click', () => {
+    const min = $('#precio-min');
+    const max = $('#precio-max');
+    if (min) min.value = '';
+    if (max) max.value = '';
+    aplicarFiltros();
+  });
 
   // Configurar categorías
   document.querySelectorAll('.categoria-imagen').forEach(btn => {

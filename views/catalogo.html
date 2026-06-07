@@ -10,7 +10,7 @@
   <!-- estilos globales -->
   <link rel="stylesheet" href="../css/estilos.css?v=11" />
   <!-- extras del catálogo -->
-  <link rel="stylesheet" href="../css/catalogo.css?v=10" />
+  <link rel="stylesheet" href="../css/catalogo.css?v=11" />
 
   <style>
     /* ====== AJUSTES LOCALES (sólo esta vista) ====== */
@@ -248,6 +248,14 @@
         <option value="disponible">Sólo disponibles</option>
         <option value="agotado">Sólo agotados</option>
       </select>
+
+      <label for="precio-min" class="precio-filter-label">Precio mín.:</label>
+      <input id="precio-min" class="precio-filter-input" type="number" min="0" step="1" inputmode="numeric" placeholder="1">
+
+      <label for="precio-max" class="precio-filter-label">Precio máx.:</label>
+      <input id="precio-max" class="precio-filter-input" type="number" min="0" step="1" inputmode="numeric" placeholder="100">
+
+      <button id="limpiar-precio" class="precio-filter-clear" type="button">Limpiar precio</button>
     </div>
 
     <!-- Productos + paginación -->
@@ -274,7 +282,7 @@
   </div>
 
   <!-- Lógica del catálogo -->
-  <script type="module" src="../js/catalogo.js?v=2"></script>
+  <script type="module" src="../js/catalogo.js?v=3"></script>
 
   <!-- Abrir imágenes del listado en el lightbox -->
   <script>

@@ -6,7 +6,7 @@
   <title>Catálogo de Productos en Japón - Mardant</title>
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../css/estilos.css?v=11">
-  <link rel="stylesheet" href="../css/catalogo-japon.css?v=3">
+  <link rel="stylesheet" href="../css/catalogo-japon.css?v=4">
 </head>
 <body>
   <!-- Banner superior: reemplaza este src cuando tengas el banner final de Japón -->
@@ -28,6 +28,28 @@
   </div>
 
   <main class="japan-page">
+    <section class="japan-filter-panel" aria-label="Filtros del catalogo Japon">
+      <form id="catalogoJaponFilters" class="japan-filters">
+        <label>
+          <span>Ordenar</span>
+          <select id="catalogoJaponSort">
+            <option value="newest">&Uacute;ltimos a&ntilde;adidos</option>
+            <option value="price_asc">Precio: menor a mayor</option>
+            <option value="price_desc">Precio: mayor a menor</option>
+          </select>
+        </label>
+        <label>
+          <span>Precio m&iacute;nimo</span>
+          <input id="catalogoJaponMin" type="number" min="0" step="1" inputmode="numeric" placeholder="1">
+        </label>
+        <label>
+          <span>Precio m&aacute;ximo</span>
+          <input id="catalogoJaponMax" type="number" min="0" step="1" inputmode="numeric" placeholder="100">
+        </label>
+        <button class="japan-filter-apply" type="submit">Aplicar</button>
+        <button class="japan-filter-clear" id="catalogoJaponClear" type="button">Limpiar</button>
+      </form>
+    </section>
     <section id="catalogoJaponFeedback" class="japan-feedback" aria-live="polite" hidden>
       <strong id="catalogoJaponEstado">Cargando catálogo...</strong>
       <span id="catalogoJaponFecha"></span>
@@ -63,7 +85,7 @@
     </div>
   </div>
 
-  <script type="module" src="../js/catalogo-japon.js?v=3"></script>
+  <script type="module" src="../js/catalogo-japon.js?v=4"></script>
   <script type="module" src="../js/tracking.js"></script>
   <script type="module" src="../js/account-widget.js?v=2"></script>
 </body>

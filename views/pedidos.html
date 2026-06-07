@@ -63,41 +63,51 @@
     .titulo-seccion{ color:#171411; }
     .titulo-seccion::after{ background:#a8322a; }
 
-    /* ====== BOTONES DE ANIME ARRIBA (centrados) ====== */
-    .grid-animes{
+    /* ====== ORDEN DE PRODUCTOS ====== */
+    .pedido-order-panel{
       max-width: 1200px;
       margin: 0 auto 24px;
       padding: 0 16px;
       display:flex;
       flex-wrap:wrap;
+      align-items:center;
       justify-content:center;
       gap:12px;
     }
-    .grid-animes .anime-pill{
+    .pedido-order-label{
+      color:#6f5b49;
+      font-size:12px;
+      font-weight:1000;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .pedido-order-btn{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      padding:8px 16px;
+      min-height:38px;
+      padding:9px 18px;
       border-radius:999px;
-      background:rgba(0,0,0,.65);
-      color:#fff;
-      font-weight:700;
-      text-decoration:none;
+      background:#171411;
+      color:#fffaf2;
+      font:inherit;
+      font-weight:900;
       border:1px solid rgba(216,198,170,.6);
       box-shadow:0 10px 22px rgba(23,20,17,.20);
       font-size:14px;
+      cursor:pointer;
       transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
       white-space:nowrap;
     }
-    .grid-animes .anime-pill:hover{
+    .pedido-order-btn:hover{
       transform:translateY(-1px);
       box-shadow:0 14px 30px rgba(23,20,17,.28);
       filter:saturate(1.03);
     }
-    .grid-animes .anime-pill img{
-      height:32px;
-      object-fit:contain;
-      display:block;
+    .pedido-order-btn.is-active{
+      background:linear-gradient(180deg, #b13a31, #8f2722);
+      border-color:rgba(168,50,42,.42);
+      box-shadow:0 10px 24px rgba(168,50,42,.22);
     }
 
     /* ====== PAGINACIÓN ====== */
@@ -235,24 +245,11 @@
     <a href="catalogo-japon.html" class="btn-pill japan"><span>日本</span><span>Catálogo Japón</span></a>
   </div>
 
-  <!-- BOTONES DE ANIME ARRIBA (CENTRADOS) -->
-  <div class="grid-animes">
-    <!-- Ejemplos: reemplaza las URLs por tus imágenes reales -->
-    <a href="pedidos.html?categoria=TODOS" class="anime-pill">
-      TODOS
-      <!-- o <img src="URL_LOGO_TODOS.png" alt="Todos"> -->
-    </a>
-
-    <a href="pedidos.html?categoria=pokemon" class="anime-pill">
-      Pokémon
-      <!-- o <img src="URL_LOGO_POKEMON.png" alt="Pokémon"> -->
-    </a>
-
-    <a href="pedidos.html?categoria=dragon ball" class="anime-pill">
-      Dragon Ball
-      <!-- o <img src="URL_LOGO_DRAGONBALL.png" alt="Dragon Ball"> -->
-    </a>
-    <!-- añade más animes aquí -->
+  <!-- Orden de productos -->
+  <div class="pedido-order-panel" id="pedidoOrdenFiltros" aria-label="Orden de productos">
+    <span class="pedido-order-label">Ordenar</span>
+    <button type="button" class="pedido-order-btn is-active" data-order="newest">&Uacute;ltimos a&ntilde;adidos</button>
+    <button type="button" class="pedido-order-btn" data-order="oldest">M&aacute;s antiguos</button>
   </div>
 
   <!-- Listado de productos -->
@@ -273,7 +270,7 @@
   </div>
 
   <!-- Lógica de la página -->
-  <script type="module" src="../js/pedidos.js"></script>
+  <script type="module" src="../js/pedidos.js?v=2"></script>
 
   <!-- Abrir lightbox al tocar cualquier imagen de una card -->
   <script>
