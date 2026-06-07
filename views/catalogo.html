@@ -10,7 +10,7 @@
   <!-- estilos globales -->
   <link rel="stylesheet" href="../css/estilos.css?v=11" />
   <!-- extras del catálogo -->
-  <link rel="stylesheet" href="../css/catalogo.css?v=11" />
+  <link rel="stylesheet" href="../css/catalogo.css?v=12" />
 
   <style>
     /* ====== AJUSTES LOCALES (sólo esta vista) ====== */
@@ -231,29 +231,37 @@
 
     <!-- Orden / disponibilidad -->
     <div class="orden">
-      <label for="orden">Ordenar por:</label>
-      <select id="orden">
-        <option value="recientes">Lo más nuevo</option>
-        <option value="default">Por defecto</option>
-        <option value="oferta">Sólo ofertas</option>
-        <option value="precio-asc">Precio (↑)</option>
-        <option value="precio-desc">Precio (↓)</option>
-        <option value="nombre-az">Nombre A-Z</option>
-        <option value="nombre-za">Nombre Z-A</option>
-      </select>
+      <label class="catalog-filter-field" for="orden">
+        <span>Ordenar</span>
+        <select id="orden">
+          <option value="recientes">Lo más nuevo</option>
+          <option value="default">Por defecto</option>
+          <option value="oferta">Sólo ofertas</option>
+          <option value="precio-asc">Precio menor a mayor</option>
+          <option value="precio-desc">Precio mayor a menor</option>
+          <option value="nombre-az">Nombre A-Z</option>
+          <option value="nombre-za">Nombre Z-A</option>
+        </select>
+      </label>
 
-      <label for="estado" style="margin-left:20px">Disponibilidad:</label>
-      <select id="estado">
-        <option value="todos">Todos</option>
-        <option value="disponible">Sólo disponibles</option>
-        <option value="agotado">Sólo agotados</option>
-      </select>
+      <label class="catalog-filter-field" for="estado">
+        <span>Disponibilidad</span>
+        <select id="estado">
+          <option value="todos">Todos</option>
+          <option value="disponible">Sólo disponibles</option>
+          <option value="agotado">Sólo agotados</option>
+        </select>
+      </label>
 
-      <label for="precio-min" class="precio-filter-label">Precio mín.:</label>
-      <input id="precio-min" class="precio-filter-input" type="number" min="0" step="1" inputmode="numeric" placeholder="1">
+      <label class="catalog-filter-field" for="precio-min">
+        <span>Precio mín.</span>
+        <input id="precio-min" class="precio-filter-input" type="number" min="0" step="1" inputmode="numeric" placeholder="1">
+      </label>
 
-      <label for="precio-max" class="precio-filter-label">Precio máx.:</label>
-      <input id="precio-max" class="precio-filter-input" type="number" min="0" step="1" inputmode="numeric" placeholder="100">
+      <label class="catalog-filter-field" for="precio-max">
+        <span>Precio máx.</span>
+        <input id="precio-max" class="precio-filter-input" type="number" min="0" step="1" inputmode="numeric" placeholder="100">
+      </label>
 
       <button id="limpiar-precio" class="precio-filter-clear" type="button">Limpiar precio</button>
     </div>

@@ -65,49 +65,48 @@
 
     /* ====== ORDEN DE PRODUCTOS ====== */
     .pedido-order-panel{
-      max-width: 1200px;
-      margin: 0 auto 24px;
-      padding: 0 16px;
-      display:flex;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:center;
-      gap:12px;
+      width:min(420px, calc(100% - 32px));
+      box-sizing:border-box;
+      margin:0 auto 24px;
+      padding:13px 15px;
+      border:1px solid #d8c6aa;
+      border-left:5px solid #a8322a;
+      border-radius:8px;
+      background:
+        linear-gradient(90deg, rgba(168,50,42,.045), rgba(255,255,255,.72)),
+        #fffaf2;
+      box-shadow:0 10px 24px rgba(44,34,25,.08);
     }
-    .pedido-order-label{
+    .pedido-order-field{
+      display:grid;
+      gap:7px;
+      min-width:0;
+      margin:0;
+    }
+    .pedido-order-field span{
       color:#6f5b49;
       font-size:12px;
       font-weight:1000;
       letter-spacing:.08em;
       text-transform:uppercase;
     }
-    .pedido-order-btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-height:38px;
-      padding:9px 18px;
-      border-radius:999px;
-      background:#171411;
-      color:#fffaf2;
+    .pedido-order-field select{
+      width:100%;
+      min-height:42px;
+      box-sizing:border-box;
+      border:1px solid #d8c6aa;
+      border-radius:8px;
+      background:#fffaf2;
+      color:#171411;
       font:inherit;
       font-weight:900;
-      border:1px solid rgba(216,198,170,.6);
-      box-shadow:0 10px 22px rgba(23,20,17,.20);
-      font-size:14px;
-      cursor:pointer;
-      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
-      white-space:nowrap;
+      padding:8px 12px;
+      outline:none;
+      transition:border-color .18s ease, box-shadow .18s ease;
     }
-    .pedido-order-btn:hover{
-      transform:translateY(-1px);
-      box-shadow:0 14px 30px rgba(23,20,17,.28);
-      filter:saturate(1.03);
-    }
-    .pedido-order-btn.is-active{
-      background:linear-gradient(180deg, #b13a31, #8f2722);
-      border-color:rgba(168,50,42,.42);
-      box-shadow:0 10px 24px rgba(168,50,42,.22);
+    .pedido-order-field select:focus{
+      border-color:#a8322a;
+      box-shadow:0 0 0 3px rgba(168,50,42,.12);
     }
 
     /* ====== PAGINACIÓN ====== */
@@ -246,11 +245,15 @@
   </div>
 
   <!-- Orden de productos -->
-  <div class="pedido-order-panel" id="pedidoOrdenFiltros" aria-label="Orden de productos">
-    <span class="pedido-order-label">Ordenar</span>
-    <button type="button" class="pedido-order-btn is-active" data-order="newest">&Uacute;ltimos a&ntilde;adidos</button>
-    <button type="button" class="pedido-order-btn" data-order="oldest">M&aacute;s antiguos</button>
-  </div>
+  <section class="pedido-order-panel" aria-label="Orden de productos">
+    <label class="pedido-order-field" for="pedidoOrdenSelect">
+      <span>Ordenar</span>
+      <select id="pedidoOrdenSelect">
+        <option value="newest">&Uacute;ltimos a&ntilde;adidos</option>
+        <option value="oldest">M&aacute;s antiguos</option>
+      </select>
+    </label>
+  </section>
 
   <!-- Listado de productos -->
   <div class="grid-pedidos" id="contenedor">
@@ -270,7 +273,7 @@
   </div>
 
   <!-- Lógica de la página -->
-  <script type="module" src="../js/pedidos.js?v=2"></script>
+  <script type="module" src="../js/pedidos.js?v=3"></script>
 
   <!-- Abrir lightbox al tocar cualquier imagen de una card -->
   <script>

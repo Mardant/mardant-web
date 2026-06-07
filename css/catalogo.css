@@ -116,16 +116,40 @@
 #buscador{ margin-top:6px; }
 
 .orden{
-  display:flex;
-  flex-wrap:wrap;
-  align-items:center;
-  justify-content:center;
-  gap:10px 14px;
-  margin:6px 0 10px;
+  max-width:960px;
+  box-sizing:border-box;
+  display:grid;
+  grid-template-columns:minmax(170px, 1.1fr) minmax(150px, .9fr) repeat(2, minmax(120px, .7fr)) auto;
+  gap:10px;
+  align-items:end;
+  margin:10px auto 22px;
+  padding:13px;
+  border:1px solid #d8c6aa;
+  border-left:5px solid #a8322a;
+  border-radius:8px;
+  background:
+    linear-gradient(90deg, rgba(168,50,42,.045), rgba(255,255,255,.72)),
+    #fffaf2;
+  box-shadow:0 10px 24px rgba(44,34,25,.08);
 }
 .orden label{ font-weight:700; color:#4d4034; }
+.catalog-filter-field{
+  display:grid;
+  gap:6px;
+  min-width:0;
+  margin:0;
+}
+.catalog-filter-field span{
+  color:#6f5b49;
+  font-size:12px;
+  font-weight:1000;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+}
 .orden select,
 .orden .precio-filter-input{
+  width:100%;
+  min-width:0;
   min-height:42px;
   box-sizing:border-box;
   border:1px solid #d8c6aa;
@@ -142,12 +166,6 @@
 .orden .precio-filter-input:focus{
   border-color:#a8322a;
   box-shadow:0 0 0 3px rgba(168,50,42,.12);
-}
-.precio-filter-label{
-  margin-left:4px;
-}
-.precio-filter-input{
-  width:110px;
 }
 .precio-filter-clear{
   min-height:42px;
@@ -169,6 +187,15 @@
 }
 
 /* ====== RESPONSIVE / CATEGORÍAS EN MÓVIL ====== */
+@media (max-width:980px){
+  .orden{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+  .precio-filter-clear{
+    width:100%;
+  }
+}
+
 @media (max-width:680px){
   #filtro-categorias{
     flex-wrap:nowrap;
@@ -190,26 +217,15 @@
   }
 
   .orden{
-    display:grid;
     grid-template-columns:1fr;
-    justify-items:center;
     gap:6px;
-    margin:8px 0 12px;
+    margin:8px auto 18px;
+    padding:12px;
   }
   .orden select{
-    width:92vw;
-    max-width:420px;
     font-size:15px;
     padding:10px 12px;
     border-radius:10px;
-  }
-  .orden .precio-filter-input,
-  .precio-filter-clear{
-    width:92vw;
-    max-width:420px;
-  }
-  .precio-filter-label{
-    margin-left:0;
   }
 
   /* cards centradas y con respiración */

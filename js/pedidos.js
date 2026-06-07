@@ -47,16 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   actualizarCarritoUI();
 
-  const orderFilters = document.getElementById('pedidoOrdenFiltros');
-  if (orderFilters) {
-    orderFilters.addEventListener('click', (ev) => {
-      const btn = ev.target.closest('button[data-order]');
-      if (!btn || btn.dataset.order === ordenActual) return;
-
-      ordenActual = btn.dataset.order === 'oldest' ? 'oldest' : 'newest';
-      orderFilters.querySelectorAll('.pedido-order-btn').forEach((item) => {
-        item.classList.toggle('is-active', item === btn);
-      });
+  const orderSelect = document.getElementById('pedidoOrdenSelect');
+  if (orderSelect) {
+    orderSelect.addEventListener('change', () => {
+      ordenActual = orderSelect.value === 'oldest' ? 'oldest' : 'newest';
       aplicarFiltrosYRedibujar();
     });
   }

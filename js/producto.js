@@ -73,12 +73,14 @@ function renderProducto(p){
   const precioNum = parseFloat(p.precio) || 0;
   const ofertaNum = parseFloat(p.oferta);
   const tieneOferta = !isNaN(ofertaNum) && ofertaNum > 0 && ofertaNum < precioNum;
+  const rawEstado = String(p.estado || '').toUpperCase();
+  const estaAgotado = rawEstado.includes('SIN STOCK') || rawEstado.includes('AGOTADO');
 
-  const estadoTxt = tieneOferta
-    ? 'OFERTA'
-    : (String(p.estado || '').toUpperCase().includes('SIN STOCK') ? 'AGOTADO' : 'DISPONIBLE');
+  const estadoTxt = estaAgotado
+    ? 'AGOTADO'
+    : (tieneOferta ? 'OFERTA' : 'DISPONIBLE');
 
-  const precioFinal = tieneOferta ? ofertaNum : precioNum;
+  const precioFinal = !estaAgotado && tieneOferta ? ofertaNum : precioNum;
 
   $('#pdp-nombre').textContent = nombre || 'Producto';
   $('#pdp-id').textContent = id ? `ID: ${id}` : '';
@@ -87,6 +89,7 @@ function renderProducto(p){
 
   const estadoEl = $('#pdp-estado');
   estadoEl.textContent = estadoTxt;
+  $('#pdp').classList.toggle('pdp-is-agotado', estaAgotado);
 
   // Imagen
   const imgEl = $('#pdp-img');
@@ -96,7 +99,7 @@ function renderProducto(p){
 
   // Precio
   const precioEl = $('#pdp-precio');
-  if (tieneOferta){
+  if (!estaAgotado && tieneOferta){
     precioEl.innerHTML = `<span class="pdp-old">S/. ${precioNum.toFixed(2)}</span> <span class="pdp-new">S/. ${precioFinal.toFixed(2)}</span>`;
   } else {
     precioEl.textContent = `S/. ${precioFinal.toFixed(2)}`;
@@ -104,15 +107,19 @@ function renderProducto(p){
 
   // Botón carrito
   const addBtn = $('#pdp-add');
+  addBtn.hidden = estaAgotado;
   addBtn.disabled = (estadoTxt === 'AGOTADO');
   addBtn.onclick = () => {
+    if (estaAgotado) return;
     agregarAlCarrito({ ...p, precio: precioFinal });
     actualizarContador();
     notificar('✅ Producto añadido al carrito', 'success');
   };
 
   // Copy link
+  $('#pdp-copy').hidden = estaAgotado;
   $('#pdp-copy').onclick = async () => {
+    if (estaAgotado) return;
     try{
       await navigator.clipboard.writeText(location.href);
       notificar('🔗 Link copiado', 'success');
@@ -130,7 +137,14 @@ function renderProducto(p){
     `• Link: ${location.href}`
   ].filter(Boolean).join('\n');
 
-  const waUrl = whatsappLink(msg);
+  const waUrl = whatsappLink(estaAgotado ? [
+    'Hola, quiero cotizar este producto agotado:',
+    `- ${nombre}`,
+    id ? `- ID: ${id}` : null,
+    `- Link: ${location.href}`
+  ].filter(Boolean).join('\n') : msg);
   const waBtn = $('#pdp-wa');
   waBtn.href = waUrl;
+  waBtn.textContent = estaAgotado ? 'Cotizar producto agotado' : 'Pedir por WhatsApp';
+  waBtn.classList.toggle('is-agotado', estaAgotado);
 }

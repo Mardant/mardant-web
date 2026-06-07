@@ -61,5 +61,9 @@
 .pdp-actions .boton{ text-decoration:none; display:inline-flex; align-items:center; justify-content:center; }
 .pdp-btn-sec{ background:#171411 !important; }
 .pdp-btn-wa{ background:linear-gradient(180deg, #263b37, #162421) !important; }
+.pdp-btn-wa.is-agotado{
+  background:linear-gradient(180deg, #b13a31, #8f2722) !important;
+  box-shadow:0 10px 22px rgba(168,50,42,.22);
+}
 
 .pdp-meta{ margin-top:10px; color:#4d4034; }
