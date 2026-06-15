@@ -189,7 +189,7 @@ body.modal-open{
 }
 
 .japan-filter-panel{
-  max-width:960px;
+  max-width:1080px;
   margin:0 auto 22px;
   padding:13px;
   border:1px solid #d8c6aa;
@@ -203,9 +203,13 @@ body.modal-open{
 
 .japan-filters{
   display:grid;
-  grid-template-columns:minmax(190px, 1.2fr) repeat(2, minmax(130px, .75fr)) auto auto;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
   gap:10px;
   align-items:end;
+}
+
+.japan-search-field{
+  grid-column:span 2;
 }
 
 .japan-filters label{
@@ -255,6 +259,19 @@ body.modal-open{
   font-weight:1000;
   cursor:pointer;
   transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+
+.japan-filter-actions{
+  display:flex;
+  gap:10px;
+  align-items:end;
+}
+
+.japan-filter-actions .japan-filter-apply,
+.japan-filter-actions .japan-filter-clear{
+  flex:1;
+  padding-left:14px;
+  padding-right:14px;
 }
 
 .japan-filter-apply{
@@ -669,6 +686,9 @@ body.modal-open{
   }
   .japan-filters{
     grid-template-columns:1fr;
+  }
+  .japan-search-field{
+    grid-column:auto;
   }
   .japan-grid{
     grid-template-columns:1fr;
