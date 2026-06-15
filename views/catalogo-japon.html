@@ -6,7 +6,7 @@
   <title>Catálogo de Productos en Japón - Mardant</title>
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../css/estilos.css?v=11">
-  <link rel="stylesheet" href="../css/catalogo-japon.css?v=4">
+  <link rel="stylesheet" href="../css/catalogo-japon.css?v=5">
 </head>
 <body>
   <!-- Banner superior: reemplaza este src cuando tengas el banner final de Japón -->
@@ -30,6 +30,22 @@
   <main class="japan-page">
     <section class="japan-filter-panel" aria-label="Filtros del catalogo Japon">
       <form id="catalogoJaponFilters" class="japan-filters">
+        <label class="japan-search-field">
+          <span>Buscar</span>
+          <input id="catalogoJaponSearch" type="search" autocomplete="off" placeholder="Pokemon, Pikachu, figura...">
+        </label>
+        <label>
+          <span>Anime</span>
+          <select id="catalogoJaponAnime">
+            <option value="">Todos</option>
+          </select>
+        </label>
+        <label>
+          <span>Tipo</span>
+          <select id="catalogoJaponTipo">
+            <option value="">Todos</option>
+          </select>
+        </label>
         <label>
           <span>Ordenar</span>
           <select id="catalogoJaponSort">
@@ -46,8 +62,10 @@
           <span>Precio m&aacute;ximo</span>
           <input id="catalogoJaponMax" type="number" min="0" step="1" inputmode="numeric" placeholder="100">
         </label>
-        <button class="japan-filter-apply" type="submit">Aplicar</button>
-        <button class="japan-filter-clear" id="catalogoJaponClear" type="button">Limpiar</button>
+        <div class="japan-filter-actions">
+          <button class="japan-filter-apply" type="submit">Aplicar</button>
+          <button class="japan-filter-clear" id="catalogoJaponClear" type="button">Limpiar</button>
+        </div>
       </form>
     </section>
     <section id="catalogoJaponFeedback" class="japan-feedback" aria-live="polite" hidden>
@@ -85,7 +103,7 @@
     </div>
   </div>
 
-  <script type="module" src="../js/catalogo-japon.js?v=4"></script>
+  <script type="module" src="../js/catalogo-japon.js?v=5"></script>
   <script type="module" src="../js/tracking.js"></script>
   <script type="module" src="../js/account-widget.js?v=2"></script>
 </body>
