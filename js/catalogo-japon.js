@@ -18,7 +18,6 @@ const closeBtn = document.getElementById('catalogoJaponClose');
 const filterForm = document.getElementById('catalogoJaponFilters');
 const searchInput = document.getElementById('catalogoJaponSearch');
 const animeSelect = document.getElementById('catalogoJaponAnime');
-const tipoSelect = document.getElementById('catalogoJaponTipo');
 const sortSelect = document.getElementById('catalogoJaponSort');
 const minInput = document.getElementById('catalogoJaponMin');
 const maxInput = document.getElementById('catalogoJaponMax');
@@ -310,7 +309,6 @@ function render(){
 function applyFilters({ resetPage = true } = {}){
   const search = normalizeText(searchInput?.value);
   const anime = normalizeText(animeSelect?.value);
-  const tipo = normalizeText(tipoSelect?.value);
   const minPrice = filterNumber(minInput);
   const maxPrice = filterNumber(maxInput);
   const sortMode = sortSelect?.value || 'newest';
@@ -319,13 +317,11 @@ function applyFilters({ resetPage = true } = {}){
     const searchable = normalizeText([
       item.id_lote,
       item.anime,
-      item.tipo,
       item.busqueda,
       item.etiqueta
     ].join(' '));
     if (search && !searchable.includes(search)) return false;
     if (anime && normalizeText(item.anime) !== anime) return false;
-    if (tipo && normalizeText(item.tipo) !== tipo) return false;
 
     const price = parsePrice(item.precio_producto);
     const hasRange = minPrice !== null || maxPrice !== null;
@@ -364,7 +360,6 @@ async function loadCatalog(){
     catalogo = parseGvizCatalog(text)
       .sort((a, b) => loteNumber(b.id_lote) - loteNumber(a.id_lote));
     fillFilterSelect(animeSelect, catalogo.map(item => item.anime));
-    fillFilterSelect(tipoSelect, catalogo.map(item => item.tipo));
     applyFilters();
     if (!catalogo.length) {
       feedback.hidden = false;
@@ -399,14 +394,9 @@ animeSelect?.addEventListener('change', () => {
   applyFilters();
 });
 
-tipoSelect?.addEventListener('change', () => {
-  applyFilters();
-});
-
 clearFiltersBtn?.addEventListener('click', () => {
   if (searchInput) searchInput.value = '';
   if (animeSelect) animeSelect.value = '';
-  if (tipoSelect) tipoSelect.value = '';
   if (sortSelect) sortSelect.value = 'newest';
   if (minInput) minInput.value = '';
   if (maxInput) maxInput.value = '';
