@@ -1,6 +1,9 @@
-import { API_URL, whatsappLink } from './config.js';
+import { whatsappLink } from './config.js';
 
 const PAGE_SIZE = 20;
+const SPREADSHEET_ID = '17UeC7f4aIGmqEdmXD20wlV-kNidpm1MKK4V5v33X5yc';
+const SHEET_NAME = 'catalogo';
+const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&tq=select%20*`;
 
 const grid = document.getElementById('catalogoJaponGrid');
 const feedback = document.getElementById('catalogoJaponFeedback');
@@ -13,6 +16,9 @@ const modalTitle = document.getElementById('catalogoJaponModalTitle');
 const modalImage = document.getElementById('catalogoJaponModalImage');
 const closeBtn = document.getElementById('catalogoJaponClose');
 const filterForm = document.getElementById('catalogoJaponFilters');
+const searchInput = document.getElementById('catalogoJaponSearch');
+const animeSelect = document.getElementById('catalogoJaponAnime');
+const tipoSelect = document.getElementById('catalogoJaponTipo');
 const sortSelect = document.getElementById('catalogoJaponSort');
 const minInput = document.getElementById('catalogoJaponMin');
 const maxInput = document.getElementById('catalogoJaponMax');
@@ -34,6 +40,23 @@ function escapeHtml(value){
 function loteNumber(value){
   const match = String(value || '').match(/\d+/g);
   return match ? Number(match.join('')) || 0 : 0;
+}
+
+function normalizeText(value){
+  return String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function debounce(fn, delay = 250){
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
 }
 
 function money(value){
@@ -88,7 +111,74 @@ function etiquetaInfo(value){
 }
 
 function requestUrl(){
-  return `${API_URL}?accion=catalogoPreventasJapon`;
+  return GVIZ_URL;
+}
+
+function headerKey(value){
+  return String(value || '').trim().toLowerCase();
+}
+
+function cellValue(row, index){
+  if (index < 0) return '';
+  const cell = row?.c?.[index];
+  const value = cell?.v ?? cell?.f ?? '';
+  return String(value ?? '').trim();
+}
+
+function parseGvizCatalog(text){
+  const jsonText = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+  const safeJsonText = jsonText
+    .replace(/:\s*new Date\(([^)]*)\)/g, ':"$1"')
+    .replace(/:\s*Date\(([^)]*)\)/g, ':"$1"');
+  const payload = JSON.parse(safeJsonText);
+  const headers = (payload.table?.cols || []).map(col => headerKey(col.label || col.id));
+  const indexOf = (name, fallback) => {
+    const index = headers.indexOf(name);
+    return index >= 0 ? index : fallback;
+  };
+  const cols = {
+    id_lote: indexOf('id_lote', 0),
+    imagen_url: indexOf('imagen_url', 1),
+    etiqueta: indexOf('etiqueta', 2),
+    precio_producto: indexOf('precio_producto', 3),
+    visible: indexOf('visible', 4),
+    ultima_revision: indexOf('ultima_revision', 5),
+    anime: indexOf('anime', 6),
+    tipo: indexOf('tipo', 7),
+    busqueda: indexOf('busqueda', 8)
+  };
+
+  return (payload.table?.rows || [])
+    .map(row => ({
+      id_lote: cellValue(row, cols.id_lote),
+      imagen_url: cellValue(row, cols.imagen_url),
+      etiqueta: cellValue(row, cols.etiqueta),
+      precio_producto: cellValue(row, cols.precio_producto),
+      visible: cellValue(row, cols.visible),
+      ultima_revision: cellValue(row, cols.ultima_revision),
+      anime: cellValue(row, cols.anime),
+      tipo: cellValue(row, cols.tipo),
+      busqueda: cellValue(row, cols.busqueda)
+    }))
+    .filter(item => item.id_lote && normalizeText(item.visible) === 'si');
+}
+
+function fillFilterSelect(select, values){
+  if (!select) return;
+  const current = select.value;
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.textContent = 'Todos';
+  const options = [...new Set(values.map(value => String(value || '').trim()).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
+    .map(value => {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = value;
+      return option;
+    });
+  select.replaceChildren(defaultOption, ...options);
+  select.value = options.some(option => option.value === current) ? current : '';
 }
 
 function openModal(imageUrl, id){
@@ -209,7 +299,7 @@ function render(){
     feedback.hidden = false;
     statusEl.textContent = 'No hay lotes con ese filtro';
     statusEl.classList.remove('is-error');
-    dateEl.textContent = 'Prueba con otro rango de precio';
+    dateEl.textContent = 'Prueba con otra busqueda o cambia los filtros';
   } else if (filteredCatalogo.length) {
     feedback.hidden = true;
     statusEl.classList.remove('is-error');
@@ -218,11 +308,25 @@ function render(){
 }
 
 function applyFilters({ resetPage = true } = {}){
+  const search = normalizeText(searchInput?.value);
+  const anime = normalizeText(animeSelect?.value);
+  const tipo = normalizeText(tipoSelect?.value);
   const minPrice = filterNumber(minInput);
   const maxPrice = filterNumber(maxInput);
   const sortMode = sortSelect?.value || 'newest';
 
   filteredCatalogo = catalogo.filter(item => {
+    const searchable = normalizeText([
+      item.id_lote,
+      item.anime,
+      item.tipo,
+      item.busqueda,
+      item.etiqueta
+    ].join(' '));
+    if (search && !searchable.includes(search)) return false;
+    if (anime && normalizeText(item.anime) !== anime) return false;
+    if (tipo && normalizeText(item.tipo) !== tipo) return false;
+
     const price = parsePrice(item.precio_producto);
     const hasRange = minPrice !== null || maxPrice !== null;
 
@@ -255,12 +359,12 @@ async function loadCatalog(){
   try {
     const res = await fetch(requestUrl(), { cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error || 'No se pudo leer el catálogo');
+    const text = await res.text();
 
-    catalogo = (Array.isArray(data.productos) ? data.productos : [])
-      .filter(item => item && item.id_lote)
+    catalogo = parseGvizCatalog(text)
       .sort((a, b) => loteNumber(b.id_lote) - loteNumber(a.id_lote));
+    fillFilterSelect(animeSelect, catalogo.map(item => item.anime));
+    fillFilterSelect(tipoSelect, catalogo.map(item => item.tipo));
     applyFilters();
     if (!catalogo.length) {
       feedback.hidden = false;
@@ -274,7 +378,7 @@ async function loadCatalog(){
     feedback.hidden = false;
     statusEl.textContent = `No se pudo cargar el catálogo: ${error.message}`;
     statusEl.classList.add('is-error');
-    dateEl.textContent = 'Revisa que el Apps Script esté desplegado con el endpoint nuevo';
+    dateEl.textContent = 'Revisa que el Google Sheet sea publico y tenga la pestana catalogo';
   }
 }
 
@@ -287,7 +391,22 @@ sortSelect?.addEventListener('change', () => {
   applyFilters();
 });
 
+searchInput?.addEventListener('input', debounce(() => {
+  applyFilters();
+}));
+
+animeSelect?.addEventListener('change', () => {
+  applyFilters();
+});
+
+tipoSelect?.addEventListener('change', () => {
+  applyFilters();
+});
+
 clearFiltersBtn?.addEventListener('click', () => {
+  if (searchInput) searchInput.value = '';
+  if (animeSelect) animeSelect.value = '';
+  if (tipoSelect) tipoSelect.value = '';
   if (sortSelect) sortSelect.value = 'newest';
   if (minInput) minInput.value = '';
   if (maxInput) maxInput.value = '';
