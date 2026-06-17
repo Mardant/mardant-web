@@ -7,7 +7,7 @@ const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/
 const LIKES_STORAGE_KEY = 'mardant_japon_likes_v1';
 const VISITOR_STORAGE_KEY = 'mardant_japon_visitor_id_v1';
 const sharedLoteId = new URLSearchParams(location.search).get('lote') || '';
-const PRODUCT_NOTE = '🇯🇵 No incluye envío de Japón a Perú 🇵🇪';
+const PRODUCT_NOTE = 'No incluye envío de Japón 🇯🇵 a Perú 🇵🇪';
 
 const grid = document.getElementById('catalogoJaponGrid');
 const feedback = document.getElementById('catalogoJaponFeedback');
