@@ -7,6 +7,7 @@ const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/
 const LIKES_STORAGE_KEY = 'mardant_japon_likes_v1';
 const VISITOR_STORAGE_KEY = 'mardant_japon_visitor_id_v1';
 const sharedLoteId = new URLSearchParams(location.search).get('lote') || '';
+const PRODUCT_NOTE = '🇯🇵 No incluye envío de Japón a Perú 🇵🇪';
 
 const grid = document.getElementById('catalogoJaponGrid');
 const feedback = document.getElementById('catalogoJaponFeedback');
@@ -62,6 +63,25 @@ function debounce(fn, delay = 250){
     clearTimeout(timer);
     timer = setTimeout(() => fn(...args), delay);
   };
+}
+
+function shareIcon(){
+  return `
+    <svg class="japan-tool-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"></path>
+      <path d="M16 6l-4-4-4 4"></path>
+      <path d="M12 2v14"></path>
+    </svg>
+  `;
+}
+
+function likeIcon(){
+  return `
+    <svg class="japan-tool-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M7 10v11"></path>
+      <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h.5a2.5 2.5 0 0 1 2.5 3.88Z"></path>
+    </svg>
+  `;
 }
 
 function loadLikedLots(){
@@ -269,6 +289,165 @@ function closeModal(){
   modalImage.removeAttribute('src');
 }
 
+function getCatalogItem(id){
+  const loteId = String(id || '').trim();
+  return catalogo.find(item => String(item.id_lote || '').trim() === loteId);
+}
+
+function loadImageForCanvas(src){
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = 'anonymous';
+    image.referrerPolicy = 'no-referrer';
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error('image_load_error'));
+    image.src = src;
+  });
+}
+
+async function loadShareImage(item){
+  const id = String(item.id_lote || '').trim();
+  try {
+    const res = await fetch(`${API_URL}?accion=catalogoJaponImage&id_lote=${encodeURIComponent(id)}&ts=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data || data.ok === false || !data.base64) throw new Error(data?.error || 'image_proxy_error');
+    return loadImageForCanvas(`data:${data.mime || 'image/jpeg'};base64,${data.base64}`);
+  } catch (error) {
+    console.warn('No se pudo preparar la imagen compartible con Apps Script:', error);
+    return loadImageForCanvas(String(item.imagen_url || '').trim());
+  }
+}
+
+function roundedRect(ctx, x, y, width, height, radius){
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + width - r, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+  ctx.lineTo(x + width, y + height - r);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+  ctx.lineTo(x + r, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function drawContainedImage(ctx, image, x, y, width, height){
+  const imageWidth = image.naturalWidth || image.width;
+  const imageHeight = image.naturalHeight || image.height;
+  const scale = Math.min(width / imageWidth, height / imageHeight);
+  const drawWidth = imageWidth * scale;
+  const drawHeight = imageHeight * scale;
+  const drawX = x + (width - drawWidth) / 2;
+  const drawY = y + (height - drawHeight) / 2;
+  ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+}
+
+function canvasToBlob(canvas){
+  return new Promise((resolve, reject) => {
+    try {
+      canvas.toBlob(blob => {
+        if (blob) resolve(blob);
+        else reject(new Error('canvas_blob_error'));
+      }, 'image/png', 0.95);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+async function createShareImageBlob(item){
+  const id = String(item.id_lote || '').trim();
+  const etiqueta = etiquetaInfo(item.etiqueta);
+  const canvas = document.createElement('canvas');
+  canvas.width = 1080;
+  canvas.height = 1920;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = '#f5eee3';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  gradient.addColorStop(0, '#fffaf2');
+  gradient.addColorStop(0.56, '#f2e6d6');
+  gradient.addColorStop(1, '#1a1511');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = '#a8322a';
+  ctx.fillRect(0, 0, canvas.width, 18);
+  ctx.fillRect(0, 0, 18, canvas.height);
+
+  ctx.save();
+  roundedRect(ctx, 70, 96, 940, 1130, 42);
+  ctx.fillStyle = '#fffdf8';
+  ctx.shadowColor = 'rgba(23, 20, 17, .20)';
+  ctx.shadowBlur = 34;
+  ctx.shadowOffsetY = 18;
+  ctx.fill();
+  ctx.restore();
+
+  const imageUrl = String(item.imagen_url || '').trim();
+  if (imageUrl) {
+    const image = await loadShareImage(item);
+    drawContainedImage(ctx, image, 110, 136, 860, 1050);
+  } else {
+    ctx.fillStyle = '#ddd1bf';
+    ctx.fillRect(110, 136, 860, 1050);
+    ctx.fillStyle = '#7c6a55';
+    ctx.font = '800 48px Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Sin imagen', 540, 660);
+  }
+
+  ctx.save();
+  roundedRect(ctx, 70, 1260, 940, 430, 42);
+  ctx.fillStyle = '#15110e';
+  ctx.shadowColor = 'rgba(23, 20, 17, .20)';
+  ctx.shadowBlur = 20;
+  ctx.shadowOffsetY = 14;
+  ctx.fill();
+  ctx.restore();
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#f6cf56';
+  ctx.font = '900 72px Arial, sans-serif';
+  ctx.fillText(`Lote #${id}`, 120, 1372);
+
+  ctx.save();
+  roundedRect(ctx, 704, 1310, 240, 62, 31);
+  ctx.fillStyle = etiqueta.className === 'is-preventa' ? '#f4d991' : '#dff3e9';
+  ctx.fill();
+  ctx.fillStyle = etiqueta.className === 'is-preventa' ? '#5b3600' : '#007c68';
+  ctx.font = '900 28px Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(etiqueta.text.toUpperCase(), 824, 1351);
+  ctx.restore();
+
+  ctx.fillStyle = '#d8c6aa';
+  ctx.font = '800 32px Arial, sans-serif';
+  ctx.fillText('Precio del producto', 120, 1452);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 84px Arial, sans-serif';
+  ctx.fillText(money(item.precio_producto), 120, 1538);
+
+  ctx.fillStyle = '#d8c6aa';
+  ctx.font = '800 34px Arial, sans-serif';
+  ctx.fillText(PRODUCT_NOTE, 120, 1612);
+
+  ctx.fillStyle = '#a8322a';
+  roundedRect(ctx, 120, 1730, 840, 94, 47);
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 38px Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Solicitar por WhatsApp en mardant.com', 540, 1790);
+
+  return canvasToBlob(canvas);
+}
+
 function card(item){
   const id = String(item.id_lote || '').trim();
   const imageUrl = String(item.imagen_url || '').trim();
@@ -293,15 +472,16 @@ function card(item){
       <div class="japan-price-box">
         <span>Precio del producto</span>
         <strong>${escapeHtml(money(item.precio_producto))}</strong>
-        <small>🇯🇵 No incluye envío de Japón a Perú 🇵🇪</small>
+        <small>${escapeHtml(PRODUCT_NOTE)}</small>
       </div>
       <a class="japan-request" href="${whatsappLink(`Hola, quiero consultar el lote #${id}`)}" target="_blank" rel="noopener">Solicitar</a>
       <div class="japan-card-tools">
-        <button class="japan-share-button" type="button" data-share-id="${escapeHtml(id)}" data-share-url="${escapeHtml(shareUrl)}">
-          Compartir
+        <button class="japan-share-button" type="button" data-share-id="${escapeHtml(id)}" data-share-url="${escapeHtml(shareUrl)}" aria-label="Compartir lote #${escapeHtml(id)}" title="Compartir">
+          ${shareIcon()}
+          <span class="japan-sr-only">Compartir</span>
         </button>
-        <button class="japan-like-button${liked ? ' is-liked' : ''}" type="button" data-like-id="${escapeHtml(id)}" aria-pressed="${liked ? 'true' : 'false'}" ${liked ? 'disabled' : ''}>
-          <span>Me gusta</span>
+        <button class="japan-like-button${liked ? ' is-liked' : ''}" type="button" data-like-id="${escapeHtml(id)}" aria-label="Me gusta lote #${escapeHtml(id)}" aria-pressed="${liked ? 'true' : 'false'}" title="Me gusta" ${liked ? 'disabled' : ''}>
+          ${likeIcon()}
           <strong class="japan-like-count">${likeCountFor(id)}</strong>
         </button>
       </div>
@@ -323,22 +503,47 @@ async function loadLikeCounts(){
   }
 }
 
-async function shareLote(id, url){
-  const shareUrl = url || loteShareUrl(id);
-  const text = `Mira el lote #${id} en el catalogo de productos en Japon de Mardant.`;
-  if (navigator.share) {
-    try {
+async function shareLote(id, url, button){
+  const loteId = String(id || '').trim();
+  const shareUrl = url || loteShareUrl(loteId);
+  const item = getCatalogItem(loteId);
+  const text = `Mira el lote #${loteId} en el catalogo de productos en Japon de Mardant.`;
+
+  button?.classList.add('is-loading');
+  if (button) button.disabled = true;
+
+  try {
+    if (item && navigator.share && navigator.canShare) {
+      const blob = await createShareImageBlob(item);
+      const file = new File([blob], `mardant-lote-${loteId}.png`, { type: 'image/png' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: `Lote #${loteId} - Mardant`,
+          text,
+          files: [file]
+        });
+        return;
+      }
+    }
+
+    if (navigator.share) {
       await navigator.share({
-        title: `Lote #${id} - Mardant`,
+        title: `Lote #${loteId} - Mardant`,
         text,
         url: shareUrl
       });
       return;
-    } catch (error) {
-      if (error?.name === 'AbortError') return;
     }
+
+    window.open(whatsappLink(`${text}\n${shareUrl}`), '_blank', 'noopener');
+  } catch (error) {
+    if (error?.name !== 'AbortError') {
+      window.open(whatsappLink(`${text}\n${shareUrl}`), '_blank', 'noopener');
+    }
+  } finally {
+    button?.classList.remove('is-loading');
+    if (button) button.disabled = false;
   }
-  window.open(whatsappLink(`${text}\n${shareUrl}`), '_blank', 'noopener');
 }
 
 async function likeLote(id){
@@ -555,7 +760,7 @@ clearFiltersBtn?.addEventListener('click', () => {
 grid.addEventListener('click', event => {
   const shareButton = event.target.closest('.japan-share-button');
   if (shareButton) {
-    shareLote(shareButton.dataset.shareId, shareButton.dataset.shareUrl);
+    shareLote(shareButton.dataset.shareId, shareButton.dataset.shareUrl, shareButton);
     return;
   }
 

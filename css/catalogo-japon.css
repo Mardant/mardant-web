@@ -493,12 +493,15 @@ body.modal-open{
 
 .japan-card-tools{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:48px minmax(0, 1fr);
   gap:8px;
 }
 
 .japan-share-button,
 .japan-like-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
   min-height:38px;
   border:1px solid rgba(216,198,170,.72);
   border-radius:8px;
@@ -512,6 +515,10 @@ body.modal-open{
   transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
 }
 
+.japan-share-button{
+  padding:0;
+}
+
 .japan-share-button:hover,
 .japan-like-button:hover:not(:disabled){
   transform:translateY(-1px);
@@ -519,11 +526,35 @@ body.modal-open{
   box-shadow:0 8px 16px rgba(23,20,17,.12);
 }
 
+.japan-share-button:disabled,
+.japan-like-button:disabled{
+  opacity:1;
+}
+
+.japan-share-button.is-loading .japan-tool-icon{
+  animation:japan-share-spin .8s linear infinite;
+}
+
+@keyframes japan-share-spin{
+  to{ transform:rotate(360deg); }
+}
+
+.japan-tool-icon{
+  width:20px;
+  height:20px;
+  color:currentColor;
+}
+
+.japan-tool-icon path{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2.35;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
 .japan-like-button{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:7px;
+  gap:8px;
 }
 
 .japan-like-count{
@@ -547,9 +578,25 @@ body.modal-open{
   cursor:default;
 }
 
+.japan-like-button.is-liked .japan-tool-icon{
+  color:#a8322a;
+}
+
 .japan-like-button.is-liked .japan-like-count{
   background:#a8322a;
   color:#fff;
+}
+
+.japan-sr-only{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
 }
 
 .japan-pagination{
