@@ -575,7 +575,7 @@ body.modal-open{
   border-color:rgba(168,50,42,.28);
   background:rgba(168,50,42,.10);
   color:#8f2722;
-  cursor:default;
+  cursor:pointer;
 }
 
 .japan-like-button.is-liked .japan-tool-icon{

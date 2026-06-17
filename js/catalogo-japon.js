@@ -142,7 +142,8 @@ function updateLikeButtons(id){
     const isLiked = likedLots.has(loteId);
     button.classList.toggle('is-liked', isLiked);
     button.setAttribute('aria-pressed', isLiked ? 'true' : 'false');
-    button.disabled = isLiked;
+    button.setAttribute('aria-label', `${isLiked ? 'Quitar me gusta' : 'Me gusta'} lote #${loteId}`);
+    button.title = isLiked ? 'Quitar me gusta' : 'Me gusta';
     const countEl = button.querySelector('.japan-like-count');
     if (countEl) countEl.textContent = String(likeCountFor(loteId));
   });
@@ -366,19 +367,20 @@ async function createShareImageBlob(item){
   canvas.height = 1920;
   const ctx = canvas.getContext('2d');
 
-  ctx.fillStyle = '#f5eee3';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
   const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-  gradient.addColorStop(0, '#fffaf2');
-  gradient.addColorStop(0.56, '#f2e6d6');
-  gradient.addColorStop(1, '#1a1511');
+  gradient.addColorStop(0, '#fffdf8');
+  gradient.addColorStop(0.58, '#f6eee3');
+  gradient.addColorStop(1, '#efe1ce');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  ctx.save();
+  ctx.globalAlpha = 0.12;
   ctx.fillStyle = '#a8322a';
-  ctx.fillRect(0, 0, canvas.width, 18);
-  ctx.fillRect(0, 0, 18, canvas.height);
+  ctx.font = '900 54px Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('MARDANT', 540, 186);
+  ctx.restore();
 
   ctx.save();
   roundedRect(ctx, 70, 96, 940, 1130, 42);
@@ -480,7 +482,7 @@ function card(item){
           ${shareIcon()}
           <span class="japan-sr-only">Compartir</span>
         </button>
-        <button class="japan-like-button${liked ? ' is-liked' : ''}" type="button" data-like-id="${escapeHtml(id)}" aria-label="Me gusta lote #${escapeHtml(id)}" aria-pressed="${liked ? 'true' : 'false'}" title="Me gusta" ${liked ? 'disabled' : ''}>
+        <button class="japan-like-button${liked ? ' is-liked' : ''}" type="button" data-like-id="${escapeHtml(id)}" aria-label="${liked ? 'Quitar me gusta' : 'Me gusta'} lote #${escapeHtml(id)}" aria-pressed="${liked ? 'true' : 'false'}" title="${liked ? 'Quitar me gusta' : 'Me gusta'}">
           ${likeIcon()}
           <strong class="japan-like-count">${likeCountFor(id)}</strong>
         </button>
@@ -546,17 +548,25 @@ async function shareLote(id, url, button){
   }
 }
 
-async function likeLote(id){
+async function toggleLikeLote(id, button){
   const loteId = String(id || '').trim();
-  if (!loteId || likedLots.has(loteId)) return;
+  if (!loteId) return;
 
-  likedLots.add(loteId);
+  const wasLiked = likedLots.has(loteId);
+  const nextLiked = !wasLiked;
+  const previousCount = likeCountFor(loteId);
+
+  if (button) button.disabled = true;
+
+  if (nextLiked) likedLots.add(loteId);
+  else likedLots.delete(loteId);
   saveLikedLots();
-  setLikeCount(loteId, likeCountFor(loteId) + 1);
+  setLikeCount(loteId, Math.max(0, previousCount + (nextLiked ? 1 : -1)));
   updateLikeButtons(loteId);
 
   try {
-    const res = await fetch(`${API_URL}?route=catalogo_japon_like`, {
+    const route = nextLiked ? 'catalogo_japon_like' : 'catalogo_japon_unlike';
+    const res = await fetch(`${API_URL}?route=${route}`, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
@@ -570,11 +580,14 @@ async function likeLote(id){
     setLikeCount(loteId, data.count);
     updateLikeButtons(loteId);
   } catch (error) {
-    likedLots.delete(loteId);
+    if (wasLiked) likedLots.add(loteId);
+    else likedLots.delete(loteId);
     saveLikedLots();
-    setLikeCount(loteId, Math.max(0, likeCountFor(loteId) - 1));
+    setLikeCount(loteId, previousCount);
     updateLikeButtons(loteId);
-    alert('No se pudo registrar tu me gusta. Intentalo otra vez.');
+    alert('No se pudo actualizar tu me gusta. Intentalo otra vez.');
+  } finally {
+    if (button) button.disabled = false;
   }
 }
 
@@ -766,7 +779,7 @@ grid.addEventListener('click', event => {
 
   const likeButton = event.target.closest('.japan-like-button');
   if (likeButton) {
-    likeLote(likeButton.dataset.likeId);
+    toggleLikeLote(likeButton.dataset.likeId, likeButton);
     return;
   }
 
