@@ -491,6 +491,67 @@ body.modal-open{
   box-shadow:0 12px 22px rgba(20,143,123,.24);
 }
 
+.japan-card-tools{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.japan-share-button,
+.japan-like-button{
+  min-height:38px;
+  border:1px solid rgba(216,198,170,.72);
+  border-radius:8px;
+  padding:8px 10px;
+  background:#fffaf2;
+  color:#2e2620;
+  font:inherit;
+  font-size:13px;
+  font-weight:1000;
+  cursor:pointer;
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+}
+
+.japan-share-button:hover,
+.japan-like-button:hover:not(:disabled){
+  transform:translateY(-1px);
+  border-color:rgba(168,50,42,.42);
+  box-shadow:0 8px 16px rgba(23,20,17,.12);
+}
+
+.japan-like-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+}
+
+.japan-like-count{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:24px;
+  min-height:22px;
+  padding:0 7px;
+  border-radius:999px;
+  background:#efe3d2;
+  color:#6f2b26;
+  font-size:12px;
+  line-height:1;
+}
+
+.japan-like-button.is-liked{
+  border-color:rgba(168,50,42,.28);
+  background:rgba(168,50,42,.10);
+  color:#8f2722;
+  cursor:default;
+}
+
+.japan-like-button.is-liked .japan-like-count{
+  background:#a8322a;
+  color:#fff;
+}
+
 .japan-pagination{
   display:flex;
   align-items:center;

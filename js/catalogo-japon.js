@@ -1,9 +1,12 @@
-import { whatsappLink } from './config.js';
+import { API_URL, whatsappLink } from './config.js';
 
 const PAGE_SIZE = 20;
 const SPREADSHEET_ID = '17UeC7f4aIGmqEdmXD20wlV-kNidpm1MKK4V5v33X5yc';
 const SHEET_NAME = 'catalogo';
 const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&tq=select%20*`;
+const LIKES_STORAGE_KEY = 'mardant_japon_likes_v1';
+const VISITOR_STORAGE_KEY = 'mardant_japon_visitor_id_v1';
+const sharedLoteId = new URLSearchParams(location.search).get('lote') || '';
 
 const grid = document.getElementById('catalogoJaponGrid');
 const feedback = document.getElementById('catalogoJaponFeedback');
@@ -26,6 +29,9 @@ const clearFiltersBtn = document.getElementById('catalogoJaponClear');
 let catalogo = [];
 let filteredCatalogo = [];
 let currentPage = 1;
+let sharedLoteApplied = false;
+let likeCounts = new Map();
+let likedLots = new Set(loadLikedLots());
 
 function escapeHtml(value){
   return String(value ?? '')
@@ -56,6 +62,70 @@ function debounce(fn, delay = 250){
     clearTimeout(timer);
     timer = setTimeout(() => fn(...args), delay);
   };
+}
+
+function loadLikedLots(){
+  try {
+    const raw = localStorage.getItem(LIKES_STORAGE_KEY);
+    const values = raw ? JSON.parse(raw) : [];
+    return Array.isArray(values) ? values.map(String) : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function saveLikedLots(){
+  try {
+    localStorage.setItem(LIKES_STORAGE_KEY, JSON.stringify([...likedLots]));
+  } catch (_) {}
+}
+
+function getVisitorId(){
+  try {
+    let visitorId = localStorage.getItem(VISITOR_STORAGE_KEY);
+    if (!visitorId) {
+      const random = (crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`)
+        .replace(/[^\w-]/g, '');
+      visitorId = `vj-${random}`;
+      localStorage.setItem(VISITOR_STORAGE_KEY, visitorId);
+    }
+    return visitorId;
+  } catch (_) {
+    return `vj-${Date.now()}`;
+  }
+}
+
+function likeCountFor(id){
+  return likeCounts.get(String(id)) || 0;
+}
+
+function loteShareUrl(id){
+  const url = new URL(location.href);
+  url.searchParams.set('lote', String(id));
+  url.hash = '';
+  return url.toString();
+}
+
+function setLikeCount(id, count){
+  likeCounts.set(String(id), Math.max(0, Number(count) || 0));
+  document.querySelectorAll('.japan-like-button').forEach(button => {
+    if (button.dataset.likeId !== String(id)) return;
+    const countEl = button.querySelector('.japan-like-count');
+    if (countEl) countEl.textContent = String(likeCountFor(id));
+  });
+}
+
+function updateLikeButtons(id){
+  document.querySelectorAll('.japan-like-button').forEach(button => {
+    const loteId = button.dataset.likeId || '';
+    if (id && loteId !== String(id)) return;
+    const isLiked = likedLots.has(loteId);
+    button.classList.toggle('is-liked', isLiked);
+    button.setAttribute('aria-pressed', isLiked ? 'true' : 'false');
+    button.disabled = isLiked;
+    const countEl = button.querySelector('.japan-like-count');
+    if (countEl) countEl.textContent = String(likeCountFor(loteId));
+  });
 }
 
 function money(value){
@@ -203,6 +273,8 @@ function card(item){
   const id = String(item.id_lote || '').trim();
   const imageUrl = String(item.imagen_url || '').trim();
   const etiqueta = etiquetaInfo(item.etiqueta);
+  const liked = likedLots.has(id);
+  const shareUrl = loteShareUrl(id);
   const article = document.createElement('article');
   article.className = 'japan-card';
   article.innerHTML = `
@@ -221,12 +293,84 @@ function card(item){
       <div class="japan-price-box">
         <span>Precio del producto</span>
         <strong>${escapeHtml(money(item.precio_producto))}</strong>
-        <small>No incluye envío.</small>
+        <small>🇯🇵 No incluye envío de Japón a Perú 🇵🇪</small>
       </div>
       <a class="japan-request" href="${whatsappLink(`Hola, quiero consultar el lote #${id}`)}" target="_blank" rel="noopener">Solicitar</a>
+      <div class="japan-card-tools">
+        <button class="japan-share-button" type="button" data-share-id="${escapeHtml(id)}" data-share-url="${escapeHtml(shareUrl)}">
+          Compartir
+        </button>
+        <button class="japan-like-button${liked ? ' is-liked' : ''}" type="button" data-like-id="${escapeHtml(id)}" aria-pressed="${liked ? 'true' : 'false'}" ${liked ? 'disabled' : ''}>
+          <span>Me gusta</span>
+          <strong class="japan-like-count">${likeCountFor(id)}</strong>
+        </button>
+      </div>
     </div>
   `;
   return article;
+}
+
+async function loadLikeCounts(){
+  try {
+    const res = await fetch(`${API_URL}?accion=catalogoJaponLikes&ts=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data || data.ok === false) throw new Error(data?.error || 'likes_error');
+    likeCounts = new Map(Object.entries(data.likes || {}).map(([id, count]) => [String(id), Number(count) || 0]));
+  } catch (error) {
+    console.warn('No se pudieron cargar likes del catalogo Japon:', error);
+    likeCounts = new Map();
+  }
+}
+
+async function shareLote(id, url){
+  const shareUrl = url || loteShareUrl(id);
+  const text = `Mira el lote #${id} en el catalogo de productos en Japon de Mardant.`;
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: `Lote #${id} - Mardant`,
+        text,
+        url: shareUrl
+      });
+      return;
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+    }
+  }
+  window.open(whatsappLink(`${text}\n${shareUrl}`), '_blank', 'noopener');
+}
+
+async function likeLote(id){
+  const loteId = String(id || '').trim();
+  if (!loteId || likedLots.has(loteId)) return;
+
+  likedLots.add(loteId);
+  saveLikedLots();
+  setLikeCount(loteId, likeCountFor(loteId) + 1);
+  updateLikeButtons(loteId);
+
+  try {
+    const res = await fetch(`${API_URL}?route=catalogo_japon_like`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        id_lote: loteId,
+        visitor_id: getVisitorId(),
+        user_agent: navigator.userAgent || ''
+      })
+    });
+    const data = await res.json();
+    if (!data || data.ok === false) throw new Error(data?.error || 'like_error');
+    setLikeCount(loteId, data.count);
+    updateLikeButtons(loteId);
+  } catch (error) {
+    likedLots.delete(loteId);
+    saveLikedLots();
+    setLikeCount(loteId, Math.max(0, likeCountFor(loteId) - 1));
+    updateLikeButtons(loteId);
+    alert('No se pudo registrar tu me gusta. Intentalo otra vez.');
+  }
 }
 
 function renderPagination(totalPages){
@@ -360,6 +504,11 @@ async function loadCatalog(){
     catalogo = parseGvizCatalog(text)
       .sort((a, b) => loteNumber(b.id_lote) - loteNumber(a.id_lote));
     fillFilterSelect(animeSelect, catalogo.map(item => item.anime));
+    await loadLikeCounts();
+    if (sharedLoteId && !sharedLoteApplied && searchInput && !searchInput.value.trim()) {
+      searchInput.value = sharedLoteId;
+      sharedLoteApplied = true;
+    }
     applyFilters();
     if (!catalogo.length) {
       feedback.hidden = false;
@@ -404,6 +553,18 @@ clearFiltersBtn?.addEventListener('click', () => {
 });
 
 grid.addEventListener('click', event => {
+  const shareButton = event.target.closest('.japan-share-button');
+  if (shareButton) {
+    shareLote(shareButton.dataset.shareId, shareButton.dataset.shareUrl);
+    return;
+  }
+
+  const likeButton = event.target.closest('.japan-like-button');
+  if (likeButton) {
+    likeLote(likeButton.dataset.likeId);
+    return;
+  }
+
   const button = event.target.closest('.japan-image-button');
   if (!button) return;
   openModal(button.dataset.image, button.dataset.id);
