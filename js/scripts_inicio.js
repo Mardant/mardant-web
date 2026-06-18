@@ -283,11 +283,11 @@ fetchJSON('catalogoPreventasJapon')
         <div class="nombre">Lote #${escapeHtml(id)}</div>
         <div class="precio precio-japon-producto">
           <span class="precio-ruta precio-unico"><span>Precio</span><strong>${escapeHtml(costoCatalogoJapon(p.precio_producto))}</strong></span>
-          <span class="precio-nota">🇯🇵 No incluye envío de Japón a Perú 🇵🇪</span>
+          <span class="precio-nota">No incluye envío de Japón 🇯🇵 a Perú 🇵🇪</span>
         </div>
         <div class="estado ${estadoClase}">${estadoTexto}</div>
         <a href="${whatsappLink(`Hola, quiero consultar el lote #${id}`)}"
-           class="boton" target="_blank">SOLICITAR LOTE</a>`;
+           class="boton" target="_blank">SOLICITAR</a>`;
       c.appendChild(div);
     });
   })

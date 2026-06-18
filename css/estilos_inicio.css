@@ -131,6 +131,19 @@ html,body{
     font-size:13px;
   }
   .menu-japon-kanji{font-size:17px}
+  #vista-inicio header.banner img{
+    height:clamp(88px, 22vw, 128px) !important;
+    object-fit:contain !important;
+    object-position:center center !important;
+    background:#000;
+  }
+  #vista-inicio .carrusel{
+    height:clamp(94px, 24vw, 132px) !important;
+    background:#fff;
+  }
+  #vista-inicio .carrusel > img{
+    object-fit:contain !important;
+  }
 }
 @media (max-width:420px){
   .menu-visual img.boton-imagen{ height:52px; }
@@ -169,6 +182,13 @@ html,body{
   border-radius: inherit;           /* <<< CLAVE: esquinas perfectas */
 }
 #vista-inicio .carrusel > img:not(.activo){ display:none; } /* fallback simple */
+
+@media (max-width:680px){
+  #vista-inicio .carrusel > img{
+    object-fit:contain !important;
+    object-position:center center !important;
+  }
+}
 
 /* Indicadores */
 #vista-inicio .carrusel-indicadores{
@@ -306,6 +326,7 @@ html,body{
 @media (max-width:900px){
   #vista-inicio .grid-productos{
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap:12px;
   }
 }
 
@@ -315,6 +336,15 @@ html,body{
 }
 @media (max-width:900px){
   #vista-inicio .grid-productos > .producto:nth-child(n+3){ display:none !important; }
+}
+
+@media (max-width:560px){
+  .seccion{
+    padding:22px 10px;
+  }
+  #vista-inicio .grid-productos{
+    gap:12px;
+  }
 }
 
 /* ---------------- Cards ---------------- */
@@ -565,9 +595,96 @@ html,body{
 }
 .boton-cuenta-flotante:hover{box-shadow:0 16px 34px rgba(0,0,0,.34);filter:saturate(1.03)}
 @media (max-width:480px){
-  .boton-cuenta-flotante{border-radius:999px;min-width:128px;padding:9px 11px}
+  #vista-inicio .producto{
+    padding:8px;
+    border-radius:10px;
+  }
+  #vista-inicio .producto .img,
+  #vista-inicio .producto img.img{
+    aspect-ratio:4/3;
+    height:clamp(112px, 30vw, 142px) !important;
+    margin-bottom:7px;
+    border-radius:8px;
+  }
+  #vista-inicio .producto .nombre{
+    font-size:12px;
+    line-height:1.15;
+    margin:5px 0 4px;
+    -webkit-line-clamp:1;
+  }
+  #vista-inicio .producto .precio{
+    min-height:30px;
+    margin-bottom:4px;
+    font-size:12px;
+    line-height:1.12;
+  }
+  #vista-inicio .producto .precio-oferta{
+    font-size:17px;
+  }
+  #vista-inicio .producto .estado{
+    min-height:21px;
+    padding:2px 8px;
+    margin-bottom:6px;
+    font-size:10px;
+    line-height:1.1;
+  }
+  #vista-inicio .producto .boton{
+    padding:9px 6px;
+    font-size:11px;
+    line-height:1.12;
+    white-space:normal;
+  }
+  #vista-inicio .grid-japon-home .precio{
+    width:100%;
+    min-height:38px;
+    gap:2px;
+  }
+  #vista-inicio .grid-japon-home .precio-japon-producto{
+    min-height:46px;
+  }
+  #vista-inicio .grid-japon-home .precio-ruta{
+    justify-content:center;
+    gap:7px;
+  }
+  #vista-inicio .grid-japon-home .precio-nota{
+    font-size:10px;
+    line-height:1.08;
+  }
+  #vista-inicio .grid-japon-home .boton{
+    white-space:nowrap;
+    font-size:10px;
+  }
+  .boton-cuenta-flotante{
+    right:18px !important;
+    bottom:88px !important;
+    width:58px !important;
+    height:58px !important;
+    max-width:58px !important;
+    min-width:0 !important;
+    min-height:58px !important;
+    padding:0 !important;
+    border-radius:50% !important;
+    justify-content:center !important;
+    gap:0 !important;
+    overflow:hidden !important;
+  }
+  .boton-cuenta-flotante .cuenta-copy,
+  .boton-cuenta-flotante .texto{display:none !important}
+  .boton-cuenta-flotante .cuenta-icon,
+  .boton-cuenta-flotante .emoji{
+    width:38px !important;
+    height:38px !important;
+    margin:0 !important;
+    font-size:24px !important;
+  }
   .cuenta-status{display:none}
-  .boton-carrito-flotante{width:58px;height:58px;font-size:28px;bottom:18px;right:18px}
+  .boton-carrito-flotante{
+    width:58px;
+    height:58px;
+    font-size:28px;
+    bottom:18px;
+    right:18px;
+  }
 }
 
 /* ---------------- Lightbox ---------------- */

@@ -309,17 +309,27 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
   white-space:nowrap;
 }
 @media (max-width:560px){
-  .boton-cuenta-flotante{
-    top:auto;
-    right:16px;
-    bottom:92px;
+  .boton-carrito-flotante{
+    right:18px;
+    bottom:18px;
     width:58px;
     height:58px;
+    font-size:28px;
+  }
+  .boton-cuenta-flotante{
+    top:auto;
+    right:18px;
+    bottom:88px;
+    width:58px;
+    height:58px;
+    max-width:58px;
     min-width:0;
+    min-height:58px;
     padding:0;
     justify-content:center;
     gap:0;
     border-radius:50%;
+    overflow:hidden;
   }
   .boton-cuenta-flotante .cuenta-copy,
   .boton-cuenta-flotante .texto{display:none}
@@ -490,6 +500,42 @@ h2{ font-size: clamp(22px, 3.0vw, 32px); }
 
 @media (max-width: 600px){
   .contenedor-guia{grid-template-columns:1fr;max-width:100%;padding:0 10px}
+}
+
+@media (max-width:560px){
+  .boton-carrito-flotante{
+    right:18px !important;
+    bottom:18px !important;
+    width:58px !important;
+    height:58px !important;
+    font-size:28px !important;
+  }
+  .boton-cuenta-flotante{
+    top:auto !important;
+    right:18px !important;
+    bottom:88px !important;
+    width:58px !important;
+    height:58px !important;
+    max-width:58px !important;
+    min-width:0 !important;
+    min-height:58px !important;
+    padding:0 !important;
+    border-radius:50% !important;
+    justify-content:center !important;
+    gap:0 !important;
+    overflow:hidden !important;
+  }
+  .boton-cuenta-flotante .cuenta-copy,
+  .boton-cuenta-flotante .texto{
+    display:none !important;
+  }
+  .boton-cuenta-flotante .cuenta-icon,
+  .boton-cuenta-flotante .emoji{
+    width:38px !important;
+    height:38px !important;
+    margin:0 !important;
+    font-size:24px !important;
+  }
 }
 
 /* CTA */
