@@ -1,15 +1,29 @@
 /* js/pedidos.js */
 import { API_URL, whatsappLink } from './config.js';
 import { actualizarCarritoUI } from './carrito-utils.js';
+import {
+  bookmarkIcon,
+  buildShareUrl,
+  getVisitorId,
+  likeIcon,
+  loadStoredSet,
+  saveStoredSet,
+  shareIcon,
+  shareItem
+} from './social-actions.js';
 
 const $ = (s) => document.querySelector(s);
-
 const ITEMS_PER_PAGE = 21;
+const PEDIDOS_LIKES_KEY = 'mardant_pedidos_likes_v1';
+const PEDIDOS_SAVES_KEY = 'mardant_pedidos_saves_v1';
 
-let allPedidos      = [];  // todo lo que viene de la API
-let pedidos         = [];  // filtrado por estado
-let paginaActual    = 1;
+let allPedidos = [];
+let pedidos = [];
+let paginaActual = 1;
 let ordenActual = 'newest';
+let pedidoLikes = new Map();
+let likedPedidos = loadStoredSet(PEDIDOS_LIKES_KEY);
+let savedPedidos = loadStoredSet(PEDIDOS_SAVES_KEY);
 
 const escapeHtml = (t) =>
   typeof t === 'string'
@@ -25,24 +39,21 @@ const norm = (s) =>
   (s || '')
     .toString()
     .toUpperCase()
-    .normalize('NFD')                  // quita tildes
+    .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/\u00A0/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 
-/* ──────────────────────────────────────── */
-/* Init                                    */
-/* ──────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('📦 pedidos.js cargado');
-
-  fetch(`${API_URL}?accion=pedidosDisponibles`)
-    .then((r) => {
+  Promise.all([
+    fetch(`${API_URL}?accion=pedidosDisponibles`).then((r) => {
       if (!r.ok) throw new Error('API error');
       return r.json();
-    })
-    .then(renderLista)
+    }),
+    cargarInteraccionesPedidos()
+  ])
+    .then(([lista]) => renderLista(lista))
     .catch(showErr);
 
   actualizarCarritoUI();
@@ -55,7 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // paginación
   const pag = $('#paginacion');
   if (pag) {
     pag.addEventListener('click', (ev) => {
@@ -72,38 +82,143 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const cont = $('#contenedor');
       if (cont) {
-        window.scrollTo({
-          top: cont.offsetTop - 120,
-          behavior: 'smooth',
-        });
+        window.scrollTo({ top: cont.offsetTop - 120, behavior: 'smooth' });
       }
     });
   }
+
+  $('#contenedor')?.addEventListener('click', (event) => {
+    const shareBtn = event.target.closest('[data-pedido-share]');
+    if (shareBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      shareItem({
+        title: shareBtn.dataset.shareTitle,
+        text: shareBtn.dataset.shareText,
+        url: shareBtn.dataset.shareUrl
+      });
+      return;
+    }
+
+    const likeBtn = event.target.closest('[data-pedido-like]');
+    if (likeBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      togglePedidoInteraction('LIKE', likeBtn.dataset.pedidoLike, likeBtn);
+      return;
+    }
+
+    const saveBtn = event.target.closest('[data-pedido-save]');
+    if (saveBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      togglePedidoInteraction('SAVE', saveBtn.dataset.pedidoSave, saveBtn);
+    }
+  });
 });
 
-/* ──────────────────────────────────────── */
-/* Render principal                        */
-/* ──────────────────────────────────────── */
+function likeCountForPedido(id){
+  return pedidoLikes.get(String(id)) || 0;
+}
+
+async function cargarInteraccionesPedidos(){
+  try {
+    const res = await fetch(`${API_URL}?accion=pedidosSocialCounts&ts=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data || data.ok === false) throw new Error(data?.error || 'social_counts_error');
+    pedidoLikes = new Map(Object.entries(data.likes || {}).map(([id, count]) => [String(id), Number(count) || 0]));
+  } catch (error) {
+    console.warn('No se pudieron cargar interacciones de pedidos:', error);
+    pedidoLikes = new Map();
+  }
+}
+
+function actualizarBotonesPedido(id){
+  const itemId = String(id || '');
+  document.querySelectorAll('[data-pedido-like]').forEach(button => {
+    if (button.dataset.pedidoLike !== itemId) return;
+    const liked = likedPedidos.has(itemId);
+    button.classList.toggle('is-active', liked);
+    button.setAttribute('aria-pressed', liked ? 'true' : 'false');
+    button.title = liked ? 'Quitar me gusta' : 'Me gusta';
+    button.setAttribute('aria-label', `${liked ? 'Quitar me gusta' : 'Me gusta'} figura ${itemId}`);
+    const count = button.querySelector('.social-count');
+    if (count) count.textContent = String(likeCountForPedido(itemId));
+  });
+  document.querySelectorAll('[data-pedido-save]').forEach(button => {
+    if (button.dataset.pedidoSave !== itemId) return;
+    const saved = savedPedidos.has(itemId);
+    button.classList.toggle('is-active', saved);
+    button.setAttribute('aria-pressed', saved ? 'true' : 'false');
+    button.title = saved ? 'Quitar guardado' : 'Guardar';
+    button.setAttribute('aria-label', `${saved ? 'Quitar guardado' : 'Guardar'} figura ${itemId}`);
+  });
+}
+
+async function togglePedidoInteraction(tipo, id, button){
+  const itemId = String(id || '').trim();
+  if (!itemId) return;
+
+  const isLike = tipo === 'LIKE';
+  const set = isLike ? likedPedidos : savedPedidos;
+  const storageKey = isLike ? PEDIDOS_LIKES_KEY : PEDIDOS_SAVES_KEY;
+  const wasActive = set.has(itemId);
+  const nextActive = !wasActive;
+  const previousCount = likeCountForPedido(itemId);
+
+  if (button) button.disabled = true;
+  if (nextActive) set.add(itemId);
+  else set.delete(itemId);
+  saveStoredSet(storageKey, set);
+
+  if (isLike) pedidoLikes.set(itemId, Math.max(0, previousCount + (nextActive ? 1 : -1)));
+  actualizarBotonesPedido(itemId);
+
+  try {
+    const res = await fetch(`${API_URL}?route=pedido_social_toggle`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        item_id: itemId,
+        tipo,
+        active: nextActive,
+        visitor_id: getVisitorId(),
+        user_agent: navigator.userAgent || ''
+      })
+    });
+    const data = await res.json();
+    if (!data || data.ok === false) throw new Error(data?.error || 'social_toggle_error');
+    if (isLike && data.count != null) pedidoLikes.set(itemId, Number(data.count) || 0);
+    actualizarBotonesPedido(itemId);
+  } catch (error) {
+    if (wasActive) set.add(itemId);
+    else set.delete(itemId);
+    saveStoredSet(storageKey, set);
+    if (isLike) pedidoLikes.set(itemId, previousCount);
+    actualizarBotonesPedido(itemId);
+    alert('No se pudo actualizar esta accion. Intentalo otra vez.');
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
 function renderLista(lista = []) {
   const cont = $('#contenedor');
-  const pag  = $('#paginacion');
+  const pag = $('#paginacion');
   if (cont) cont.innerHTML = '';
-  if (pag)  pag.innerHTML  = '';
+  if (pag) pag.innerHTML = '';
 
   if (!lista || !lista.length) {
-    if (cont) {
-      cont.innerHTML =
-        '<p>No hay productos disponibles para cotizar en este momento.</p>';
-    }
+    if (cont) cont.innerHTML = '<p>No hay productos disponibles para cotizar en este momento.</p>';
     return;
   }
 
-  // normalizamos estructura
   allPedidos = lista.map((p) => ({
-    id:        (p.id ?? p.ID ?? '').toString().trim(),
-    nombre:    (p.nombre ?? '').toString().trim(),
-    imagen:    (p.imagen ?? '').toString().trim(),
-    estado:    (p.estado ?? '').toString().trim()
+    id: (p.id ?? p.ID ?? '').toString().trim(),
+    nombre: (p.nombre ?? '').toString().trim(),
+    imagen: (p.imagen ?? '').toString().trim(),
+    estado: (p.estado ?? '').toString().trim()
   }));
 
   aplicarFiltrosYRedibujar();
@@ -111,25 +226,19 @@ function renderLista(lista = []) {
 
 function aplicarFiltrosYRedibujar() {
   const cont = $('#contenedor');
-  const pag  = $('#paginacion');
+  const pag = $('#paginacion');
 
   if (!allPedidos.length) {
     if (cont) cont.innerHTML = '<p>No hay productos disponibles para cotizar.</p>';
-    if (pag)  pag.innerHTML  = '';
+    if (pag) pag.innerHTML = '';
     return;
   }
 
-  // 1) Filtrar por estado
   pedidos = allPedidos.filter((p) => {
-    const okEstado =
-      !p.estado ||
-      norm(p.estado) === 'DISPONIBLE' ||
-      norm(p.estado) === 'DISPONIBLE A PEDIDO';
-
-    return okEstado;
+    const estado = norm(p.estado);
+    return !estado || estado === 'DISPONIBLE' || estado === 'DISPONIBLE A PEDIDO';
   });
 
-  // 2) ORDENAR: ID más grande = más nuevo (descendente)
   pedidos.sort((a, b) => {
     const na = Number(a.id) || 0;
     const nb = Number(b.id) || 0;
@@ -138,19 +247,15 @@ function aplicarFiltrosYRedibujar() {
 
   if (!pedidos.length) {
     if (cont) cont.innerHTML = '<p>No hay productos disponibles para cotizar por ahora.</p>';
-    if (pag)  pag.innerHTML  = '';
+    if (pag) pag.innerHTML = '';
     return;
   }
 
-  // 3) Reset paginación y pintar
   paginaActual = 1;
   pintarPagina();
   dibujarPaginacion();
 }
 
-/* ──────────────────────────────────────── */
-/* Paginación                              */
-/* ──────────────────────────────────────── */
 function pintarPagina() {
   const cont = $('#contenedor');
   if (!cont) return;
@@ -159,16 +264,13 @@ function pintarPagina() {
 
   const totalPaginas = Math.ceil(pedidos.length / ITEMS_PER_PAGE);
   if (!totalPaginas) {
-    cont.innerHTML =
-      '<p>No hay productos disponibles para cotizar en este momento.</p>';
+    cont.innerHTML = '<p>No hay productos disponibles para cotizar en este momento.</p>';
     return;
   }
 
   const inicio = (paginaActual - 1) * ITEMS_PER_PAGE;
-  const fin    = inicio + ITEMS_PER_PAGE;
-  const pagina = pedidos.slice(inicio, fin);
-
-  pagina.forEach((p) => cont.appendChild(card(p)));
+  const fin = inicio + ITEMS_PER_PAGE;
+  pedidos.slice(inicio, fin).forEach((p) => cont.appendChild(card(p)));
 }
 
 function dibujarPaginacion() {
@@ -180,101 +282,107 @@ function dibujarPaginacion() {
   if (totalPaginas <= 1) return;
 
   const partes = [];
+  const btn = (page, label = page, disabled = false) => `
+    <button class="page-btn ${page === paginaActual ? 'activa' : ''}"
+      data-page="${page}"
+      ${disabled ? 'disabled' : ''}>${label}</button>`;
 
-  // Helper para crear botones
-  const btn = (page, label = page, disabled = false) => {
-    return `<button class="page-btn ${page === paginaActual ? 'activa' : ''}"
-                    data-page="${page}"
-                    ${disabled ? 'disabled' : ''}>
-              ${label}
-            </button>`;
-  };
+  partes.push(btn(Math.max(1, paginaActual - 1), '«', paginaActual === 1));
 
-  // Botón « (anterior)
-  const prevPage = Math.max(1, paginaActual - 1);
-  partes.push(btn(prevPage, '«', paginaActual === 1));
-
-  // --- Lógica de páginas con "..." ---
   if (totalPaginas <= 7) {
-    // Pocas páginas: mostramos todas
-    for (let i = 1; i <= totalPaginas; i++) {
-      partes.push(btn(i));
-    }
+    for (let i = 1; i <= totalPaginas; i++) partes.push(btn(i));
+  } else if (paginaActual <= 3) {
+    for (let i = 1; i <= 4; i++) partes.push(btn(i));
+    partes.push('<span class="page-ellipsis">...</span>');
+    partes.push(btn(totalPaginas));
+  } else if (paginaActual >= totalPaginas - 2) {
+    partes.push(btn(1));
+    partes.push('<span class="page-ellipsis">...</span>');
+    for (let i = totalPaginas - 3; i <= totalPaginas; i++) partes.push(btn(i));
   } else {
-    if (paginaActual <= 3) {
-      // Cerca del inicio: 1 2 3 4 ... N
-      for (let i = 1; i <= 4; i++) {
-        partes.push(btn(i));
-      }
-      partes.push('<span class="page-ellipsis">…</span>');
-      partes.push(btn(totalPaginas));
-    } else if (paginaActual >= totalPaginas - 2) {
-      // Cerca del final: 1 ... N-3 N-2 N-1 N
-      partes.push(btn(1));
-      partes.push('<span class="page-ellipsis">…</span>');
-      for (let i = totalPaginas - 3; i <= totalPaginas; i++) {
-        partes.push(btn(i));
-      }
-    } else {
-      // En medio: 1 ... P-1 P P+1 ... N
-      partes.push(btn(1));
-      partes.push('<span class="page-ellipsis">…</span>');
-      for (let i = paginaActual - 1; i <= paginaActual + 1; i++) {
-        partes.push(btn(i));
-      }
-      partes.push('<span class="page-ellipsis">…</span>');
-      partes.push(btn(totalPaginas));
-    }
+    partes.push(btn(1));
+    partes.push('<span class="page-ellipsis">...</span>');
+    for (let i = paginaActual - 1; i <= paginaActual + 1; i++) partes.push(btn(i));
+    partes.push('<span class="page-ellipsis">...</span>');
+    partes.push(btn(totalPaginas));
   }
 
-  // Botón » (siguiente)
-  const nextPage = Math.min(totalPaginas, paginaActual + 1);
-  partes.push(btn(nextPage, '»', paginaActual === totalPaginas));
-
+  partes.push(btn(Math.min(totalPaginas, paginaActual + 1), '»', paginaActual === totalPaginas));
   pag.innerHTML = partes.join('');
 }
 
-/* ──────────────────────────────────────── */
-/* Card: imagen + texto + botón WhatsApp   */
-/* ──────────────────────────────────────── */
 function card(p) {
   const div = document.createElement('div');
   div.className = 'producto';
 
-  const id         = escapeHtml(p.id || '');
+  const rawId = String(p.id || '').trim();
+  const id = escapeHtml(rawId);
   const etiquetaId = id || 'sin ID';
+  const liked = likedPedidos.has(rawId);
+  const saved = savedPedidos.has(rawId);
 
   const imagen = p.imagen && p.imagen.trim()
     ? escapeHtml(p.imagen.trim())
     : 'https://via.placeholder.com/300x300?text=Sin+imagen';
 
-  const mensajeWA = `Deseo pedir desde Japón la figura N° ${etiquetaId}`;
+  const mensajeWA = `Deseo pedir desde Japon la figura Nro ${rawId || 'sin ID'}`;
   const urlWA = whatsappLink(mensajeWA);
+  const shareUrl = buildShareUrl({ pedido: rawId });
 
   div.innerHTML = `
     <img src="${imagen}"
-         alt="Figura N° ${etiquetaId}"
+         alt="Figura Nro ${etiquetaId}"
          class="img"
          loading="lazy"
          referrerpolicy="no-referrer">
-    <div class="nombre"><b>Figura N° ${etiquetaId}</b></div>
+    <div class="nombre"><b>Figura Nro ${etiquetaId}</b></div>
     <a href="${urlWA}"
        target="_blank"
        rel="noopener noreferrer"
-       class="boton boton-cotizar">PEDIR DESDE JAPÓN</a>
+       class="boton boton-cotizar">PEDIR DESDE JAPON</a>
+    <div class="social-actions social-actions-three">
+      <button
+        class="social-icon-button"
+        type="button"
+        data-pedido-share="${id}"
+        data-share-title="Figura Nro ${etiquetaId} - Mardant"
+        data-share-text="Mira esta figura a pedido en Mardant: Figura Nro ${etiquetaId}"
+        data-share-url="${escapeHtml(shareUrl)}"
+        aria-label="Compartir figura ${etiquetaId}"
+        title="Compartir">
+        ${shareIcon()}
+        <span class="sr-only">Compartir</span>
+      </button>
+      <button
+        class="social-icon-button is-wide${liked ? ' is-active' : ''}"
+        type="button"
+        data-pedido-like="${id}"
+        aria-label="${liked ? 'Quitar me gusta' : 'Me gusta'} figura ${etiquetaId}"
+        aria-pressed="${liked ? 'true' : 'false'}"
+        title="${liked ? 'Quitar me gusta' : 'Me gusta'}">
+        ${likeIcon()}
+        <span class="social-count">${likeCountForPedido(rawId)}</span>
+      </button>
+      <button
+        class="social-icon-button${saved ? ' is-active' : ''}"
+        type="button"
+        data-pedido-save="${id}"
+        aria-label="${saved ? 'Quitar guardado' : 'Guardar'} figura ${etiquetaId}"
+        aria-pressed="${saved ? 'true' : 'false'}"
+        title="${saved ? 'Quitar guardado' : 'Guardar'}">
+        ${bookmarkIcon()}
+        <span class="sr-only">Guardar</span>
+      </button>
+    </div>
   `;
 
   return div;
 }
 
-/* ──────────────────────────────────────── */
 function showErr(e) {
-  console.error('❌ Error API pedidos:', e);
+  console.error('Error API pedidos:', e);
   const cont = $('#contenedor');
-  const pag  = $('#paginacion');
-  if (cont) {
-    cont.innerHTML =
-      '<p style="color:red;">Error al cargar productos para cotizar.</p>';
-  }
+  const pag = $('#paginacion');
+  if (cont) cont.innerHTML = '<p style="color:red;">Error al cargar productos para cotizar.</p>';
   if (pag) pag.innerHTML = '';
 }

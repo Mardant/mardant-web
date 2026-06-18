@@ -1,6 +1,9 @@
 html,
 body{
+  height:auto;
+  min-height:100%;
   overflow-x:hidden;
+  overscroll-behavior-x:none;
 }
 
 body{
@@ -124,7 +127,7 @@ body.modal-open{
 .japan-page{
   max-width:1220px;
   margin:0 auto;
-  padding:0 14px 52px;
+  padding:0 14px 34px;
 }
 
 .japan-hero{
@@ -785,8 +788,11 @@ body.modal-open{
 }
 
 @media (max-width:480px){
+  body{
+    min-height:auto;
+  }
   .japan-page{
-    padding:18px 10px 44px;
+    padding:18px 10px 20px;
   }
   .japan-filter-panel{
     margin-bottom:18px;
@@ -800,6 +806,8 @@ body.modal-open{
   }
   .japan-grid{
     grid-template-columns:1fr;
+    gap:18px;
+    align-content:start;
   }
   .japan-card{
     width:min(100%, 360px);
@@ -814,5 +822,12 @@ body.modal-open{
   }
   .japan-modal-panel{
     height:min(560px, 84vh);
+  }
+  .japan-pagination{
+    margin-top:22px;
+    padding:0 4px;
+  }
+  .japan-footer{
+    padding-bottom:18px;
   }
 }

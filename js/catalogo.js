@@ -6,6 +6,7 @@ import {
   mostrarMiniCarrito,
   actualizarContador
 } from './carrito-utils.js';
+import { buildShareUrl, shareIcon, shareItem } from './social-actions.js';
 
 const productosPorPagina = PRODUCTOS_POR_PAGINA;
 let productosGlobal = [];
@@ -104,6 +105,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (min) min.value = '';
     if (max) max.value = '';
     aplicarFiltros();
+  });
+
+  $('#contenedor')?.addEventListener('click', (event) => {
+    const shareBtn = event.target.closest('[data-share-product]');
+    if (!shareBtn) return;
+    event.preventDefault();
+    event.stopPropagation();
+    shareItem({
+      title: shareBtn.dataset.shareTitle,
+      text: shareBtn.dataset.shareText,
+      url: shareBtn.dataset.shareUrl
+    });
   });
 
   // Configurar categorías
@@ -268,6 +281,20 @@ function cardProducto(p) {
       Añadir al carrito
     </button>
     <a class="boton ver-detalle" href="./producto.html?id=${encodeURIComponent(p.id)}">Ver detalle</a>
+    <div class="social-actions social-actions-single">
+      <button
+        class="social-icon-button"
+        type="button"
+        data-share-product
+        data-share-title="${nombre} - Mardant"
+        data-share-text="Mira este producto en Mardant: ${nombre}"
+        data-share-url="${escapeHtml(buildShareUrl({ producto: p.id }))}"
+        aria-label="Compartir ${nombre}"
+        title="Compartir">
+        ${shareIcon()}
+        <span class="sr-only">Compartir</span>
+      </button>
+    </div>
   `;
 
   if (estado !== 'AGOTADO') {
