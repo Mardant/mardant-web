@@ -454,7 +454,7 @@ tbody td{
 
 /* anchos mínimos para forzar scroll cuando haga falta */
 #itemsTable{ min-width:720px }
-#preTable{   min-width:1240px }
+#preTable{   min-width:1040px }
 
 .right{ text-align:right }
 
@@ -488,7 +488,7 @@ tbody td{
 }
 .badge.state{ background:#efe3d2; color:#171411 }
 .badge.state.en-almacen{ background:#eef7ff; color:#0b71c5 }
-.badge.state.enviado{    background:#e8f4ff; color:#0a66c2 }
+.badge.state.enviado{    background:#e8f8f0; color:#087044 }
 .badge.state.retirado{   background:#f4ecdd; color:#4d4034 }
 .badge.state.en-camino{  background:#e8f4ff; color:#0a66c2 }
 .badge.state.en-solicitud{ background:#fff4dc; color:#9a5b00 }

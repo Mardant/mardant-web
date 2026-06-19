@@ -172,12 +172,6 @@ function fmtPenMaybe(v){
   return PEN.format(n);
 }
 
-function fmtWeightMaybe(value){
-  const s = String(value ?? '').trim();
-  if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(s) || /^\d{1,2}\/\d{1,2}\/\d{4}/.test(s)) return '-';
-  return s || '-';
-}
-
 function parseDateValue(value){
   const raw = String(value || '').trim();
   if (!raw) return 0;
@@ -663,8 +657,6 @@ async function loadStatus(){
     prevs.forEach(p=>{
       const pagado = (Number(p.deposito)||0) + (Number(p.pagos_adic)||0);
       const saldo  = Number(p.saldo_restante ?? (Number(p.monto_total||0) - pagado));
-      const pesoCotizado = fmtWeightMaybe(p.peso_cotizado ?? p.fecha_llegada);
-      const pesoAlmacenJp = fmtWeightMaybe(p.peso_almacen_jp ?? p.fecha_entregado);
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${thumb(p.foto_url)}</td>
@@ -677,8 +669,6 @@ async function loadStatus(){
         <td>${escapeHtml(p.fecha_pedido || '-')}</td>
         <td>${escapeHtml(p.fecha_aprox   || '-')}</td>
         <td>${stateBadge(p.estado)}</td>
-        <td>${escapeHtml(pesoCotizado)}</td>
-        <td>${escapeHtml(pesoAlmacenJp)}</td>
       `;
       preTbody?.appendChild(tr);
     });
