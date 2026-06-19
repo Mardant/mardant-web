@@ -172,6 +172,12 @@ function fmtPenMaybe(v){
   return PEN.format(n);
 }
 
+function fmtWeightMaybe(value){
+  const s = String(value ?? '').trim();
+  if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(s) || /^\d{1,2}\/\d{1,2}\/\d{4}/.test(s)) return '-';
+  return s || '-';
+}
+
 function parseDateValue(value){
   const raw = String(value || '').trim();
   if (!raw) return 0;
@@ -291,12 +297,41 @@ rewardBtns.forEach(btn => {
 
 /* Estado (badge) */
 function stateBadge(text){
-  const t = (text||'').toUpperCase();
+  const raw = String(text || '-').trim();
+  const t = raw
+    .toUpperCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '_');
   let cls = 'badge state ';
-  if (t === 'EN_ALMACEN')       cls += 'en-almacen';
+  let label = raw;
+
+  if (t === 'EN_ALMACEN') {
+    cls += 'en-almacen';
+    label = 'EN ALMACEN';
+  }
+  else if (t === 'EN_SOLICITUD') {
+    cls += 'en-solicitud';
+    label = 'EN SOLICITUD';
+  }
+  else if (t === 'EN_ALMACEN_JP') {
+    cls += 'en-almacen-jp';
+    label = 'ALMACEN JP';
+  }
+  else if (t === 'EN_ALMACEN_PE' || t === 'EN_ALMACEN_PERU') {
+    cls += 'en-almacen-pe';
+    label = 'ALMACEN PE';
+  }
+  else if (t === 'ABANDONO_-_NO_CANCELO' || t === 'ABANDONO_NO_CANCELO' || t.startsWith('ABANDONO')) {
+    cls += 'abandono';
+    label = 'ABANDONO';
+  }
   else if (t === 'ENVIADO')     cls += 'enviado';
   else if (t === 'RETIRADO')    cls += 'retirado';
-  else if (t === 'EN_CAMINO' || t === 'EN TRANSITO' || t === 'EN_TRANSITO') cls += 'en-camino';
+  else if (t === 'EN_CAMINO' || t === 'EN_TRANSITO') {
+    cls += 'en-camino';
+    label = 'EN CAMINO';
+  }
   else if (t === 'RESERVADO')   cls += 'reservado';
   else if (t === 'LLEGADO')     cls += 'llegado';
   else if (t === 'ENTREGADO')   cls += 'entregado';
@@ -305,7 +340,7 @@ function stateBadge(text){
   else if (t === 'SOLICITADO')  cls += 'reservado';
   else if (t === 'COTIZADO')    cls += 'llegado';
   else cls += 'en-almacen';
-  return `<span class="${cls}">${escapeHtml(text||'-')}</span>`;
+  return `<span class="${cls}">${escapeHtml(label || '-')}</span>`;
 }
 
 function fmtPoints(value){
@@ -628,6 +663,8 @@ async function loadStatus(){
     prevs.forEach(p=>{
       const pagado = (Number(p.deposito)||0) + (Number(p.pagos_adic)||0);
       const saldo  = Number(p.saldo_restante ?? (Number(p.monto_total||0) - pagado));
+      const pesoCotizado = fmtWeightMaybe(p.peso_cotizado ?? p.fecha_llegada);
+      const pesoAlmacenJp = fmtWeightMaybe(p.peso_almacen_jp ?? p.fecha_entregado);
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${thumb(p.foto_url)}</td>
@@ -640,6 +677,8 @@ async function loadStatus(){
         <td>${escapeHtml(p.fecha_pedido || '-')}</td>
         <td>${escapeHtml(p.fecha_aprox   || '-')}</td>
         <td>${stateBadge(p.estado)}</td>
+        <td>${escapeHtml(pesoCotizado)}</td>
+        <td>${escapeHtml(pesoAlmacenJp)}</td>
       `;
       preTbody?.appendChild(tr);
     });

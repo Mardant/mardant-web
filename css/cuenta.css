@@ -454,7 +454,7 @@ tbody td{
 
 /* anchos mínimos para forzar scroll cuando haga falta */
 #itemsTable{ min-width:720px }
-#preTable{   min-width:1000px }
+#preTable{   min-width:1240px }
 
 .right{ text-align:right }
 
@@ -490,11 +490,15 @@ tbody td{
 .badge.state.en-almacen{ background:#eef7ff; color:#0b71c5 }
 .badge.state.enviado{    background:#e8f4ff; color:#0a66c2 }
 .badge.state.retirado{   background:#f4ecdd; color:#4d4034 }
-.badge.state.en-camino{  background:#e7fcfa; color:#0b8a7a }
+.badge.state.en-camino{  background:#e8f4ff; color:#0a66c2 }
+.badge.state.en-solicitud{ background:#fff4dc; color:#9a5b00 }
+.badge.state.en-almacen-jp{ background:#fff4dc; color:#8a5d00 }
+.badge.state.en-almacen-pe{ background:#e9f9ef; color:#0a7f56 }
 .badge.state.reservado{  background:#f5eaff; color:#6b21a8 }
 .badge.state.llegado{    background:#e9f9ef; color:#0a7f56 }
 .badge.state.entregado{  background:#e9f9ef; color:#0a7f56 }
-.badge.state.cancelado{  background:#ffe7e7; color:#b2261c }
+.badge.state.cancelado,
+.badge.state.abandono{  background:#ffe7e7; color:#b2261c }
 
 .badge.days{ min-width:46px; justify-content:center }
 .badge.days.ok{    background:rgba(25,195,125,.12); color:#0a7f56; border:1px solid rgba(25,195,125,.35) }
