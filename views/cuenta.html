@@ -7,7 +7,7 @@
   <title>Mi Cuenta - Mardant</title>
   <!-- cache-busting -->
   <link rel="stylesheet" href="../css/estilos.css?v=14">
-  <link rel="stylesheet" href="../css/cuenta.css?v=15">
+  <link rel="stylesheet" href="../css/cuenta.css?v=16">
 </head>
 <body>
   <header class="topbar">
@@ -97,7 +97,6 @@
       <div class="tabs">
         <button class="tab-btn active" data-tab="preventas">Preventas</button>
         <button class="tab-btn" data-tab="almacen">Almacén</button>
-        <button class="tab-btn" data-tab="pedido">Cotizar</button>
         <button class="tab-btn" data-tab="puntos">Puntos</button>
       </div>
 
@@ -154,6 +153,36 @@
         </div>
         <div class="msg small" id="preMsg"></div>
 
+        <section class="status-legend" aria-labelledby="statusLegendTitle">
+          <h4 id="statusLegendTitle">¿Qué significa cada estado?</h4>
+          <div class="status-legend-grid">
+            <div class="status-legend-item">
+              <span class="badge state en-solicitud">EN SOLICITUD</span>
+              <p>Tu producto fue solicitado y estamos esperando que el vendedor lo despache.</p>
+            </div>
+            <div class="status-legend-item">
+              <span class="badge state en-almacen-jp">ALMACÉN JP</span>
+              <p>Tu producto ya llegó a nuestro almacén en Japón.</p>
+            </div>
+            <div class="status-legend-item">
+              <span class="badge state en-camino">EN CAMINO</span>
+              <p>Tu producto salió de Japón y se encuentra en tránsito hacia Perú.</p>
+            </div>
+            <div class="status-legend-item">
+              <span class="badge state en-almacen-pe">ALMACÉN PE</span>
+              <p>Tu producto ya está en Perú. Debes completar el pago pendiente dentro del plazo indicado.</p>
+            </div>
+            <div class="status-legend-item">
+              <span class="badge state enviado">ENVIADO</span>
+              <p>Tu producto ya fue entregado y el pedido se encuentra finalizado.</p>
+            </div>
+            <div class="status-legend-item">
+              <span class="badge state abandono">ABANDONO</span>
+              <p>No se completó el pago dentro del plazo máximo y el producto pasó a condición de abandono.</p>
+            </div>
+          </div>
+        </section>
+
         <div class="notice notice-info">
           <div class="notice-title">📌 IMPORTANTE</div>
 
@@ -171,6 +200,13 @@
           <p class="q"><strong>¿LAS CAJAS PUEDEN PRESENTAR DAÑOS?</strong></p>
           <p>
             Sí. Las cajas pueden presentar daños ocasionados por el transporte, tanto <strong>MARÍTIMO</strong> como <strong>AÉREO</strong>.
+          </p>
+
+          <p class="q"><strong>¿PUEDE DEMORAR EN LLEGAR EL PRODUCTO A NUESTRO ALMACÉN EN JAPÓN?</strong></p>
+          <p>
+            Sí. Después de realizar la compra, el vendedor debe enviar el producto a nuestro almacén en Japón.
+            Normalmente este proceso demora entre <strong>1 Y 2 SEMANAS</strong>, pero en algunos casos puede tardar
+            hasta <strong>1 MES</strong>. El tiempo depende del vendedor y del transporte interno en Japón.
           </p>
         </div>
       </div>
@@ -241,82 +277,6 @@
         <div class="points-movements" id="puntosMovimientos"></div>
       </div>
 
-      <!-- TAB: PEDIDO (COTIZACIÓN) -->
-      <div id="tab-pedido" style="display:none;">
-        <h3>Solicitud de cotización</h3>
-
-        <div class="notice notice-info">
-          <div class="notice-title">🛒 COTIZACIÓN</div>
-          <p>
-            En esta sección puedes enviarnos el enlace directo del producto de tu interés (Mercari, Rakuten, etc.).
-            Revisaremos si es posible realizar la compra y te mostraremos la cotización en tu cuenta.
-          </p>
-        </div>
-
-        <form id="pedidoForm" class="form">
-          <div class="row">
-            <div class="field">
-              <label class="label" for="pedidoUrl">Pega el URL (obligatorio)</label>
-              <input id="pedidoUrl" type="url" required placeholder="https://jp.mercari.com/item/..." />
-            </div>
-            <div class="field">
-              <label class="label" for="pedidoNombre">Nombre del producto (opcional)</label>
-              <input id="pedidoNombre" type="text" maxlength="120" placeholder="Ej: Figura / Plush / etc." />
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="field">
-              <label class="label" for="pedidoPeso">Peso (opcional)</label>
-              <input id="pedidoPeso" type="text" maxlength="40" placeholder="Ej: 750g o 0.75kg" />
-            </div>
-            <div class="field">
-              <label class="label" for="pedidoTamano">Tamaño (opcional)</label>
-              <input id="pedidoTamano" type="text" maxlength="60" placeholder="Ej: 20x15x10 cm" />
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="field">
-              <label class="label" for="pedidoYenes">Precio en yenes (opcional)</label>
-              <input id="pedidoYenes" type="number" min="0" step="1" placeholder="Ej: 3000" />
-            </div>
-            <div class="field actions">
-              <button class="btn" type="submit">Enviar solicitud</button>
-              <div id="pedidoFormMsg" class="msg"></div>
-            </div>
-          </div>
-        </form>
-
-        <div class="notice notice-warn" style="margin-top:12px">
-          <div class="notice-title">⚠️ IMPORTANTE</div>
-          <p>
-            Los costos finales pueden variar por peso o volumen del producto.
-            La cotización se calcula con la información disponible, pero el monto final se confirma cuando el producto
-            llegue a nuestro almacén en Japón.
-          </p>
-        </div>
-
-        <h3 style="margin-top:14px">Mis cotizaciones</h3>
-        <div id="pedidosMsg" class="muted">Cargando...</div>
-
-        <div class="table-wrap">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Producto / URL</th>
-                <th>Estado</th>
-                <th class="right">Aéreo</th>
-                <th class="right">Marítimo</th>
-                <th class="right">Acción</th>
-              </tr>
-            </thead>
-            <tbody id="pedidosTbody"></tbody>
-          </table>
-        </div>
-      </div>
-
     </section>
   </main>
 
@@ -334,7 +294,7 @@
   </div>
 
   <script type="module" src="../js/tracking.js"></script>
-  <script type="module" src="../js/cuenta.js?v=9"></script>
+  <script type="module" src="../js/cuenta.js?v=10"></script>
   <script type="module" src="../js/account-widget.js?v=2"></script>
 </body>
 </html>

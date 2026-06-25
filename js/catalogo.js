@@ -38,6 +38,11 @@ function precioReal(p) {
   return oferta !== null && oferta > 0 && oferta < precio ? oferta : precio;
 }
 
+function estaAgotado(p) {
+  const estado = String(p?.estado || '').toUpperCase();
+  return estado.includes('SIN STOCK') || estado.includes('AGOTADO');
+}
+
 // ---------------------------
 // FUNCIÓN PRINCIPAL DE FILTROS (DECLARADA PRIMERO)
 // ---------------------------
@@ -59,8 +64,7 @@ function aplicarFiltros() {
                   categoria.toLowerCase().includes(texto) ||
                   subcategoria.includes(texto);
 
-    const estado = (p.estado || '').toUpperCase();
-    const isAgotado = estado.includes('SIN STOCK') || estado.includes('AGOTADO');
+    const isAgotado = estaAgotado(p);
     const estadoOK = estadoFiltro === 'todos' ||
                     (estadoFiltro === 'disponible' && !isAgotado) ||
                     (estadoFiltro === 'agotado' && isAgotado);
@@ -252,9 +256,8 @@ function cardProducto(p) {
   const ofertaNum = parseFloat(p.oferta) || precioNum;
   const tieneOferta = !isNaN(ofertaNum) && ofertaNum < precioNum;
   
-  const rawEstado = (p.estado || '').toUpperCase();
-  const estado = tieneOferta ? 'OFERTA' :
-    (rawEstado.includes('SIN STOCK') || rawEstado.includes('AGOTADO')) ? 'AGOTADO' : 'DISPONIBLE';
+  const agotado = estaAgotado(p);
+  const estado = agotado ? 'AGOTADO' : (tieneOferta ? 'OFERTA' : 'DISPONIBLE');
   const estadoClass = estado === 'OFERTA'
     ? 'estado-oferta'
     : estado === 'AGOTADO'

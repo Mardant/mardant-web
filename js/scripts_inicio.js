@@ -108,10 +108,18 @@ function estadoClass(texto){
     .replace(/[\u0300-\u036f]/g, '')
     .trim();
 
-  if (estado.includes('OFERTA')) return 'estado-oferta';
   if (estado.includes('AGOTADO') || estado.includes('SIN STOCK')) return 'estado-agotado';
+  if (estado.includes('OFERTA')) return 'estado-oferta';
   if (estado.includes('DISPONIBLE')) return 'estado-disponible';
   return 'estado-neutro';
+}
+
+function productoAgotado(producto){
+  const estado = String(producto?.estado || '')
+    .toUpperCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+  return estado.includes('AGOTADO') || estado.includes('SIN STOCK');
 }
 
 function loteNumber(value){
@@ -307,6 +315,13 @@ fetchJSON('productos')
     lista.forEach(p => {
       const nombreTexto = p.nombre || '';
       const nombre = escapeHtml(nombreTexto);
+      const agotado = productoAgotado(p);
+      const estadoTexto = agotado ? 'AGOTADO' : 'OFERTA';
+      const estadoClase = agotado ? 'estado-agotado' : 'estado-oferta';
+      const mensaje = agotado
+        ? `Hola, quiero cotizar este producto agotado: ${nombreTexto}`
+        : `Hola, quiero aprovechar esta oferta: ${nombreTexto}`;
+      const botonTexto = agotado ? 'COTIZAR PRODUCTO AGOTADO' : 'APROVECHAR OFERTA';
       const div = document.createElement('div');
       div.className = 'producto' + (p.soloDesktop ? ' mostrar-solo-desktop' : '');
       div.innerHTML = `
@@ -316,9 +331,9 @@ fetchJSON('productos')
           <span style="text-decoration:line-through;color:#bbb;">S/. ${parseFloat(p.precio).toFixed(2)}</span><br>
           <span class="precio-oferta">S/. ${parseFloat(p.oferta).toFixed(2)}</span>
         </div>
-        <div class="estado estado-oferta">OFERTA</div>
-        <a href="${whatsappLink('Hola, quiero aprovechar esta oferta: ' + nombreTexto)}"
-           class="boton" target="_blank">APROVECHAR OFERTA</a>`;
+        <div class="estado ${estadoClase}">${estadoTexto}</div>
+        <a href="${whatsappLink(mensaje)}"
+           class="boton" target="_blank">${botonTexto}</a>`;
       c.appendChild(div);
     });
   })

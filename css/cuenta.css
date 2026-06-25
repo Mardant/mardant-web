@@ -507,6 +507,65 @@ tbody td{
 
 .muted{ color:var(--muted) }
 
+/* ================= Leyenda de estados ================= */
+.status-legend{
+  margin-top:14px;
+  padding:14px;
+  border:1px solid #d8c6aa;
+  border-left:6px solid #bda56b;
+  border-radius:12px;
+  background:#fffaf2;
+}
+.status-legend h4{
+  margin:0 0 12px;
+  color:#171411;
+  font-size:17px;
+  font-weight:900;
+}
+.status-legend-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.status-legend-item{
+  display:grid;
+  grid-template-columns:130px minmax(0,1fr);
+  gap:10px;
+  align-items:center;
+  min-width:0;
+  padding:10px;
+  border:1px solid #eadfce;
+  border-radius:8px;
+  background:rgba(255,255,255,.45);
+}
+.status-legend-item .badge{
+  width:130px;
+}
+.status-legend-item p{
+  margin:0;
+  color:#4d4034;
+  font-size:13px;
+  font-weight:800;
+  line-height:1.35;
+}
+
+@media (max-width:760px){
+  .status-legend-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width:420px){
+  .status-legend-item{
+    grid-template-columns:1fr;
+    align-items:start;
+  }
+  .status-legend-item .badge{
+    width:max-content;
+    min-width:130px;
+  }
+}
+
 /* ============================================================
    LIGHTBOX (Mi Cuenta) – igual al de Catálogo
    (reemplaza el antiguo .img-modal)
