@@ -9,8 +9,8 @@ import {
   loadStoredSet,
   saveStoredSet,
   shareIcon,
-  shareItem
-} from './social-actions.js';
+  shareVisualItem
+} from './social-actions.js?v=2';
 
 const $ = (s) => document.querySelector(s);
 const ITEMS_PER_PAGE = 21;
@@ -92,10 +92,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (shareBtn) {
       event.preventDefault();
       event.stopPropagation();
-      shareItem({
+      shareVisualItem({
+        button: shareBtn,
         title: shareBtn.dataset.shareTitle,
         text: shareBtn.dataset.shareText,
-        url: shareBtn.dataset.shareUrl
+        url: shareBtn.dataset.shareUrl,
+        imageUrl: shareBtn.dataset.shareImage,
+        eyebrow: shareBtn.dataset.shareEyebrow,
+        subtitle: shareBtn.dataset.shareSubtitle,
+        price: shareBtn.dataset.sharePrice,
+        badge: shareBtn.dataset.shareBadge,
+        note: shareBtn.dataset.shareNote,
+        cta: shareBtn.dataset.shareCta,
+        fileName: shareBtn.dataset.shareFile
       });
       return;
     }
@@ -348,6 +357,13 @@ function card(p) {
         data-share-title="Figura Nro ${etiquetaId} - Mardant"
         data-share-text="Mira esta figura a pedido en Mardant: Figura Nro ${etiquetaId}"
         data-share-url="${escapeHtml(shareUrl)}"
+        data-share-image="${imagen}"
+        data-share-eyebrow="Productos a pedido"
+        data-share-subtitle="Figura Nro ${etiquetaId}"
+        data-share-badge="A PEDIDO"
+        data-share-note="Pidelo desde Japon con Mardant."
+        data-share-cta="Pedir desde Japon en mardant.com"
+        data-share-file="mardant-pedido-${id || 'producto'}.png"
         aria-label="Compartir figura ${etiquetaId}"
         title="Compartir">
         ${shareIcon()}

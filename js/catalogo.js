@@ -6,7 +6,7 @@ import {
   mostrarMiniCarrito,
   actualizarContador
 } from './carrito-utils.js';
-import { buildShareUrl, shareIcon, shareItem } from './social-actions.js';
+import { buildShareUrl, shareIcon, shareVisualItem } from './social-actions.js?v=2';
 
 const productosPorPagina = PRODUCTOS_POR_PAGINA;
 let productosGlobal = [];
@@ -116,10 +116,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!shareBtn) return;
     event.preventDefault();
     event.stopPropagation();
-    shareItem({
+    shareVisualItem({
+      button: shareBtn,
       title: shareBtn.dataset.shareTitle,
       text: shareBtn.dataset.shareText,
-      url: shareBtn.dataset.shareUrl
+      url: shareBtn.dataset.shareUrl,
+      imageUrl: shareBtn.dataset.shareImage,
+      eyebrow: shareBtn.dataset.shareEyebrow,
+      subtitle: shareBtn.dataset.shareSubtitle,
+      price: shareBtn.dataset.sharePrice,
+      oldPrice: shareBtn.dataset.shareOldPrice,
+      badge: shareBtn.dataset.shareBadge,
+      note: shareBtn.dataset.shareNote,
+      cta: shareBtn.dataset.shareCta,
+      fileName: shareBtn.dataset.shareFile
     });
   });
 
@@ -263,6 +273,16 @@ function cardProducto(p) {
     : estado === 'AGOTADO'
       ? 'estado-agotado'
       : 'estado-disponible';
+  const sharePrice = `S/. ${(tieneOferta ? ofertaNum : precioNum).toFixed(2)}`;
+  const shareOldPrice = tieneOferta ? `S/. ${precioNum.toFixed(2)}` : '';
+  const shareNote = estado === 'AGOTADO'
+    ? 'Producto agotado. Consulta si se puede volver a traer.'
+    : estado === 'OFERTA'
+      ? 'Oferta activa en el catalogo Mardant.'
+      : 'Producto disponible en el catalogo Mardant.';
+  const shareCta = estado === 'AGOTADO'
+    ? 'Cotizar producto agotado en mardant.com'
+    : 'Ver producto en mardant.com';
 
   card.innerHTML = `
     <img src="${img}" alt="${nombre}" class="img" loading="lazy" referrerpolicy="no-referrer">
@@ -292,6 +312,15 @@ function cardProducto(p) {
         data-share-title="${nombre} - Mardant"
         data-share-text="Mira este producto en Mardant: ${nombre}"
         data-share-url="${escapeHtml(buildShareUrl({ producto: p.id }))}"
+        data-share-image="${img}"
+        data-share-eyebrow="Catalogo Mardant"
+        data-share-subtitle="ID: ${escapeHtml(String(p.id ?? '').trim())}"
+        data-share-price="${escapeHtml(sharePrice)}"
+        data-share-old-price="${escapeHtml(shareOldPrice)}"
+        data-share-badge="${estado}"
+        data-share-note="${escapeHtml(shareNote)}"
+        data-share-cta="${escapeHtml(shareCta)}"
+        data-share-file="mardant-producto-${escapeHtml(String(p.id ?? 'producto'))}.png"
         aria-label="Compartir ${nombre}"
         title="Compartir">
         ${shareIcon()}

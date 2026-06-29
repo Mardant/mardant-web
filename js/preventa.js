@@ -1,7 +1,7 @@
 /* js/preventa.js */
 import { API_URL, whatsappLink } from './config.js';
 import { actualizarCarritoUI } from './carrito-utils.js';
-import { buildShareUrl, shareIcon, shareItem } from './social-actions.js';
+import { buildShareUrl, shareIcon, shareVisualItem } from './social-actions.js?v=2';
 
 const $ = (s) => document.querySelector(s);
 const escapeHtml = (t) =>
@@ -23,10 +23,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!shareBtn) return;
     event.preventDefault();
     event.stopPropagation();
-    shareItem({
+    shareVisualItem({
+      button: shareBtn,
       title: shareBtn.dataset.shareTitle,
       text: shareBtn.dataset.shareText,
-      url: shareBtn.dataset.shareUrl
+      url: shareBtn.dataset.shareUrl,
+      imageUrl: shareBtn.dataset.shareImage,
+      eyebrow: shareBtn.dataset.shareEyebrow,
+      subtitle: shareBtn.dataset.shareSubtitle,
+      price: shareBtn.dataset.sharePrice,
+      badge: shareBtn.dataset.shareBadge,
+      note: shareBtn.dataset.shareNote,
+      cta: shareBtn.dataset.shareCta,
+      fileName: shareBtn.dataset.shareFile
     });
   });
 });
@@ -53,6 +62,8 @@ function card(p) {
     : 'https://via.placeholder.com/300x300?text=Sin+imagen';
   const ref = p.id || p.nombre || 'preventa';
   const urlWA = whatsappLink(`Hola, quiero reservar esta preventa con S/ 15: ${nombreRaw}`);
+  const precio = `S/. ${(+p.precio || 0).toFixed(2)}`;
+  const llegada = p['fecha aprox llegada peru'] || 'Proximamente';
 
   const div = document.createElement('div');
   div.className = 'producto';
@@ -71,6 +82,14 @@ function card(p) {
         data-share-title="${nombre} - Preventa Mardant"
         data-share-text="Mira esta preventa en Mardant: ${nombre}"
         data-share-url="${escapeHtml(buildShareUrl({ preventa: ref }))}"
+        data-share-image="${img}"
+        data-share-eyebrow="Preventa Mardant"
+        data-share-subtitle="Reserva desde S/ 15"
+        data-share-price="${escapeHtml(precio)}"
+        data-share-badge="PREVENTA"
+        data-share-note="Llegada aproximada: ${escapeHtml(llegada)}"
+        data-share-cta="Reservar por WhatsApp en mardant.com"
+        data-share-file="mardant-preventa-${escapeHtml(String(ref).replace(/\s+/g, '-'))}.png"
         aria-label="Compartir ${nombre}"
         title="Compartir">
         ${shareIcon()}
