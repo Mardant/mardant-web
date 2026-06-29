@@ -458,6 +458,72 @@ tbody td{
 
 .right{ text-align:right }
 
+/* ================= Paginación de tablas ================= */
+.account-pagination{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin:12px 0 4px;
+}
+.account-pagination[hidden]{ display:none !important }
+.account-pagination-summary{
+  color:#7a6756;
+  font-size:13px;
+  font-weight:900;
+}
+.account-pagination-controls{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+}
+.account-pagination button{
+  min-width:36px;
+  min-height:36px;
+  border:1px solid #d8c6aa;
+  border-radius:999px;
+  background:#fffaf2;
+  color:#171411;
+  font:inherit;
+  font-weight:900;
+  cursor:pointer;
+  transition:transform .16s ease, box-shadow .16s ease, background .16s ease, color .16s ease;
+}
+.account-pagination button:hover:not(:disabled){
+  transform:translateY(-1px);
+  box-shadow:0 8px 16px rgba(23,20,17,.14);
+  border-color:rgba(168,50,42,.42);
+}
+.account-pagination button.active{
+  background:linear-gradient(180deg,#b13a31 0%,#8f2722 100%);
+  color:#fff;
+  border-color:transparent;
+}
+.account-pagination button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+  box-shadow:none;
+}
+.account-pagination-dots{
+  color:#7a6756;
+  font-weight:900;
+  padding:0 2px;
+}
+@media (max-width:560px){
+  .account-pagination{
+    justify-content:center;
+    text-align:center;
+  }
+  .account-pagination-summary{
+    width:100%;
+  }
+  .account-pagination-controls{
+    justify-content:center;
+  }
+}
+
 /* ================= Miniaturas (botón) ================= */
 .thumb{
   display:inline-flex;

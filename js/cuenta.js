@@ -45,6 +45,8 @@ const preTbody        = document.querySelector('#preTable tbody');
 
 const almacenMsg      = document.getElementById('almacenMsg');
 const preMsg          = document.getElementById('preMsg');
+const almacenPagination = document.getElementById('almacenPagination');
+const prePagination     = document.getElementById('prePagination');
 
 const logoutBtn       = document.getElementById('logoutBtn');
 
@@ -100,6 +102,7 @@ if (lb){
    Helpers
 ---------------------------------- */
 const PEN = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
+const ACCOUNT_PAGE_SIZE = 5;
 const PUNTOS_DESCUENTO_5 = 100;
 const DESCUENTO_MAXIMO_5 = 30;
 const REWARD_CONFIG = {
@@ -121,6 +124,12 @@ const REWARD_CONFIG = {
     maxDiscount: DESCUENTO_MAXIMO_5
   }
 };
+
+let almacenRows = [];
+let preventaRows = [];
+let almacenPage = 1;
+let preventaPage = 1;
+let almacenDiasGratis = 0;
 
 const getToken = () => localStorage.getItem(AUTH_KEYS.TOKEN);
 const setAuth  = (t,id,name)=>{
@@ -517,6 +526,185 @@ function renderDaysBadge(it, diasGratisGlobal) {
   return `<span class="${cls}" title="${escapeHtml(title)}">${escapeHtml(it?.dias_en_almacen ?? '-')}</span>`;
 }
 
+function pageSlice(rows, page){
+  const totalPages = Math.max(1, Math.ceil(rows.length / ACCOUNT_PAGE_SIZE));
+  const safePage = Math.min(Math.max(Number(page) || 1, 1), totalPages);
+  const start = (safePage - 1) * ACCOUNT_PAGE_SIZE;
+  return {
+    page: safePage,
+    totalPages,
+    start,
+    end: Math.min(start + ACCOUNT_PAGE_SIZE, rows.length),
+    rows: rows.slice(start, start + ACCOUNT_PAGE_SIZE)
+  };
+}
+
+function renderAccountPagination(container, totalItems, currentPage, onChange){
+  if (!container) return;
+  container.innerHTML = '';
+
+  const totalPages = Math.ceil(totalItems / ACCOUNT_PAGE_SIZE);
+  if (totalPages <= 1) {
+    container.hidden = true;
+    return;
+  }
+
+  container.hidden = false;
+
+  const from = ((currentPage - 1) * ACCOUNT_PAGE_SIZE) + 1;
+  const to = Math.min(currentPage * ACCOUNT_PAGE_SIZE, totalItems);
+
+  const summary = document.createElement('span');
+  summary.className = 'account-pagination-summary';
+  summary.textContent = `Mostrando ${from}-${to} de ${totalItems}`;
+  container.appendChild(summary);
+
+  const controls = document.createElement('div');
+  controls.className = 'account-pagination-controls';
+
+  const addButton = (label, page, { active = false, disabled = false } = {}) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = active ? 'active' : '';
+    button.textContent = label;
+    button.disabled = disabled;
+    if (active) button.setAttribute('aria-current', 'page');
+    button.addEventListener('click', () => {
+      if (disabled || page === currentPage) return;
+      onChange(page);
+    });
+    controls.appendChild(button);
+  };
+
+  const addDots = () => {
+    const dots = document.createElement('span');
+    dots.className = 'account-pagination-dots';
+    dots.textContent = '...';
+    controls.appendChild(dots);
+  };
+
+  addButton('‹', Math.max(1, currentPage - 1), { disabled: currentPage <= 1 });
+
+  if (totalPages <= 5) {
+    for (let page = 1; page <= totalPages; page += 1) {
+      addButton(String(page), page, { active: page === currentPage });
+    }
+  } else {
+    addButton('1', 1, { active: currentPage === 1 });
+
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+
+    if (start > 2) addDots();
+    for (let page = start; page <= end; page += 1) {
+      addButton(String(page), page, { active: page === currentPage });
+    }
+    if (end < totalPages - 1) addDots();
+
+    addButton(String(totalPages), totalPages, { active: currentPage === totalPages });
+  }
+
+  addButton('›', Math.min(totalPages, currentPage + 1), { disabled: currentPage >= totalPages });
+
+  container.appendChild(controls);
+}
+
+function renderAlmacen(items, diasGratis){
+  almacenRows = Array.isArray(items) ? items : [];
+  almacenDiasGratis = diasGratis;
+  almacenPage = 1;
+  renderAlmacenPage();
+}
+
+function renderAlmacenPage(){
+  if (!itemsTbody) return;
+  itemsTbody.innerHTML = '';
+
+  if (!almacenRows.length) {
+    if (almacenMsg) almacenMsg.textContent = 'No tienes ítems en almacén.';
+    if (almacenPagination) almacenPagination.hidden = true;
+    return;
+  }
+
+  const pageData = pageSlice(almacenRows, almacenPage);
+  almacenPage = pageData.page;
+
+  pageData.rows.forEach(it => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${thumb(it.foto_url)}</td>
+      <td>${escapeHtml(it.item_id)}</td>
+      <td>${escapeHtml(it.descripcion || '-')}</td>
+      <td>${escapeHtml(it.fecha_ingreso || '-')}</td>
+      <td>${stateBadge(it.estado)}</td>
+      <td class="right">${renderDaysBadge(it, almacenDiasGratis)}</td>
+    `;
+    itemsTbody.appendChild(tr);
+  });
+
+  const nearDue = almacenRows
+    .map(it => ({ id: it.item_id, rest: getRestantes(it, almacenDiasGratis), excedido: it.excedido }))
+    .filter(it => !it.excedido && it.rest != null && it.rest <= WARN_THRESHOLD)
+    .map(it => ({ id: it.id, rest: Math.max(it.rest, 0) }));
+
+  if (nearDue.length) {
+    const lista = nearDue.map(x => `${x.id} (${x.rest}d)`).join(', ');
+    if (almacenMsg) almacenMsg.innerHTML = `⚠️ Los siguientes ítems están por vencer (≤ ${WARN_THRESHOLD} días): <strong>${escapeHtml(lista)}</strong>.`;
+  } else if (almacenMsg) {
+    almacenMsg.textContent = '';
+  }
+
+  renderAccountPagination(almacenPagination, almacenRows.length, almacenPage, (page) => {
+    almacenPage = page;
+    renderAlmacenPage();
+  });
+}
+
+function renderPreventas(preventas){
+  preventaRows = Array.isArray(preventas) ? preventas : [];
+  preventaPage = 1;
+  renderPreventasPage();
+}
+
+function renderPreventasPage(){
+  if (!preTbody) return;
+  preTbody.innerHTML = '';
+
+  if (!preventaRows.length) {
+    if (preMsg) preMsg.textContent = 'No tienes preventas registradas.';
+    if (prePagination) prePagination.hidden = true;
+    return;
+  }
+
+  const pageData = pageSlice(preventaRows, preventaPage);
+  preventaPage = pageData.page;
+
+  pageData.rows.forEach(p => {
+    const pagado = (Number(p.deposito)||0) + (Number(p.pagos_adic)||0);
+    const saldo  = Number(p.saldo_restante ?? (Number(p.monto_total||0) - pagado));
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${thumb(p.foto_url)}</td>
+      <td>${escapeHtml(p.pre_id)}</td>
+      <td>${escapeHtml(p.descripcion || '-')}</td>
+      <td class="right">${PEN.format(Number(p.monto_total||0))}</td>
+      <td class="right">${PEN.format(Number(p.deposito||0))}</td>
+      <td class="right">${PEN.format(Number(p.pagos_adic||0))}</td>
+      <td class="right">${PEN.format(saldo)}</td>
+      <td>${escapeHtml(p.fecha_pedido || '-')}</td>
+      <td>${escapeHtml(p.fecha_aprox   || '-')}</td>
+      <td>${stateBadge(p.estado)}</td>
+    `;
+    preTbody.appendChild(tr);
+  });
+
+  if (preMsg) preMsg.textContent = '';
+  renderAccountPagination(prePagination, preventaRows.length, preventaPage, (page) => {
+    preventaPage = page;
+    renderPreventasPage();
+  });
+}
+
 /* ---------------------------------
    Render: Pedidos / Cotizaciones
 ---------------------------------- */
@@ -592,6 +780,8 @@ async function loadStatus(){
   if (preMsg)     preMsg.textContent     = 'Cargando…';
   if (itemsTbody) itemsTbody.innerHTML   = '';
   if (preTbody)   preTbody.innerHTML     = '';
+  if (almacenPagination) almacenPagination.hidden = true;
+  if (prePagination) prePagination.hidden = true;
 
   if (pedidosMsg) pedidosMsg.textContent   = 'Cargando…';
   if (pedidosTbody) pedidosTbody.innerHTML = '';
@@ -649,6 +839,7 @@ async function loadStatus(){
     } else {
       if (almacenMsg) almacenMsg.textContent = '';
     }
+    renderAlmacen(items, data.dias_gratis);
 
     /* ---------- PREVENTAS ---------- */
     const prevs = sortPreventasNewestFirst(data.preventas || []);
@@ -673,6 +864,7 @@ async function loadStatus(){
       preTbody?.appendChild(tr);
     });
     if (preMsg) preMsg.textContent = prevs.length ? '' : 'No tienes preventas registradas.';
+    renderPreventas(prevs);
 
     /* ---------- PEDIDOS / COTIZACIONES ---------- */
     const pedidos = data.pedidos || data.cotizaciones || [];
