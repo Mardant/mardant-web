@@ -454,9 +454,44 @@ tbody td{
 
 /* anchos mínimos para forzar scroll cuando haga falta */
 #itemsTable{ min-width:720px }
-#preTable{   min-width:1040px }
+#preTable{   min-width:1080px }
 
 .right{ text-align:right }
+
+.tracking-btn{
+  display:inline-flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  min-width:108px;
+  min-height:38px;
+  padding:7px 12px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#171411 0%,#2a211b 100%);
+  color:#fffaf2;
+  border:1px solid rgba(244,208,111,.34);
+  text-decoration:none;
+  font-size:12px;
+  font-weight:900;
+  line-height:1.05;
+  box-shadow:0 8px 18px rgba(23,20,17,.16);
+  transition:transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+.tracking-btn:hover{
+  transform:translateY(-1px);
+  filter:saturate(1.04);
+  box-shadow:0 12px 24px rgba(23,20,17,.22);
+}
+.tracking-btn span{
+  max-width:150px;
+  color:#f4d06f;
+  font-size:10px;
+  font-weight:900;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
 
 /* ================= Paginación de tablas ================= */
 .account-pagination{

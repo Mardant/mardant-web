@@ -487,6 +487,23 @@ function thumb(url){
   `;
 }
 
+function trackingCell(p){
+  const code = String(p?.codigo_tracking_publico || '').trim();
+  if (!code) return '<span class="muted">-</span>';
+
+  const token = getToken();
+  const preId = String(p?.pre_id || '').trim();
+  const url = `${API_URL}?route=tracking&token=${encodeURIComponent(token || '')}&pre_id=${encodeURIComponent(preId)}`;
+  const label = String(p?.tracking_estado_publico || '').trim();
+
+  return `
+    <a class="tracking-btn" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">
+      Seguimiento
+      ${label ? `<span>${escapeHtml(label)}</span>` : ''}
+    </a>
+  `;
+}
+
 /* Delegación: abrir lightbox cuando se haga click en una miniatura */
 document.addEventListener('click', (e)=>{
   const btn = e.target.closest('.thumb');
@@ -685,15 +702,15 @@ function renderPreventasPage(){
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${thumb(p.foto_url)}</td>
-      <td>${escapeHtml(p.pre_id)}</td>
-      <td>${escapeHtml(p.descripcion || '-')}</td>
+      <td>${stateBadge(p.estado)}</td>
       <td class="right">${PEN.format(Number(p.monto_total||0))}</td>
       <td class="right">${PEN.format(Number(p.deposito||0))}</td>
       <td class="right">${PEN.format(Number(p.pagos_adic||0))}</td>
       <td class="right">${PEN.format(saldo)}</td>
       <td>${escapeHtml(p.fecha_pedido || '-')}</td>
       <td>${escapeHtml(p.fecha_aprox   || '-')}</td>
-      <td>${stateBadge(p.estado)}</td>
+      <td>${escapeHtml(p.pre_id)}</td>
+      <td>${trackingCell(p)}</td>
     `;
     preTbody.appendChild(tr);
   });
@@ -851,15 +868,15 @@ async function loadStatus(){
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${thumb(p.foto_url)}</td>
-        <td>${escapeHtml(p.pre_id)}</td>
-        <td>${escapeHtml(p.descripcion || '-')}</td>
+        <td>${stateBadge(p.estado)}</td>
         <td class="right">${PEN.format(Number(p.monto_total||0))}</td>
         <td class="right">${PEN.format(Number(p.deposito||0))}</td>
         <td class="right">${PEN.format(Number(p.pagos_adic||0))}</td>
         <td class="right">${PEN.format(saldo)}</td>
         <td>${escapeHtml(p.fecha_pedido || '-')}</td>
         <td>${escapeHtml(p.fecha_aprox   || '-')}</td>
-        <td>${stateBadge(p.estado)}</td>
+        <td>${escapeHtml(p.pre_id)}</td>
+        <td>${trackingCell(p)}</td>
       `;
       preTbody?.appendChild(tr);
     });
