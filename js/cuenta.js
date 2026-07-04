@@ -491,9 +491,8 @@ function trackingCell(p){
   const code = String(p?.codigo_tracking_publico || '').trim();
   if (!code) return '<span class="muted">-</span>';
 
-  const token = getToken();
   const preId = String(p?.pre_id || '').trim();
-  const url = `${API_URL}?route=tracking&token=${encodeURIComponent(token || '')}&pre_id=${encodeURIComponent(preId)}`;
+  const url = `./tracking.html?pre_id=${encodeURIComponent(preId)}`;
   const label = String(p?.tracking_estado_publico || '').trim();
 
   return `
