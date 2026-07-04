@@ -44,7 +44,7 @@
 }
 
 .tracking-shell {
-  width: min(760px, calc(100% - 32px));
+  width: min(680px, calc(100% - 32px));
   margin: 0 auto;
   padding: 30px 0 44px;
   flex: 1;
@@ -114,6 +114,7 @@
   border-radius: 10px;
   background: #fffaf2;
   box-shadow: 0 14px 34px rgba(23, 20, 17, .08);
+  overflow: hidden;
 }
 
 .tracking-loading,
@@ -183,9 +184,12 @@
 }
 
 .tracking-section-title {
-  margin: 20px 0 10px;
-  font-size: 22px;
+  margin: 16px 0 8px;
+  color: #080706;
+  font-size: 21px;
   font-weight: 1000;
+  line-height: 1.15;
+  text-align: left;
 }
 
 .tracking-product {
