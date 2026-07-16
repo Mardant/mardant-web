@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Libro de Reclamaciones | Mardant Perú</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../css/estilos.css?v=14" />
+  <link rel="stylesheet" href="../css/legal.css?v=3" />
+</head>
+<body class="legal-page claim-page">
+  <nav class="legal-nav" aria-label="Navegación principal">
+    <a class="legal-brand" href="./inicio.html">Mardant Perú</a>
+    <div class="legal-menu">
+      <a href="./catalogo.html">Catálogo</a>
+      <a href="./preventa.html">Preventas</a>
+      <a href="./catalogo-japon.html">Japón</a>
+      <a href="./pedidos.html">A pedido</a>
+      <a href="./cuenta.html">Mi cuenta</a>
+    </div>
+  </nav>
+
+  <main class="legal-wrap">
+    <header class="legal-hero">
+      <span class="legal-kicker">Atención al consumidor</span>
+      <h1>Libro de Reclamaciones</h1>
+      <p>
+        Mardant pone a disposición de sus clientes el Libro de Reclamaciones para registrar quejas o reclamos relacionados
+        con la compra de productos o la atención recibida.
+      </p>
+    </header>
+
+    <section class="legal-panel">
+      <div class="claim-provider-layout">
+        <div>
+          <h2>Datos del proveedor</h2>
+          <div class="legal-data">
+            <div><span>Nombre comercial</span><strong>Mardant</strong></div>
+            <div><span>RUC</span><strong>15615825481</strong></div>
+            <div><span>Correo</span><strong>gamesmardant@gmail.com</strong></div>
+            <div><span>WhatsApp</span><strong>+51 985 135 331</strong></div>
+            <div><span>Ubicación</span><strong>Lima, Perú</strong></div>
+          </div>
+        </div>
+
+        <aside class="claim-notice" aria-label="Aviso del Libro de Reclamaciones">
+          <img src="../assets/img/libro-reclamaciones-aviso.png" alt="Libro de Reclamaciones" />
+          <div class="claim-notice__fallback">
+            <strong>Libro de Reclamaciones</strong>
+            <span>Mardant</span>
+          </div>
+        </aside>
+      </div>
+
+      <div class="legal-note">
+        Los datos registrados en este formulario serán utilizados únicamente para gestionar la queja o reclamo presentado
+        ante Mardant, responder al consumidor y conservar el registro correspondiente.
+      </div>
+      <div class="legal-note alt">
+        La presentación de una queja o reclamo en este libro no limita el derecho del consumidor de acudir a la autoridad competente si lo considera necesario.
+      </div>
+    </section>
+
+    <section id="claimFormPanel" class="legal-panel claim-form-panel">
+      <form id="claimForm" class="claim-form" novalidate>
+        <section class="claim-section">
+          <span class="legal-kicker">1. Tipo de solicitud</span>
+          <div class="claim-grid one">
+            <label>
+              Tipo <strong>*</strong>
+              <select id="tipo" name="tipo" required>
+                <option value="">Selecciona una opción</option>
+                <option value="Reclamo">Reclamo</option>
+                <option value="Queja">Queja</option>
+              </select>
+            </label>
+          </div>
+          <div class="claim-help-grid">
+            <p><strong>Reclamo:</strong> disconformidad relacionada con el producto, pedido, pago, entrega o servicio contratado.</p>
+            <p><strong>Queja:</strong> disconformidad relacionada con la atención, trato, demora o comunicación recibida.</p>
+          </div>
+        </section>
+
+        <section class="claim-section">
+          <span class="legal-kicker">2. Datos del consumidor</span>
+          <div class="claim-grid">
+            <label>
+              Nombre completo <strong>*</strong>
+              <input id="nombreCompleto" name="nombreCompleto" autocomplete="name" required />
+            </label>
+            <label>
+              Tipo de documento <strong>*</strong>
+              <select id="tipoDocumento" name="tipoDocumento" required>
+                <option value="">Selecciona</option>
+                <option value="DNI">DNI</option>
+                <option value="CE">CE</option>
+                <option value="Pasaporte">Pasaporte</option>
+                <option value="RUC">RUC</option>
+              </select>
+            </label>
+            <label>
+              Número de documento <strong>*</strong>
+              <input id="numeroDocumento" name="numeroDocumento" inputmode="text" required />
+            </label>
+            <label>
+              Teléfono <strong>*</strong>
+              <input id="telefono" name="telefono" inputmode="tel" autocomplete="tel" required />
+            </label>
+            <label>
+              Correo electrónico <strong>*</strong>
+              <input id="correo" name="correo" type="email" autocomplete="email" required />
+            </label>
+            <label>
+              Domicilio
+              <input id="domicilio" name="domicilio" autocomplete="street-address" />
+            </label>
+          </div>
+
+          <label class="claim-check">
+            <input id="menorEdad" name="menorEdad" type="checkbox" />
+            <span>Soy menor de edad</span>
+          </label>
+
+          <div id="apoderadoGroup" class="claim-grid one is-hidden">
+            <label>
+              Datos del padre, madre o apoderado <strong>*</strong>
+              <input id="datosApoderado" name="datosApoderado" />
+            </label>
+          </div>
+        </section>
+
+        <section class="claim-section">
+          <span class="legal-kicker">3. Datos del producto o servicio</span>
+          <div class="claim-grid">
+            <label>
+              Producto o servicio reclamado <strong>*</strong>
+              <input id="productoServicio" name="productoServicio" required />
+            </label>
+            <label>
+              Monto reclamado
+              <input id="montoReclamado" name="montoReclamado" inputmode="decimal" placeholder="Ej: S/ 85.00" />
+            </label>
+            <label>
+              Fecha de compra
+              <input id="fechaCompra" name="fechaCompra" type="date" />
+            </label>
+            <label>
+              Número de pedido
+              <input id="numeroPedido" name="numeroPedido" placeholder="Ej: PRE-0001" />
+            </label>
+            <label>
+              Tipo de pedido <strong>*</strong>
+              <select id="tipoPedido" name="tipoPedido" required>
+                <option value="">Selecciona</option>
+                <option value="Producto disponible">Producto disponible</option>
+                <option value="Preventa">Preventa</option>
+                <option value="Producto a pedido desde Japón">Producto a pedido desde Japón</option>
+                <option value="Catálogo Japón">Catálogo Japón</option>
+                <option value="Otro">Otro</option>
+              </select>
+              <small class="claim-field-note">Todas las compras, reservas y coordinaciones se confirman principalmente por WhatsApp.</small>
+            </label>
+          </div>
+        </section>
+
+        <section class="claim-section">
+          <span class="legal-kicker">4. Detalle del reclamo o queja</span>
+          <div class="claim-grid one">
+            <label>
+              Detalle del reclamo o queja <strong>*</strong>
+              <textarea id="detalle" name="detalle" rows="6" required></textarea>
+            </label>
+            <label>
+              Pedido del consumidor <strong>*</strong>
+              <textarea id="pedidoConsumidor" name="pedidoConsumidor" rows="5" required></textarea>
+            </label>
+          </div>
+        </section>
+
+        <section class="claim-section">
+          <span class="legal-kicker">5. Declaración</span>
+          <label class="claim-check declaration">
+            <input id="aceptaDeclaracion" name="aceptaDeclaracion" type="checkbox" required />
+            <span>
+              Declaro que la información registrada es verdadera y autorizo a Mardant a utilizar estos datos únicamente
+              para atender esta hoja de reclamación.
+            </span>
+          </label>
+        </section>
+
+        <div id="claimStatus" class="claim-status" role="status" aria-live="polite"></div>
+
+        <div class="legal-actions">
+          <button id="submitClaimBtn" class="legal-btn" type="submit">Enviar hoja de reclamación</button>
+          <a class="legal-btn alt" href="./contacto.html">Contactar por WhatsApp</a>
+        </div>
+      </form>
+    </section>
+
+    <section id="claimSuccess" class="legal-panel claim-success is-hidden" aria-live="polite">
+      <span class="legal-kicker">Registro completado</span>
+      <h2>Hoja de reclamación registrada correctamente</h2>
+      <div class="claim-success-number">
+        <span>Número</span>
+        <strong id="successId">-</strong>
+      </div>
+      <div class="legal-data compact">
+        <div><span>Fecha de registro</span><strong id="successFecha">-</strong></div>
+        <div><span>Fecha límite de respuesta</span><strong id="successLimite">-</strong></div>
+      </div>
+      <p>
+        Conserve esta constancia. Mardant responderá su reclamo o queja dentro del plazo máximo de
+        15 días hábiles.
+      </p>
+      <div class="legal-actions">
+        <button id="downloadReceiptBtn" class="legal-btn" type="button">Descargar constancia</button>
+        <button id="printReceiptBtn" class="legal-btn alt" type="button">Imprimir constancia</button>
+        <button id="newClaimBtn" class="legal-btn light" type="button">Registrar otra hoja</button>
+      </div>
+    </section>
+
+    <section id="claimPrintArea" class="claim-print-area" aria-hidden="true"></section>
+  </main>
+
+  <script type="module" src="../js/tracking.js?v=4"></script>
+  <script type="module" src="../js/account-widget.js?v=2"></script>
+  <script type="module" src="../js/libro-reclamaciones.js?v=2"></script>
+</body>
+</html>

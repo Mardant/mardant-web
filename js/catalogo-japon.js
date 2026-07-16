@@ -1,4 +1,5 @@
 import { API_URL, whatsappLink } from './config.js';
+import { API_CACHE_TTL, cachedFetchText } from './api-client.js';
 
 const PAGE_SIZE = 20;
 const SPREADSHEET_ID = '17UeC7f4aIGmqEdmXD20wlV-kNidpm1MKK4V5v33X5yc';
@@ -33,6 +34,12 @@ let currentPage = 1;
 let sharedLoteApplied = false;
 let likeCounts = new Map();
 let likedLots = new Set(loadLikedLots());
+const catalogImageUrls = new Map();
+const catalogImageClassNames = new Map();
+let catalogImageStyleElement = null;
+let catalogImageStyleSheet = null;
+let catalogImageRules = '';
+let catalogImageObserver = null;
 
 function escapeHtml(value){
   return String(value ?? '')
@@ -41,6 +48,130 @@ function escapeHtml(value){
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
+}
+
+function cssUrl(value){
+  return String(value ?? '')
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/[\n\r\f]/g, '');
+}
+
+function imageClassForId(id){
+  const text = String(id || 'sin-imagen');
+  let hash = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    hash = ((hash << 5) - hash + text.charCodeAt(i)) >>> 0;
+  }
+  return `japan-image-bg-${hash.toString(36)}`;
+}
+
+function ensureImageStyleElement(){
+  if (catalogImageStyleSheet || catalogImageStyleElement) return;
+
+  if ('adoptedStyleSheets' in document && typeof CSSStyleSheet !== 'undefined') {
+    catalogImageStyleSheet = new CSSStyleSheet();
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, catalogImageStyleSheet];
+    return;
+  }
+
+  catalogImageStyleElement = document.createElement('style');
+  catalogImageStyleElement.id = 'catalogo-japon-image-rules';
+  document.head.appendChild(catalogImageStyleElement);
+}
+
+function syncCatalogImageRules(){
+  ensureImageStyleElement();
+  if (catalogImageStyleSheet) {
+    catalogImageStyleSheet.replaceSync(catalogImageRules);
+  } else if (catalogImageStyleElement) {
+    catalogImageStyleElement.textContent = catalogImageRules;
+  }
+}
+
+function resetCatalogImages(){
+  if (catalogImageObserver) {
+    catalogImageObserver.disconnect();
+    catalogImageObserver = null;
+  }
+  catalogImageUrls.clear();
+  catalogImageClassNames.clear();
+  catalogImageRules = '';
+  if (catalogImageStyleSheet || catalogImageStyleElement) syncCatalogImageRules();
+}
+
+function registerCatalogImage(id, imageUrl){
+  const key = String(id || '').trim();
+  const url = String(imageUrl || '').trim();
+  if (!key || !url) return;
+  catalogImageUrls.set(key, url);
+}
+
+function addCatalogImageRule(id, imageUrl){
+  const key = String(id || '').trim();
+  if (!key) return '';
+
+  if (catalogImageClassNames.has(key)) return catalogImageClassNames.get(key);
+
+  const className = imageClassForId(key);
+  catalogImageClassNames.set(key, className);
+  catalogImageRules += `\n.${className}{background-image:url("${cssUrl(imageUrl)}");}`;
+  syncCatalogImageRules();
+  return className;
+}
+
+function loadCatalogImageButton(button){
+  if (!button || button.dataset.loaded === '1' || button.dataset.loaded === 'loading') return;
+
+  const id = String(button.dataset.id || '').trim();
+  const imageUrl = catalogImageUrls.get(id);
+  const imageElement = button.querySelector('.japan-image-background');
+
+  if (!id || !imageUrl || !imageElement) {
+    button.classList.add('is-error');
+    button.dataset.loaded = 'error';
+    return;
+  }
+
+  button.dataset.loaded = 'loading';
+  const image = new Image();
+  image.decoding = 'async';
+  image.referrerPolicy = 'no-referrer';
+  image.onload = () => {
+    if (!button.isConnected || catalogImageUrls.get(id) !== imageUrl) return;
+    imageElement.classList.add(addCatalogImageRule(id, imageUrl));
+    button.classList.add('is-loaded');
+    button.dataset.loaded = '1';
+  };
+  image.onerror = () => {
+    if (!button.isConnected || catalogImageUrls.get(id) !== imageUrl) return;
+    button.classList.add('is-error');
+    button.dataset.loaded = 'error';
+  };
+  image.src = imageUrl;
+}
+
+function setupCatalogImageLazyLoad(){
+  const buttons = [...grid.querySelectorAll('.japan-image-button')];
+  if (!buttons.length) return;
+
+  if (!('IntersectionObserver' in window)) {
+    buttons.forEach(loadCatalogImageButton);
+    return;
+  }
+
+  catalogImageObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting && entry.intersectionRatio <= 0) return;
+      observer.unobserve(entry.target);
+      loadCatalogImageButton(entry.target);
+    });
+  }, {
+    rootMargin: '360px 0px',
+    threshold: 0.01
+  });
+
+  buttons.forEach(button => catalogImageObserver.observe(button));
 }
 
 function loteNumber(value){
@@ -456,13 +587,14 @@ function card(item){
   const etiqueta = etiquetaInfo(item.etiqueta);
   const liked = likedLots.has(id);
   const shareUrl = loteShareUrl(id);
+  registerCatalogImage(id, imageUrl);
   const article = document.createElement('article');
   article.className = 'japan-card';
   article.innerHTML = `
     <div class="japan-image-wrap">
       ${imageUrl ? `
-        <button class="japan-image-button" type="button" data-id="${escapeHtml(id)}" data-image="${escapeHtml(imageUrl)}" aria-label="Ver lote #${escapeHtml(id)}">
-          <img src="${escapeHtml(imageUrl)}" alt="Lote #${escapeHtml(id)}" loading="lazy" referrerpolicy="no-referrer">
+        <button class="japan-image-button" type="button" data-id="${escapeHtml(id)}" aria-label="Ver imagen del lote #${escapeHtml(id)}">
+          <span class="japan-image-background" role="img" aria-label="Imagen del producto lote #${escapeHtml(id)}"></span>
         </button>
       ` : '<div class="japan-no-image">Sin imagen</div>'}
     </div>
@@ -476,7 +608,16 @@ function card(item){
         <strong>${escapeHtml(money(item.precio_producto))}</strong>
         <small>${escapeHtml(PRODUCT_NOTE)}</small>
       </div>
-      <a class="japan-request" href="${whatsappLink(`Hola, quiero consultar el lote #${id}`)}" target="_blank" rel="noopener">Solicitar</a>
+      <a class="japan-request"
+         href="${whatsappLink(`Hola, quiero consultar el lote #${id}`)}"
+         target="_blank"
+         rel="noopener"
+         data-track-item-id="${escapeHtml(id)}"
+         data-track-item-name="Lote #${escapeHtml(id)}"
+         data-track-price="${escapeHtml(String(parsePrice(item.precio_producto) || ''))}"
+         data-track-category="Catálogo Japón"
+         data-track-source="catalogo_japon"
+         data-track-cta="Solicitar">Solicitar</a>
       <div class="japan-card-tools">
         <button class="japan-share-button" type="button" data-share-id="${escapeHtml(id)}" data-share-url="${escapeHtml(shareUrl)}" aria-label="Compartir lote #${escapeHtml(id)}" title="Compartir">
           ${shareIcon()}
@@ -647,6 +788,7 @@ function renderPagination(totalPages){
 }
 
 function render(){
+  resetCatalogImages();
   grid.replaceChildren();
   const totalPages = Math.max(1, Math.ceil(filteredCatalogo.length / PAGE_SIZE));
   currentPage = Math.min(Math.max(currentPage, 1), totalPages);
@@ -654,6 +796,7 @@ function render(){
   const pageItems = filteredCatalogo.slice(start, start + PAGE_SIZE);
 
   pageItems.forEach(item => grid.appendChild(card(item)));
+  setupCatalogImageLazyLoad();
   renderPagination(totalPages);
 
   if (catalogo.length && !filteredCatalogo.length) {
@@ -715,9 +858,10 @@ async function loadCatalog(){
   pagination.replaceChildren();
 
   try {
-    const res = await fetch(requestUrl(), { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
+    const text = await cachedFetchText(requestUrl(), {
+      ttl: API_CACHE_TTL.CATALOGO_JAPON_GVIZ,
+      cacheId: 'catalogo-japon-gviz'
+    });
 
     catalogo = parseGvizCatalog(text)
       .sort((a, b) => loteNumber(b.id_lote) - loteNumber(a.id_lote));
@@ -785,7 +929,8 @@ grid.addEventListener('click', event => {
 
   const button = event.target.closest('.japan-image-button');
   if (!button) return;
-  openModal(button.dataset.image, button.dataset.id);
+  const id = String(button.dataset.id || '').trim();
+  openModal(catalogImageUrls.get(id), id);
 });
 
 closeBtn?.addEventListener('click', closeModal);

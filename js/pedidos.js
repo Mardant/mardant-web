@@ -1,5 +1,6 @@
 /* js/pedidos.js */
 import { API_URL, whatsappLink } from './config.js';
+import { API_CACHE_TTL, cachedFetchJSON } from './api-client.js';
 import { actualizarCarritoUI } from './carrito-utils.js';
 import {
   bookmarkIcon,
@@ -47,10 +48,7 @@ const norm = (s) =>
 
 document.addEventListener('DOMContentLoaded', () => {
   Promise.all([
-    fetch(`${API_URL}?accion=pedidosDisponibles`).then((r) => {
-      if (!r.ok) throw new Error('API error');
-      return r.json();
-    }),
+    cachedFetchJSON('pedidosDisponibles', { ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES }),
     cargarInteraccionesPedidos()
   ])
     .then(([lista]) => renderLista(lista))
@@ -348,7 +346,12 @@ function card(p) {
     <a href="${urlWA}"
        target="_blank"
        rel="noopener noreferrer"
-       class="boton boton-cotizar">PEDIR DESDE JAPON</a>
+       class="boton boton-cotizar"
+       data-track-item-id="${id}"
+       data-track-item-name="Figura Nro ${etiquetaId}"
+       data-track-category="Producto a pedido"
+       data-track-source="pedidos"
+       data-track-cta="PEDIR DESDE JAPON">PEDIR DESDE JAPON</a>
     <div class="social-actions social-actions-three">
       <button
         class="social-icon-button"

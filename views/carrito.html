@@ -115,10 +115,18 @@
       let total = 0;
 
       let i = 1;
+      const trackingItems = [];
       for (const g of groups.values()) {
         const unit = Number(g.precio) || 0;
         const sub  = unit * g.qty;
         total += sub;
+        trackingItems.push({
+          item_id: g.id ? String(g.id).trim() : '',
+          item_name: g.nombre || 'Producto Mardant',
+          item_category: 'catalogo',
+          price: unit,
+          quantity: g.qty
+        });
 
         lines.push(
           `${i}) ${g.qty} x ${g.nombre} — S/. ${unit.toFixed(2)} c/u — Subtotal: S/. ${sub.toFixed(2)}`
@@ -146,6 +154,10 @@
 
       const clean = waCleanText(mensaje);
       const wa = whatsappLink(clean);
+      window.MardantTracking?.trackBeginCheckout?.({
+        value: total,
+        items: trackingItems
+      });
       window.open(wa, '_blank');
     });
 
@@ -153,10 +165,12 @@
   </script>
 
   <!-- Tracking (FB Pixel + GA4 + eventos) -->
-  <script type="module" src="../js/tracking.js"></script>
+  <script type="module" src="../js/tracking.js?v=4"></script>
   <script type="module" src="../js/account-widget.js?v=2"></script>
 </body>
 </html>
+
+
 
 
 

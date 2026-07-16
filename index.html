@@ -1,13 +1,202 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="refresh" content="0; url=views/inicio.html">
-    <title>Mardant Perú</title>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  </head>
-  <body>
-    <p>Redireccionando... <a href="views/inicio.html">haz clic aquí si no avanza</a></p>
-    <script type="module" src="js/tracking.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mardant Perú | Tienda anime con productos oficiales desde Japón</title>
+  <meta name="description" content="Compra figuras, peluches, llaveros, acrílicos y productos oficiales de anime importados desde Japón. Envíos a todo el Perú y productos a pedido.">
+  <link rel="canonical" href="https://mardant.com/">
+  <meta property="og:title" content="Mardant Perú | Tienda anime con productos oficiales desde Japón">
+  <meta property="og:description" content="Compra figuras, peluches, llaveros, acrílicos y productos oficiales de anime importados desde Japón. Envíos a todo el Perú y productos a pedido.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mardant.com/">
+  <meta property="og:image" content="https://i.imgur.com/wfOe9n4.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Mardant Perú | Tienda anime con productos oficiales desde Japón">
+  <meta name="twitter:description" content="Compra figuras, peluches, llaveros, acrílicos y productos oficiales de anime importados desde Japón. Envíos a todo el Perú y productos a pedido.">
+  <meta name="twitter:image" content="https://i.imgur.com/wfOe9n4.png">
+  <base href="/views/">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<!-- 1) Estilos globales -->
+  <link rel="stylesheet" href="../css/estilos.css?v=14" />
+
+  <!-- 2) Estilos exclusivos de la portada (DEBEN ir después para pisar al global) -->
+  <link rel="stylesheet" href="../css/estilos_inicio.css?v=21">
+</head>
+<body>
+<section id="vista-inicio">
+
+  <!-- Banner superior -->
+  <header class="banner">
+    <img src="https://i.imgur.com/wfOe9n4.png"
+         alt="Banner Anime Mardant"
+         loading="lazy" referrerpolicy="no-referrer">
+    <div class="bienvenida"></div>
+  </header>
+
+  <!-- Menú visual -->
+  <nav class="menu-visual">
+    <a href="./catalogo.html"><img src="https://i.imgur.com/B5T6n58.png"   alt="Catálogo"               class="boton-imagen" referrerpolicy="no-referrer"></a>
+    <a href="./preventa.html"><img  src="https://i.imgur.com/8wy78gh.png"   alt="Preventa"               class="boton-imagen" referrerpolicy="no-referrer"></a>
+    <a href="./pedidos.html"><img  src="https://i.imgur.com/g1SsXa2.png"   alt="Producto a Pedido"       class="boton-imagen" referrerpolicy="no-referrer"></a>
+    <a href="./catalogo-japon.html"><img src="https://i.imgur.com/vGhSm1B.png"   alt="Catalogo Japon"       class="boton-imagen" referrerpolicy="no-referrer"></a>
+    <a href="./contacto.html"><img  src="https://i.imgur.com/IJ7YYxR.png"   alt="Contacto"               class="boton-imagen" referrerpolicy="no-referrer"></a>
+    <a href="./como.html"><img      src="https://i.imgur.com/mIZddDA.png"   alt="Cómo Comprar"           class="boton-imagen" referrerpolicy="no-referrer"></a>
+    <a href="./faq.html"><img       src="https://i.imgur.com/MbxHkvB.png"   alt="Preguntas Frecuentes"   class="boton-imagen" referrerpolicy="no-referrer"></a>
+    <a href="./nosotros.html"><img  src="https://i.imgur.com/0aUfeE9.png"   alt="Sobre Nosotros"         class="boton-imagen" referrerpolicy="no-referrer"></a>
+  </nav>
+
+  <!-- Carrusel -->
+  <div class="carrusel">
+    <img src="https://i.imgur.com/D9qJpmt.png" class="activo" alt="Slide 1" referrerpolicy="no-referrer">
+    <img src="https://i.imgur.com/iFcP1c3.png"               alt="Slide 2" referrerpolicy="no-referrer">
+    <img src="https://i.imgur.com/YXrMQqw.png"               alt="Slide 3" referrerpolicy="no-referrer">
+    <div class="carrusel-indicadores" id="indicadores"></div>
+  </div>
+
+  <!-- Secciones -->
+
+  <section class="seccion seccion-ofertas">
+    <div class="home-section-head">
+      <a href="./catalogo.html?orden=oferta" class="titulo-link home-title-link">
+        <span class="section-icon" aria-hidden="true">特価</span>
+        <span class="section-title-copy">
+          <span class="section-kicker">OFERTAS DESTACADAS</span>
+          <span class="section-title">PRODUCTOS EN OFERTA</span>
+        </span>
+      </a>
+    </div>
+    <div id="productos-oferta" class="grid-productos"></div>
+  </section>
+
+  <section class="seccion seccion-ultimas">
+    <div class="home-section-head">
+      <a href="./catalogo.html?orden=recientes" class="titulo-link home-title-link">
+        <span class="section-icon" aria-hidden="true">新着</span>
+        <span class="section-title-copy">
+          <span class="section-kicker">NUEVOS PRODUCTOS</span>
+          <span class="section-title">ÚLTIMAS IMPORTACIONES</span>
+        </span>
+      </a>
+    </div>
+    <div id="ultimas-importaciones" class="grid-productos"></div>
+  </section>
+
+  <section class="seccion seccion-preventas">
+    <div class="home-section-head">
+      <a href="./preventa.html" class="titulo-link home-title-link">
+        <span class="section-icon" aria-hidden="true">予約</span>
+        <span class="section-title-copy">
+          <span class="section-kicker">RESERVA DESDE S/ 15</span>
+          <span class="section-title">PREVENTAS</span>
+        </span>
+      </a>
+    </div>
+    <div id="productos-preventa" class="grid-productos"></div>
+  </section>
+
+  <section class="seccion seccion-pedidos">
+    <div class="home-section-head">
+      <a href="./pedidos.html" class="titulo-link home-title-link">
+        <span class="section-icon" aria-hidden="true">取寄</span>
+        <span class="section-title-copy">
+          <span class="section-kicker">PÍDELO DESDE JAPÓN</span>
+          <span class="section-title">PRODUCTOS A PEDIDO</span>
+        </span>
+      </a>
+    </div>
+    <div id="pedidos-disponibles" class="grid-productos"></div>
+  </section>
+
+  <section class="seccion seccion-catalogo-japon">
+    <div class="home-section-head">
+      <a href="./catalogo-japon.html" class="titulo-link home-title-link">
+      <span class="section-icon" aria-hidden="true">日本</span>
+      <span class="section-title-copy">
+        <span class="section-kicker">CATÁLOGO EN JAPÓN</span>
+        <span class="section-title">PRODUCTOS EN JAPÓN</span>
+      </span>
+    </a>
+    </div>
+    <div id="catalogo-japon-home" class="grid-productos grid-japon-home"></div>
+  </section>
+
+  <!-- Pie -->
+  <footer class="pie">
+    <p>© 2026 Mardant Perú • Todos los derechos reservados</p>
+    <a class="footer-legal-link" href="./terminos-importacion.html">Términos de importación</a>
+  </footer>
+
+  <!-- Botón Mi Cuenta -->
+  <a href="./cuenta.html" class="boton-cuenta-flotante" id="btnCuenta" title="Mi cuenta">
+    <span class="emoji">👤</span>
+    <span class="texto" id="cuentaTexto">Entrar</span>
+  </a>
+
+  <!-- Botón carrito -->
+  <a href="carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">
+    🛒<span id="contador-carrito" class="contador-carrito"></span>
+  </a>
+
+  <!-- Lightbox -->
+  <div id="lb-inicio" class="lightbox" hidden>
+    <img alt="Vista ampliada">
+    <button class="lb-close" aria-label="Cerrar">×</button>
+  </div>
+
+</section>
+
+<!-- Lógica de portada -->
+<script type="module" src="../js/scripts_inicio.js?v=8"></script>
+
+<!-- Lightbox para imágenes de cards -->
+<script>
+  (function () {
+    const root = document.getElementById('vista-inicio');
+    const lb   = document.getElementById('lb-inicio');
+    const img  = lb.querySelector('img');
+
+    root.addEventListener('click', (e) => {
+      const el = e.target;
+      if (el && el.tagName === 'IMG' && el.closest('.grid-productos')) {
+        img.src = el.src;
+        lb.hidden = false;
+        document.body.style.overflow = 'hidden';
+      }
+    });
+
+    const close = () => {
+      lb.hidden = true;
+      img.src = '';
+      document.body.style.overflow = '';
+    };
+    lb.addEventListener('click', close);
+    lb.querySelector('.lb-close').addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      close();
+    });
+    document.addEventListener('keydown', (ev) => {
+      if (!lb.hidden && ev.key === 'Escape') close();
+    });
+  })();
+</script>
+
+<!-- Tracking -->
+<script type="module" src="../js/tracking.js?v=4"></script>
+</body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

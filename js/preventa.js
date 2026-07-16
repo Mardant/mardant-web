@@ -1,5 +1,6 @@
 /* js/preventa.js */
-import { API_URL, whatsappLink } from './config.js';
+import { whatsappLink } from './config.js';
+import { API_CACHE_TTL, cachedFetchJSON } from './api-client.js';
 import { actualizarCarritoUI } from './carrito-utils.js';
 import { buildShareUrl, shareIcon, shareVisualItem } from './social-actions.js?v=2';
 
@@ -11,8 +12,7 @@ const escapeHtml = (t) =>
     : t;
 
 document.addEventListener('DOMContentLoaded', () => {
-  fetch(`${API_URL}?accion=preventas`)
-    .then(r => { if (!r.ok) throw new Error('API'); return r.json(); })
+  cachedFetchJSON('preventas', { ttl: API_CACHE_TTL.PREVENTAS })
     .then(render)
     .catch(showErr);
 
@@ -64,6 +64,7 @@ function card(p) {
   const urlWA = whatsappLink(`Hola, quiero reservar esta preventa con S/ 15: ${nombreRaw}`);
   const precio = `S/. ${(+p.precio || 0).toFixed(2)}`;
   const llegada = p['fecha aprox llegada peru'] || 'Proximamente';
+  const trackCategory = [p.categoria, p.subcategoria].filter(Boolean).join(' - ') || 'Preventa';
 
   const div = document.createElement('div');
   div.className = 'producto';
@@ -73,7 +74,16 @@ function card(p) {
     <div class="categoria">${escapeHtml(p.categoria || '')}${p.subcategoria ? ' - ' + escapeHtml(p.subcategoria) : ''}</div>
     <div class="precio">S/. ${(+p.precio || 0).toFixed(2)}</div>
     <div class="estado">Llega: ${escapeHtml(p['fecha aprox llegada peru'] || 'Proximamente')}</div>
-    <a href="${urlWA}" target="_blank" rel="noopener" class="boton">RESERVAR CON S/ 15</a>
+    <a href="${urlWA}"
+       target="_blank"
+       rel="noopener"
+       class="boton"
+       data-track-item-id="${escapeHtml(String(ref).trim())}"
+       data-track-item-name="${nombre}"
+       data-track-price="${(+p.precio || 0).toFixed(2)}"
+       data-track-category="${escapeHtml(trackCategory)}"
+       data-track-source="preventa"
+       data-track-cta="RESERVAR CON S/ 15">RESERVAR CON S/ 15</a>
     <div class="social-actions social-actions-single">
       <button
         class="social-icon-button"

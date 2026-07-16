@@ -1,4 +1,5 @@
-import { API_URL, whatsappLink } from './config.js';
+import { whatsappLink } from './config.js';
+import { API_CACHE_TTL, cachedFetchJSON } from './api-client.js';
 import {
   agregarAlCarrito,
   actualizarCarritoUI,
@@ -41,8 +42,11 @@ async function loadProducto(){
   if (!id) return showError('Falta el parámetro <b>id</b> en el link del producto.');
 
   try{
-    const res = await fetch(`${API_URL}?accion=producto&id=${encodeURIComponent(id)}`);
-    const data = await res.json();
+    const data = await cachedFetchJSON('producto', {
+      params: { id },
+      ttl: API_CACHE_TTL.PRODUCTO,
+      cacheId: `producto:${id}`
+    });
 
     if (!data || data.ok === false || !data.producto) {
       throw new Error(data?.error || 'not_found');
@@ -60,6 +64,27 @@ function showError(html){
   box.innerHTML = `⚠️ ${html}`;
   box.style.display = 'block';
   $('#pdp').style.display = 'none';
+}
+
+function setMeta(selector, value) {
+  const el = document.head.querySelector(selector);
+  if (el && value) el.setAttribute('content', value);
+}
+
+function updateProductMetadata({ nombre, id, categoria }) {
+  const cleanName = nombre || 'Producto Mardant';
+  const title = `${cleanName} | Mardant Perú`;
+  const description = `Consulta ${cleanName} en Mardant Perú. Productos oficiales de anime, figuras, peluches y coleccionables importados desde Japón.`;
+  const url = `${location.origin}${location.pathname}${id ? `?id=${encodeURIComponent(id)}` : ''}`;
+
+  document.title = title;
+  setMeta('meta[name="description"]', description);
+  setMeta('meta[property="og:title"]', title);
+  setMeta('meta[property="og:description"]', description);
+  setMeta('meta[property="og:url"]', url);
+  setMeta('meta[name="twitter:title"]', title);
+  setMeta('meta[name="twitter:description"]', description);
+  if (categoria) setMeta('meta[property="product:category"]', categoria);
 }
 
 function renderProducto(p){
@@ -81,11 +106,13 @@ function renderProducto(p){
     : (tieneOferta ? 'OFERTA' : 'DISPONIBLE');
 
   const precioFinal = !estaAgotado && tieneOferta ? ofertaNum : precioNum;
+  const categoria = [p.categoria, p.subcategoria].filter(Boolean).join(' - ');
 
   $('#pdp-nombre').textContent = nombre || 'Producto';
   $('#pdp-id').textContent = id ? `ID: ${id}` : '';
   $('#pdp-cat').textContent = p.categoria || '-';
   $('#pdp-sub').textContent = p.subcategoria || '-';
+  updateProductMetadata({ nombre, id, categoria });
 
   const estadoEl = $('#pdp-estado');
   estadoEl.textContent = estadoTxt;
@@ -109,6 +136,13 @@ function renderProducto(p){
   const addBtn = $('#pdp-add');
   addBtn.hidden = estaAgotado;
   addBtn.disabled = (estadoTxt === 'AGOTADO');
+  addBtn.dataset.trackAction = 'add_to_cart';
+  addBtn.dataset.trackItemId = id;
+  addBtn.dataset.trackItemName = nombre;
+  addBtn.dataset.trackPrice = precioFinal.toFixed(2);
+  addBtn.dataset.trackCategory = categoria;
+  addBtn.dataset.trackSource = 'producto_detalle';
+  addBtn.dataset.trackCta = 'Añadir al carrito';
   addBtn.onclick = () => {
     if (estaAgotado) return;
     agregarAlCarrito({ ...p, precio: precioFinal });
@@ -147,4 +181,18 @@ function renderProducto(p){
   waBtn.href = waUrl;
   waBtn.textContent = estaAgotado ? 'Cotizar producto agotado' : 'Pedir por WhatsApp';
   waBtn.classList.toggle('is-agotado', estaAgotado);
+  waBtn.dataset.trackItemId = id;
+  waBtn.dataset.trackItemName = nombre;
+  waBtn.dataset.trackPrice = precioFinal.toFixed(2);
+  waBtn.dataset.trackCategory = categoria;
+  waBtn.dataset.trackSource = 'producto_detalle';
+  waBtn.dataset.trackCta = waBtn.textContent;
+
+  window.MardantTracking?.trackViewItem?.({
+    item_id: id,
+    item_name: nombre,
+    item_category: categoria,
+    price: precioFinal,
+    source_section: 'producto_detalle'
+  });
 }

@@ -1,5 +1,6 @@
 /* js/catalogo.js - Versión Final Corregida */
-import { API_URL, PRODUCTOS_POR_PAGINA } from './config.js';
+import { PRODUCTOS_POR_PAGINA } from './config.js';
+import { API_CACHE_TTL, cachedFetchJSON } from './api-client.js';
 import { 
   agregarAlCarrito,
   actualizarCarritoUI,
@@ -164,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Cargar datos iniciales
-  fetchJSON('productos')
+  cachedFetchJSON('productos', { ttl: API_CACHE_TTL.PRODUCTOS })
     .then(data => {
       productosGlobal = data;
       fillSubcategorias();
@@ -205,12 +206,6 @@ const escapeHtml = (t) => {
           .replace(/'/g, '&#039;')
           .replace(/\//g, '&#x2F;');
 };
-
-const fetchJSON = (accion) => fetch(`${API_URL}?accion=${accion}`)
-  .then(r => {
-    if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
-    return r.json();
-  });
 
 function fillSubcategorias() {
   const cont = $('#subfiltro-contenedor');
@@ -283,6 +278,15 @@ function cardProducto(p) {
   const shareCta = estado === 'AGOTADO'
     ? 'Cotizar producto agotado en mardant.com'
     : 'Ver producto en mardant.com';
+  const trackPrice = tieneOferta ? ofertaNum : precioNum;
+  const trackCategory = [p.categoria, p.subcategoria].filter(Boolean).join(' - ');
+  const trackBase = `
+    data-track-item-id="${escapeHtml(String(p.id ?? '').trim())}"
+    data-track-item-name="${nombre}"
+    data-track-price="${trackPrice.toFixed(2)}"
+    data-track-category="${escapeHtml(trackCategory)}"
+    data-track-source="catalogo"
+  `;
 
   card.innerHTML = `
     <img src="${img}" alt="${nombre}" class="img" loading="lazy" referrerpolicy="no-referrer">
@@ -300,10 +304,18 @@ function cardProducto(p) {
         </span>`}
     </div>
     <div class="estado ${estadoClass}">${estado}</div>
-    <button class="agregar-carrito" ${estado === 'AGOTADO' ? 'disabled' : ''}>
+    <button class="agregar-carrito"
+      data-track-action="add_to_cart"
+      data-track-cta="Añadir al carrito"
+      ${trackBase}
+      ${estado === 'AGOTADO' ? 'disabled' : ''}>
       Añadir al carrito
     </button>
-    <a class="boton ver-detalle" href="./producto.html?id=${encodeURIComponent(p.id)}">Ver detalle</a>
+    <a class="boton ver-detalle"
+      href="./producto.html?id=${encodeURIComponent(p.id)}"
+      data-track-action="select_item"
+      data-track-cta="Ver detalle"
+      ${trackBase}>Ver detalle</a>
     <div class="social-actions social-actions-single">
       <button
         class="social-icon-button"
