@@ -70,20 +70,28 @@ function injectFooterStyles() {
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      width:100%;
-      min-height:46px;
-      padding:10px 14px;
-      border-radius:999px;
-      background:linear-gradient(180deg,#b13a31,#8f2722);
-      color:#fff !important;
-      box-shadow:0 12px 24px rgba(168,50,42,.24);
+      width:min(100%,290px);
+      padding:0;
+      border:0;
+      border-radius:12px;
+      background:transparent;
+      box-shadow:0 12px 24px rgba(168,50,42,.18);
       text-align:center;
+      overflow:hidden;
     }
     .mardant-footer__claim:hover{
       transform:translateY(-1px);
-      box-shadow:0 16px 30px rgba(168,50,42,.28);
+      box-shadow:0 16px 30px rgba(168,50,42,.24);
+      border-color:transparent;
     }
-    .mardant-footer__copy{
+    .mardant-footer__claim img{
+      display:block;
+      width:100%;
+      height:auto;
+      border-radius:12px;
+    }
+    .mardant-footer .mardant-footer__copy{
+      display:block;
       width:min(1180px,100%);
       margin:24px auto 0;
       padding-top:16px;
@@ -92,6 +100,7 @@ function injectFooterStyles() {
       font-size:13px;
       font-weight:800;
       text-align:center;
+      justify-self:center;
     }
     @media (max-width:860px){
       .mardant-footer__inner{grid-template-columns:1fr}
@@ -114,7 +123,6 @@ function renderSiteFooter() {
 
   injectFooterStyles();
 
-  const pagePrefix = window.location.pathname.includes('/views/') ? './' : 'views/';
   const footer = document.createElement('footer');
   footer.className = 'mardant-footer';
   footer.innerHTML = `
@@ -132,18 +140,18 @@ function renderSiteFooter() {
       <nav aria-label="Enlaces del pie de página">
         <h3>Información</h3>
         <div class="mardant-footer__links">
-          <a href="${pagePrefix}inicio.html">Inicio</a>
-          <a href="${pagePrefix}catalogo.html">Catálogo</a>
-          <a href="${pagePrefix}preventa.html">Preventa</a>
-          <a href="${pagePrefix}pedidos.html">Productos a pedido</a>
-          <a href="${pagePrefix}catalogo-japon.html">Catálogo Japón</a>
-          <a href="${pagePrefix}como.html">Cómo comprar</a>
-          <a href="${pagePrefix}envios-entregas.html">Envíos y entregas</a>
-          <a href="${pagePrefix}cambios-devoluciones.html">Cambios y devoluciones</a>
-          <a href="${pagePrefix}terminos-condiciones.html">Términos y condiciones</a>
-          <a href="${pagePrefix}terminos-importacion.html">Términos de importación</a>
-          <a href="${pagePrefix}politica-privacidad.html">Política de privacidad</a>
-          <a href="${pagePrefix}informacion-legal.html">Información legal</a>
+          <a href="/">Inicio</a>
+          <a href="/views/catalogo.html">Catálogo</a>
+          <a href="/views/preventa.html">Preventa</a>
+          <a href="/views/pedidos.html">Productos a pedido</a>
+          <a href="/views/catalogo-japon.html">Catálogo Japón</a>
+          <a href="/views/como.html">Cómo comprar</a>
+          <a href="/views/envios-entregas.html">Envíos y entregas</a>
+          <a href="/views/cambios-devoluciones.html">Cambios y devoluciones</a>
+          <a href="/views/terminos-condiciones.html">Términos y condiciones</a>
+          <a href="/views/terminos-importacion.html">Términos de importación</a>
+          <a href="/views/politica-privacidad.html">Política de privacidad</a>
+          <a href="/views/informacion-legal.html">Información legal</a>
         </div>
       </nav>
 
@@ -151,7 +159,9 @@ function renderSiteFooter() {
         <h3 id="footer-claims-title">Atención al consumidor</h3>
         <p>Para quejas o reclamos relacionados con una compra o atención recibida.</p>
         <p style="margin-top:12px">
-          <a class="mardant-footer__claim" href="${pagePrefix}libro-reclamaciones.html">Libro de Reclamaciones</a>
+          <a class="mardant-footer__claim" href="/views/libro-reclamaciones.html" aria-label="Abrir Libro de Reclamaciones">
+            <img src="https://i.imgur.com/o69mPYC.png" alt="Libro de Reclamaciones de Mardant" loading="lazy" referrerpolicy="no-referrer">
+          </a>
         </p>
       </section>
     </div>
