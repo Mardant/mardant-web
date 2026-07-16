@@ -70,6 +70,7 @@ export function mostrarMiniCarrito() {
 
     const btn = document.createElement('button');
     btn.type = 'button';
+    btn.setAttribute('aria-label', 'Eliminar producto del carrito');
     btn.textContent = 'x';
     btn.addEventListener('click', () => eliminarProductoMini(nombre));
 

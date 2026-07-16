@@ -7,8 +7,11 @@ function getAccountHref() {
 }
 
 function getAccountState() {
-  const hasToken = !!localStorage.getItem(AUTH_KEYS.TOKEN);
-  const name = (localStorage.getItem(AUTH_KEYS.NAME) || '').trim();
+  const storage = (() => {
+    try { return sessionStorage; } catch (_) { return null; }
+  })();
+  const hasToken = !!storage?.getItem(AUTH_KEYS.TOKEN);
+  const name = (storage?.getItem(AUTH_KEYS.NAME) || '').trim();
   const shortName = name ? name.split(/\s+/)[0] : '';
 
   return {

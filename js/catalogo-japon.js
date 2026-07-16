@@ -611,7 +611,7 @@ function card(item){
       <a class="japan-request"
          href="${whatsappLink(`Hola, quiero consultar el lote #${id}`)}"
          target="_blank"
-         rel="noopener"
+         rel="noopener noreferrer"
          data-track-item-id="${escapeHtml(id)}"
          data-track-item-name="Lote #${escapeHtml(id)}"
          data-track-price="${escapeHtml(String(parsePrice(item.precio_producto) || ''))}"

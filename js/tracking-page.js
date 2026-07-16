@@ -215,14 +215,21 @@ async function loadTracking() {
     return;
   }
 
-  const token = localStorage.getItem(AUTH_KEYS.TOKEN) || '';
+  let token = '';
+  try {
+    token = sessionStorage.getItem(AUTH_KEYS.TOKEN) || '';
+  } catch (_) {}
   if (!token) {
     setError('Sesion no iniciada', 'Ingresa nuevamente a Mi Cuenta para ver el seguimiento de este pedido.');
     return;
   }
 
-  const url = `${API_URL}?route=tracking_data&token=${encodeURIComponent(token)}&pre_id=${encodeURIComponent(preId)}`;
-  const res = await fetch(url, { cache: 'no-store' });
+  const res = await fetch(`${API_URL}?route=tracking_data`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ token, pre_id: preId }),
+    cache: 'no-store'
+  });
   const data = await res.json();
 
   if (!data.ok) {

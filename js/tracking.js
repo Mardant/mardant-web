@@ -1,28 +1,6 @@
-/* Facebook Pixel + GA4 + eventos comerciales de Mardant */
+/* GA4 + eventos comerciales de Mardant */
 
-const FB_PIXEL_ID = '1010912193870942';
 const GA4_ID = 'G-MJ9XGF9EZ8';
-
-function initFacebookPixel() {
-  if (window.fbq) return;
-
-  (function (f, b, e, v, n, t, s) {
-    if (f.fbq) return;
-    n = f.fbq = function () {
-      n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-    };
-    if (!f._fbq) f._fbq = n;
-    n.push = n;
-    n.loaded = true;
-    n.version = '2.0';
-    n.queue = [];
-    t = b.createElement(e);
-    t.async = true;
-    t.src = v;
-    s = b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t, s);
-  })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
-}
 
 function initGA4() {
   if (!document.querySelector(`script[src*="${GA4_ID}"]`)) {
@@ -42,14 +20,6 @@ export function trackGA(eventName, params = {}) {
   try {
     if (typeof window.gtag === 'function') {
       window.gtag('event', eventName, params);
-    }
-  } catch (_) {}
-}
-
-export function trackFB(eventName, params = {}) {
-  try {
-    if (typeof window.fbq === 'function') {
-      window.fbq('track', eventName, params);
     }
   } catch (_) {}
 }
@@ -128,12 +98,6 @@ export function trackAddToCart(item = {}) {
   };
 
   trackGA('add_to_cart', payload);
-  trackFB('AddToCart', {
-    content_ids: item.item_id ? [item.item_id] : [],
-    content_name: item.item_name || '',
-    value,
-    currency: 'PEN'
-  });
 }
 
 export function trackSelectItem(item = {}) {
@@ -150,12 +114,6 @@ export function trackViewItem(item = {}) {
     value: Number(item.price || 0),
     items: [gaItem(item)]
   });
-  trackFB('ViewContent', {
-    content_ids: item.item_id ? [item.item_id] : [],
-    content_name: item.item_name || '',
-    value: Number(item.price || 0),
-    currency: 'PEN'
-  });
 }
 
 export function trackBeginCheckout({ value = 0, items = [] } = {}) {
@@ -164,12 +122,6 @@ export function trackBeginCheckout({ value = 0, items = [] } = {}) {
     currency: 'PEN',
     value: Number(value || 0),
     items: gaItems
-  });
-  trackFB('InitiateCheckout', {
-    value: Number(value || 0),
-    currency: 'PEN',
-    content_ids: items.map(item => item.item_id).filter(Boolean),
-    num_items: items.reduce((sum, item) => sum + Number(item.quantity || 1), 0)
   });
 }
 
@@ -184,12 +136,6 @@ function trackWhatsAppClick(link) {
     category: item.item_category,
     source_section: item.source_section,
     cta_text: item.cta_text
-  });
-  trackFB('Contact', {
-    content_name: item.item_name || item.cta_text || 'WhatsApp Mardant',
-    content_category: item.item_category || item.source_section || location.pathname,
-    value: item.price || undefined,
-    currency: 'PEN'
   });
 }
 
@@ -210,13 +156,7 @@ function bindDelegatedEvents() {
   });
 }
 
-initFacebookPixel();
 initGA4();
-
-try {
-  window.fbq('init', FB_PIXEL_ID);
-  window.fbq('track', 'PageView');
-} catch (_) {}
 
 try {
   window.gtag('js', new Date());
@@ -225,7 +165,6 @@ try {
 
 window.MardantTracking = {
   trackGA,
-  trackFB,
   trackAddToCart,
   trackSelectItem,
   trackViewItem,

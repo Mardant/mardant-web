@@ -131,7 +131,7 @@ function renderSiteFooter() {
         <h2 id="footer-brand-title">Mardant Perú</h2>
         <ul class="mardant-footer__meta">
           <li>RUC: 15615825481</li>
-          <li>WhatsApp: <a href="https://wa.me/51985135331" target="_blank" rel="noopener">+51 985 135 331</a></li>
+          <li>WhatsApp: <a href="https://wa.me/51985135331" target="_blank" rel="noopener noreferrer">+51 985 135 331</a></li>
           <li>Correo: <a href="mailto:gamesmardant@gmail.com">gamesmardant@gmail.com</a></li>
           <li>Ubicación: Lima, Perú</li>
         </ul>

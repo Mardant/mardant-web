@@ -131,16 +131,41 @@ let almacenPage = 1;
 let preventaPage = 1;
 let almacenDiasGratis = 0;
 
-const getToken = () => localStorage.getItem(AUTH_KEYS.TOKEN);
+const authStorage = (() => {
+  try {
+    const testKey = '__mardant_session_test__';
+    sessionStorage.setItem(testKey, '1');
+    sessionStorage.removeItem(testKey);
+    return sessionStorage;
+  } catch (_) {
+    return {
+      getItem: () => '',
+      setItem: () => {},
+      removeItem: () => {}
+    };
+  }
+})();
+
+function clearLegacyAuthStorage() {
+  try {
+    localStorage.removeItem(AUTH_KEYS.TOKEN);
+    localStorage.removeItem(AUTH_KEYS.CLIENT);
+    localStorage.removeItem(AUTH_KEYS.NAME);
+  } catch (_) {}
+}
+
+const getToken = () => authStorage.getItem(AUTH_KEYS.TOKEN);
 const setAuth  = (t,id,name)=>{
-  localStorage.setItem(AUTH_KEYS.TOKEN,t);
-  localStorage.setItem(AUTH_KEYS.CLIENT,id||'');
-  localStorage.setItem(AUTH_KEYS.NAME,name||'');
+  clearLegacyAuthStorage();
+  authStorage.setItem(AUTH_KEYS.TOKEN,t);
+  authStorage.setItem(AUTH_KEYS.CLIENT,id||'');
+  authStorage.setItem(AUTH_KEYS.NAME,name||'');
 };
 const clearAuth= ()=>{
-  localStorage.removeItem(AUTH_KEYS.TOKEN);
-  localStorage.removeItem(AUTH_KEYS.CLIENT);
-  localStorage.removeItem(AUTH_KEYS.NAME);
+  authStorage.removeItem(AUTH_KEYS.TOKEN);
+  authStorage.removeItem(AUTH_KEYS.CLIENT);
+  authStorage.removeItem(AUTH_KEYS.NAME);
+  clearLegacyAuthStorage();
 };
 
 const showLogin= ()=>{
@@ -746,7 +771,7 @@ function renderPedidos(pedidos){
     const marTxt   = fmtPenMaybe(c.precio_maritimo_pen);
 
     const linkHtml = url && isValidUrl(url)
-      ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">Ver enlace</a>`
+      ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Ver enlace</a>`
       : `<span class="muted">Sin URL</span>`;
 
     const productHtml = `
@@ -761,7 +786,7 @@ function renderPedidos(pedidos){
     if (canWhatsapp(c)){
       const wa = buildWhatsappLink(c);
       accionHtml = `
-        <a class="btn small" href="${escapeHtml(wa)}" target="_blank" rel="noopener">
+        <a class="btn small" href="${escapeHtml(wa)}" target="_blank" rel="noopener noreferrer">
           PEDIR POR WHATSAPP
         </a>
       `;
@@ -788,8 +813,8 @@ async function loadStatus(){
   if (!token){ showLogin(); return; }
 
   showPanel();
-  if (clientCodeEl) clientCodeEl.textContent = localStorage.getItem(AUTH_KEYS.CLIENT)||'';
-  if (clientNameEl) clientNameEl.textContent = localStorage.getItem(AUTH_KEYS.NAME)||'';
+  if (clientCodeEl) clientCodeEl.textContent = authStorage.getItem(AUTH_KEYS.CLIENT)||'';
+  if (clientNameEl) clientNameEl.textContent = authStorage.getItem(AUTH_KEYS.NAME)||'';
 
   // placeholders
   if (almacenMsg) almacenMsg.textContent = 'Cargando…';
@@ -923,12 +948,14 @@ loginForm?.addEventListener('submit', async (ev)=>{
     await loadStatus();
   }catch(err){
     const map = {
-      client_not_found   : 'Cliente no encontrado',
-      invalid_password   : 'Contraseña incorrecta',
-      missing_credentials: 'Completa ambos campos',
-      too_many_attempts  : 'Demasiados intentos. Intenta más tarde'
+      missing_credentials: 'Completa ambos campos.',
+      login_limited      : 'Demasiados intentos. Intenta nuevamente en unos minutos.',
+      too_many_attempts  : 'Demasiados intentos. Intenta nuevamente en unos minutos.',
+      login_failed       : 'No se pudo iniciar sesión. Revisa tus datos e intenta nuevamente.',
+      client_not_found   : 'No se pudo iniciar sesión. Revisa tus datos e intenta nuevamente.',
+      invalid_password   : 'No se pudo iniciar sesión. Revisa tus datos e intenta nuevamente.'
     };
-    if (loginMsg) loginMsg.textContent = map[err.message] || ('Error: ' + err.message);
+    if (loginMsg) loginMsg.textContent = map[err.message] || map.login_failed;
   }
 });
 
@@ -1000,10 +1027,19 @@ pedidoForm?.addEventListener('submit', async (ev)=>{
    Logout e inicio
 ---------------------------------- */
 logoutBtn?.addEventListener('click', ()=>{
+  const token = getToken();
+  if (token) {
+    fetch(API_URL + '?route=logout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ token })
+    }).catch(() => {});
+  }
   clearAuth();
   showLogin();
 });
 
 // Al cargar, por defecto tab preventas.
+clearLegacyAuthStorage();
 setActiveTab('preventas');
 getToken() ? loadStatus() : showLogin();

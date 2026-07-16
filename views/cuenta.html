@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <title>Mi Cuenta - Mardant</title>
   <!-- cache-busting -->
-  <link rel="stylesheet" href="../css/estilos.css?v=14">
+  <link rel="stylesheet" href="../css/estilos.css?v=16">
   <link rel="stylesheet" href="../css/cuenta.css?v=19">
 </head>
 <body>
@@ -44,7 +45,7 @@
           class="btn btn-whatsapp"
           href="https://wa.me/51985135331?text=Hola%2C%20soy%20cliente%20de%20Mardant%20y%20quiero%20activar%20mi%20cuenta."
           target="_blank"
-          rel="noopener"
+          rel="noopener noreferrer"
         >Contactar por WhatsApp</a>
       </div>
     </section>
@@ -54,11 +55,11 @@
       <form id="loginForm" class="form">
         <div class="row">
           <div class="field">
-            <label class="label">Cliente ID</label>
+            <label class="label" for="clientId">Cliente ID</label>
             <input id="clientId" required placeholder="Ej: ALEX001" autocomplete="username" />
           </div>
           <div class="field">
-            <label class="label">Contraseña</label>
+            <label class="label" for="password">Contraseña</label>
             <div class="input-wrap">
               <input id="password" type="password" required placeholder="••••••••" autocomplete="current-password"/>
               <button type="button" class="toggle-pass" id="togglePass" aria-label="Mostrar/ocultar contraseña">Mostrar</button>
@@ -312,9 +313,9 @@
     </div>
   </div>
 
-  <script type="module" src="../js/tracking.js?v=6"></script>
-  <script type="module" src="../js/cuenta.js?v=14"></script>
-  <script type="module" src="../js/account-widget.js?v=2"></script>
+  <script type="module" src="../js/tracking.js?v=7"></script>
+  <script type="module" src="../js/cuenta.js?v=15"></script>
+  <script type="module" src="../js/account-widget.js?v=3"></script>
 </body>
 </html>
 

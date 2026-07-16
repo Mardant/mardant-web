@@ -2,7 +2,7 @@
 import { AUTH_KEYS, whatsappLink } from './config.js';
 import { API_CACHE_TTL, cachedFetchJSON } from './api-client.js';
 import { actualizarCarritoUI } from './carrito-utils.js';
-import { ensureAccountWidget } from './account-widget.js?v=2';
+import { ensureAccountWidget } from './account-widget.js?v=3';
 
 const $ = (sel) => document.querySelector(sel);
 const MAX_HOME_ITEMS = 4;
@@ -160,7 +160,7 @@ function renderUltimas() {
       <a href="${whatsappLink(`Hola, quiero comprar ahora este producto: ${nombre}`)}"
          class="boton"
          target="_blank"
-         rel="noopener"
+         rel="noopener noreferrer"
          ${trackAttrs({ id: p.id, name: nombre, price: precio, category: p.categoria, source: 'home_ultimas', cta })}>${cta}</a>`;
     cont.appendChild(div);
   });
@@ -210,7 +210,7 @@ function renderOfertas(lista) {
       <a href="${whatsappLink(mensaje)}"
          class="boton"
          target="_blank"
-         rel="noopener"
+         rel="noopener noreferrer"
          ${trackAttrs({ id: p.id, name: nombre, price: precioFinal, category: p.categoria, source: 'home_ofertas', cta })}>${cta}</a>`;
     cont.appendChild(div);
   });
@@ -236,7 +236,7 @@ function renderPreventasHome(lista) {
       <div class="estado estado-preventa">Llega: ${escapeHtml(llegada)}</div>
       <a href="${whatsappLink(`Hola, quiero reservar esta preventa con S/ 15: ${nombre}`)}"
          target="_blank"
-         rel="noopener"
+         rel="noopener noreferrer"
          class="boton"
          ${trackAttrs({ id: p.id || nombre, name: nombre, price: precio, category: 'Preventa', source: 'home_preventas', cta })}>${cta}</a>`;
     cont.appendChild(div);
@@ -275,7 +275,7 @@ function renderPedidosHome(lista) {
       <a href="${whatsappLink(mensaje)}"
          class="boton"
          target="_blank"
-         rel="noopener"
+         rel="noopener noreferrer"
          ${trackAttrs({ id, name: nombre, category: 'Producto a pedido', source: 'home_pedidos', cta })}>${cta}</a>`;
     cont.appendChild(div);
   });
@@ -310,7 +310,7 @@ function renderCatalogoJaponHome(lista) {
       <a href="${whatsappLink(`Hola, quiero consultar el lote #${id}`)}"
          class="boton"
          target="_blank"
-         rel="noopener"
+         rel="noopener noreferrer"
          ${trackAttrs({ id, name: `Lote #${id}`, price: parsePrice(precio), category: 'Catálogo Japón', source: 'home_catalogo_japon', cta })}>${cta}</a>`;
     cont.appendChild(div);
   });

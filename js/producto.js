@@ -71,13 +71,24 @@ function setMeta(selector, value) {
   if (el && value) el.setAttribute('content', value);
 }
 
+function setCanonical(url) {
+  let el = document.head.querySelector('link[rel="canonical"]');
+  if (!el) {
+    el = document.createElement('link');
+    el.rel = 'canonical';
+    document.head.appendChild(el);
+  }
+  el.href = url;
+}
+
 function updateProductMetadata({ nombre, id, categoria }) {
   const cleanName = nombre || 'Producto Mardant';
   const title = `${cleanName} | Mardant Perú`;
   const description = `Consulta ${cleanName} en Mardant Perú. Productos oficiales de anime, figuras, peluches y coleccionables importados desde Japón.`;
-  const url = `${location.origin}${location.pathname}${id ? `?id=${encodeURIComponent(id)}` : ''}`;
+  const url = `https://mardant.com${location.pathname}${id ? `?id=${encodeURIComponent(id)}` : ''}`;
 
   document.title = title;
+  setCanonical(url);
   setMeta('meta[name="description"]', description);
   setMeta('meta[property="og:title"]', title);
   setMeta('meta[property="og:description"]', description);

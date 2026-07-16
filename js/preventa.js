@@ -76,7 +76,7 @@ function card(p) {
     <div class="estado">Llega: ${escapeHtml(p['fecha aprox llegada peru'] || 'Proximamente')}</div>
     <a href="${urlWA}"
        target="_blank"
-       rel="noopener"
+       rel="noopener noreferrer"
        class="boton"
        data-track-item-id="${escapeHtml(String(ref).trim())}"
        data-track-item-name="${nombre}"

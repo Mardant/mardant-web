@@ -595,6 +595,9 @@ html,body{
 }
 .boton-cuenta-flotante:hover{box-shadow:0 16px 34px rgba(0,0,0,.34);filter:saturate(1.03)}
 @media (max-width:480px){
+  body{
+    padding-bottom:118px;
+  }
   #vista-inicio .producto{
     padding:8px;
     border-radius:10px;
@@ -655,13 +658,13 @@ html,body{
     font-size:10px;
   }
   .boton-cuenta-flotante{
-    right:18px !important;
-    bottom:88px !important;
-    width:58px !important;
-    height:58px !important;
-    max-width:58px !important;
+    right:12px !important;
+    bottom:74px !important;
+    width:50px !important;
+    height:50px !important;
+    max-width:50px !important;
     min-width:0 !important;
-    min-height:58px !important;
+    min-height:50px !important;
     padding:0 !important;
     border-radius:50% !important;
     justify-content:center !important;
@@ -672,18 +675,18 @@ html,body{
   .boton-cuenta-flotante .texto{display:none !important}
   .boton-cuenta-flotante .cuenta-icon,
   .boton-cuenta-flotante .emoji{
-    width:38px !important;
-    height:38px !important;
+    width:34px !important;
+    height:34px !important;
     margin:0 !important;
-    font-size:24px !important;
+    font-size:21px !important;
   }
   .cuenta-status{display:none}
   .boton-carrito-flotante{
-    width:58px;
-    height:58px;
-    font-size:28px;
-    bottom:18px;
-    right:18px;
+    width:50px !important;
+    height:50px !important;
+    font-size:24px !important;
+    bottom:14px !important;
+    right:12px !important;
   }
 }
 
