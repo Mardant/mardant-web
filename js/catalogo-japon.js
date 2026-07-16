@@ -626,7 +626,7 @@ function card(item){
         <div class="japan-rank japan-rank-${rank.rank.toLowerCase()}">
           <span class="japan-rank-letter" aria-hidden="true">${rank.rank}</span>
           <span class="japan-rank-copy">
-            <strong>Rango ${rank.rank} de HardOff</strong>
+            <strong>Rango ${rank.rank}</strong>
             <small>${escapeHtml(rank.description)}</small>
           </span>
         </div>
