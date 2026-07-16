@@ -7,6 +7,8 @@ function injectFooterStyles() {
   style.id = FOOTER_STYLE_ID;
   style.textContent = `
     .mardant-footer{
+      position:relative;
+      z-index:10002;
       margin-top:48px;
       padding:32px 18px calc(32px + env(safe-area-inset-bottom, 0px));
       background:#050403;
@@ -107,7 +109,7 @@ function injectFooterStyles() {
       .mardant-footer__links{grid-template-columns:1fr}
       .mardant-footer__links a{width:100%}
       .mardant-footer h2{font-size:22px}
-      .mardant-footer{padding-bottom:calc(120px + env(safe-area-inset-bottom, 0px))}
+      .mardant-footer{padding-bottom:calc(28px + env(safe-area-inset-bottom, 0px))}
     }
   `;
   document.head.appendChild(style);

@@ -331,6 +331,22 @@ function etiquetaInfo(value){
   return { text: 'Disponible', className: 'is-disponible' };
 }
 
+function rankInfo(value){
+  const raw = String(value || '').trim().toUpperCase();
+  const match = raw.match(/^(?:RANK\s*)?([NSABCD])(?:\s*RANK)?$/i);
+  const rank = match?.[1]?.toUpperCase() || '';
+  const descriptions = {
+    N: 'Producto nuevo, sin abrir y de venta actual.',
+    S: 'Estado similar a nuevo o producto descontinuado.',
+    A: 'Muy buen estado y con muy poco uso.',
+    B: 'Producto usado con señales leves de uso.',
+    C: 'Producto usado con desgaste, rayones o suciedad visibles.',
+    D: 'Producto con desgaste notable, daños o partes despintadas.'
+  };
+  if (!descriptions[rank]) return null;
+  return { rank, description: descriptions[rank] };
+}
+
 function requestUrl(){
   return GVIZ_URL;
 }
@@ -366,7 +382,8 @@ function parseGvizCatalog(text){
     ultima_revision: indexOf('ultima_revision', 5),
     anime: indexOf('anime', 6),
     tipo: indexOf('tipo', 7),
-    busqueda: indexOf('busqueda', 8)
+    busqueda: indexOf('busqueda', 8),
+    rank: indexOf('rank', 9)
   };
 
   return (payload.table?.rows || [])
@@ -379,7 +396,8 @@ function parseGvizCatalog(text){
       ultima_revision: cellValue(row, cols.ultima_revision),
       anime: cellValue(row, cols.anime),
       tipo: cellValue(row, cols.tipo),
-      busqueda: cellValue(row, cols.busqueda)
+      busqueda: cellValue(row, cols.busqueda),
+      rank: cellValue(row, cols.rank)
     }))
     .filter(item => item.id_lote && normalizeText(item.visible) === 'si');
 }
@@ -585,6 +603,7 @@ function card(item){
   const id = String(item.id_lote || '').trim();
   const imageUrl = String(item.imagen_url || '').trim();
   const etiqueta = etiquetaInfo(item.etiqueta);
+  const rank = rankInfo(item.rank);
   const liked = likedLots.has(id);
   const shareUrl = loteShareUrl(id);
   registerCatalogImage(id, imageUrl);
@@ -603,6 +622,15 @@ function card(item){
         <h2>Lote #${escapeHtml(id)}</h2>
         <span class="japan-badge ${etiqueta.className}">${etiqueta.text}</span>
       </div>
+      ${rank ? `
+        <div class="japan-rank japan-rank-${rank.rank.toLowerCase()}">
+          <span class="japan-rank-letter" aria-hidden="true">${rank.rank}</span>
+          <span class="japan-rank-copy">
+            <strong>Rango ${rank.rank} de HardOff</strong>
+            <small>${escapeHtml(rank.description)}</small>
+          </span>
+        </div>
+      ` : ''}
       <div class="japan-price-box">
         <span>Precio del producto</span>
         <strong>${escapeHtml(money(item.precio_producto))}</strong>
@@ -657,15 +685,19 @@ async function shareLote(id, url, button){
 
   try {
     if (item && navigator.share && navigator.canShare) {
-      const blob = await createShareImageBlob(item);
-      const file = new File([blob], `mardant-lote-${loteId}.png`, { type: 'image/png' });
-      if (navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          title: `Lote #${loteId} - Mardant`,
-          text,
-          files: [file]
-        });
-        return;
+      try {
+        const blob = await createShareImageBlob(item);
+        const file = new File([blob], `mardant-lote-${loteId}.png`, { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: `Lote #${loteId} - Mardant`,
+            text,
+            files: [file]
+          });
+          return;
+        }
+      } catch (imageError) {
+        console.warn('No se pudo crear la imagen para compartir; se usara el enlace:', imageError);
       }
     }
 
@@ -678,11 +710,12 @@ async function shareLote(id, url, button){
       return;
     }
 
-    window.open(whatsappLink(`${text}\n${shareUrl}`), '_blank', 'noopener');
-  } catch (error) {
-    if (error?.name !== 'AbortError') {
-      window.open(whatsappLink(`${text}\n${shareUrl}`), '_blank', 'noopener');
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(`${text}\n${shareUrl}`);
+      alert('Enlace del lote copiado. Ya puedes compartirlo donde prefieras.');
     }
+  } catch (error) {
+    if (error?.name !== 'AbortError') console.warn('No se pudo compartir el lote:', error);
   } finally {
     button?.classList.remove('is-loading');
     if (button) button.disabled = false;

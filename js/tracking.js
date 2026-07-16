@@ -177,4 +177,4 @@ if (document.readyState === 'loading') {
   bindDelegatedEvents();
 }
 
-import('./site-footer.js?v=5');
+import('./site-footer.js?v=6');

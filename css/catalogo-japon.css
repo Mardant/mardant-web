@@ -445,6 +445,60 @@ body.modal-open{
   white-space:nowrap;
 }
 
+.japan-rank{
+  display:grid;
+  grid-template-columns:38px minmax(0, 1fr);
+  align-items:center;
+  gap:9px;
+  padding:8px 9px;
+  border:1px solid rgba(35,78,142,.18);
+  border-radius:8px;
+  background:#f3f7fc;
+  color:#26384f;
+}
+
+.japan-rank-letter{
+  display:grid;
+  place-items:center;
+  width:38px;
+  height:38px;
+  border-radius:6px;
+  background:#1654a0;
+  color:#fff;
+  font-size:22px;
+  font-weight:1000;
+  line-height:1;
+  box-shadow:inset 0 -4px 0 rgba(0,0,0,.12);
+}
+
+.japan-rank-copy{
+  display:grid;
+  gap:2px;
+  min-width:0;
+  text-align:left;
+}
+
+.japan-rank-copy strong{
+  color:#17273b;
+  font-size:12px;
+  font-weight:1000;
+  line-height:1.15;
+}
+
+.japan-rank-copy small{
+  color:#5e6b79;
+  font-size:10px;
+  font-weight:800;
+  line-height:1.22;
+}
+
+.japan-rank-n .japan-rank-letter{background:#5d5d5d}
+.japan-rank-s .japan-rank-letter{background:#d5a514}
+.japan-rank-a .japan-rank-letter{background:#4b83cb}
+.japan-rank-b .japan-rank-letter{background:#07519f}
+.japan-rank-c .japan-rank-letter{background:#9a9a9a}
+.japan-rank-d .japan-rank-letter{background:#765000}
+
 .japan-badge{
   flex:0 0 auto;
   display:inline-flex;

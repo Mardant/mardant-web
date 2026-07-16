@@ -131,11 +131,14 @@ html,body{
     font-size:13px;
   }
   .menu-japon-kanji{font-size:17px}
+  #vista-inicio header.banner{
+    background:transparent;
+  }
   #vista-inicio header.banner img{
-    height:clamp(88px, 22vw, 128px) !important;
-    object-fit:contain !important;
+    height:auto !important;
+    object-fit:fill !important;
     object-position:center center !important;
-    background:#000;
+    background:transparent;
   }
   #vista-inicio .carrusel{
     height:clamp(94px, 24vw, 132px) !important;
@@ -595,9 +598,7 @@ html,body{
 }
 .boton-cuenta-flotante:hover{box-shadow:0 16px 34px rgba(0,0,0,.34);filter:saturate(1.03)}
 @media (max-width:480px){
-  body{
-    padding-bottom:118px;
-  }
+  body{padding-bottom:0}
   #vista-inicio .producto{
     padding:8px;
     border-radius:10px;
