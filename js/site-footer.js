@@ -70,7 +70,7 @@ function injectFooterStyles() {
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      width:min(100%,290px);
+      width:min(100%,150px);
       padding:0;
       border:0;
       border-radius:12px;
@@ -157,8 +157,7 @@ function renderSiteFooter() {
 
       <section aria-labelledby="footer-claims-title">
         <h3 id="footer-claims-title">Atención al consumidor</h3>
-        <p>Para quejas o reclamos relacionados con una compra o atención recibida.</p>
-        <p style="margin-top:12px">
+        <p style="margin-top:6px">
           <a class="mardant-footer__claim" href="/views/libro-reclamaciones.html" aria-label="Abrir Libro de Reclamaciones">
             <img src="https://i.imgur.com/o69mPYC.png" alt="Libro de Reclamaciones de Mardant" loading="lazy" referrerpolicy="no-referrer">
           </a>

@@ -238,4 +238,4 @@ if (document.readyState === 'loading') {
   bindDelegatedEvents();
 }
 
-import('./site-footer.js?v=4');
+import('./site-footer.js?v=5');
