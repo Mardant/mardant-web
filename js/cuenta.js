@@ -185,7 +185,9 @@ function setupAuthChannel(){
     authChannel.postMessage({
       type: 'AUTH_RESPONSE',
       requestId: String(message.requestId),
-      token
+      token,
+      clientId: authStorage.getItem(AUTH_KEYS.CLIENT) || '',
+      name: authStorage.getItem(AUTH_KEYS.NAME) || ''
     });
   });
 }
@@ -866,6 +868,13 @@ async function loadStatus(){
       if (data.error === 'invalid_token'){ clearAuth(); showLogin(); return; }
       throw new Error(data.error||'error');
     }
+
+    const resolvedClientId = String(data.client_id || authStorage.getItem(AUTH_KEYS.CLIENT) || '').trim();
+    const resolvedName = String(data.name || data.nombre || authStorage.getItem(AUTH_KEYS.NAME) || '').trim();
+    if (resolvedClientId) authStorage.setItem(AUTH_KEYS.CLIENT, resolvedClientId);
+    if (resolvedName) authStorage.setItem(AUTH_KEYS.NAME, resolvedName);
+    if (clientCodeEl) clientCodeEl.textContent = resolvedClientId;
+    if (clientNameEl) clientNameEl.textContent = resolvedName;
 
     // KPIs
     if (diasGratisEl)    diasGratisEl.textContent    = data.dias_gratis;

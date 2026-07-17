@@ -5,25 +5,32 @@ const params = new URLSearchParams(window.location.search);
 const preId = (params.get('pre_id') || params.get('pedido') || '').trim();
 const AUTH_CHANNEL_NAME = 'mardant_auth_channel_v1';
 
-function readSessionToken() {
+function readSessionProfile() {
   try {
-    return sessionStorage.getItem(AUTH_KEYS.TOKEN) || '';
+    return {
+      token: sessionStorage.getItem(AUTH_KEYS.TOKEN) || '',
+      clientId: sessionStorage.getItem(AUTH_KEYS.CLIENT) || '',
+      name: sessionStorage.getItem(AUTH_KEYS.NAME) || ''
+    };
   } catch (_) {
-    return '';
+    return { token: '', clientId: '', name: '' };
   }
 }
 
-function saveSessionToken(token) {
-  if (!token) return;
+function saveSessionAuth(auth = {}) {
   try {
-    sessionStorage.setItem(AUTH_KEYS.TOKEN, token);
+    if (auth.token) sessionStorage.setItem(AUTH_KEYS.TOKEN, auth.token);
+    if (auth.clientId) sessionStorage.setItem(AUTH_KEYS.CLIENT, auth.clientId);
+    if (auth.name) sessionStorage.setItem(AUTH_KEYS.NAME, auth.name);
   } catch (_) {}
 }
 
 function requestTokenFromAccountTab(timeoutMs = 1800) {
-  const existingToken = readSessionToken();
-  if (existingToken) return Promise.resolve(existingToken);
-  if (!('BroadcastChannel' in window)) return Promise.resolve('');
+  const existingAuth = readSessionProfile();
+  if (existingAuth.token && existingAuth.clientId && existingAuth.name) {
+    return Promise.resolve(existingAuth.token);
+  }
+  if (!('BroadcastChannel' in window)) return Promise.resolve(existingAuth.token);
 
   return new Promise((resolve) => {
     const channel = new BroadcastChannel(AUTH_CHANNEL_NAME);
@@ -31,22 +38,27 @@ function requestTokenFromAccountTab(timeoutMs = 1800) {
     let timer = null;
     let finished = false;
 
-    const finish = (token = '') => {
+    const finish = (auth = {}) => {
       if (finished) return;
       finished = true;
       if (timer) clearTimeout(timer);
       channel.close();
-      saveSessionToken(token);
-      resolve(token);
+      const receivedAuth = {
+        token: String(auth.token || existingAuth.token || ''),
+        clientId: String(auth.clientId || existingAuth.clientId || ''),
+        name: String(auth.name || existingAuth.name || '')
+      };
+      saveSessionAuth(receivedAuth);
+      resolve(receivedAuth.token);
     };
 
     channel.addEventListener('message', (event) => {
       const message = event.data || {};
       if (message.type !== 'AUTH_RESPONSE' || message.requestId !== requestId) return;
-      finish(String(message.token || ''));
+      finish(message);
     });
 
-    timer = setTimeout(() => finish(''), timeoutMs);
+    timer = setTimeout(() => finish(existingAuth), timeoutMs);
     channel.postMessage({ type: 'REQUEST_AUTH', requestId });
   });
 }
