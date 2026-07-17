@@ -3,6 +3,53 @@ import { API_URL, AUTH_KEYS } from './config.js';
 const content = document.getElementById('trackingContent');
 const params = new URLSearchParams(window.location.search);
 const preId = (params.get('pre_id') || params.get('pedido') || '').trim();
+const AUTH_CHANNEL_NAME = 'mardant_auth_channel_v1';
+
+function readSessionToken() {
+  try {
+    return sessionStorage.getItem(AUTH_KEYS.TOKEN) || '';
+  } catch (_) {
+    return '';
+  }
+}
+
+function saveSessionToken(token) {
+  if (!token) return;
+  try {
+    sessionStorage.setItem(AUTH_KEYS.TOKEN, token);
+  } catch (_) {}
+}
+
+function requestTokenFromAccountTab(timeoutMs = 1800) {
+  const existingToken = readSessionToken();
+  if (existingToken) return Promise.resolve(existingToken);
+  if (!('BroadcastChannel' in window)) return Promise.resolve('');
+
+  return new Promise((resolve) => {
+    const channel = new BroadcastChannel(AUTH_CHANNEL_NAME);
+    const requestId = `tracking-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    let timer = null;
+    let finished = false;
+
+    const finish = (token = '') => {
+      if (finished) return;
+      finished = true;
+      if (timer) clearTimeout(timer);
+      channel.close();
+      saveSessionToken(token);
+      resolve(token);
+    };
+
+    channel.addEventListener('message', (event) => {
+      const message = event.data || {};
+      if (message.type !== 'AUTH_RESPONSE' || message.requestId !== requestId) return;
+      finish(String(message.token || ''));
+    });
+
+    timer = setTimeout(() => finish(''), timeoutMs);
+    channel.postMessage({ type: 'REQUEST_AUTH', requestId });
+  });
+}
 
 function escapeHtml(value = '') {
   return String(value)
@@ -215,10 +262,7 @@ async function loadTracking() {
     return;
   }
 
-  let token = '';
-  try {
-    token = sessionStorage.getItem(AUTH_KEYS.TOKEN) || '';
-  } catch (_) {}
+  const token = await requestTokenFromAccountTab();
   if (!token) {
     setError('Sesion no iniciada', 'Ingresa nuevamente a Mi Cuenta para ver el seguimiento de este pedido.');
     return;

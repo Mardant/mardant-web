@@ -168,6 +168,31 @@ const clearAuth= ()=>{
   clearLegacyAuthStorage();
 };
 
+const AUTH_CHANNEL_NAME = 'mardant_auth_channel_v1';
+let authChannel = null;
+
+function setupAuthChannel(){
+  if (!('BroadcastChannel' in window)) return;
+
+  authChannel = new BroadcastChannel(AUTH_CHANNEL_NAME);
+  authChannel.addEventListener('message', (event)=>{
+    const message = event.data || {};
+    if (message.type !== 'REQUEST_AUTH' || !message.requestId) return;
+
+    const token = getToken();
+    if (!token) return;
+
+    authChannel.postMessage({
+      type: 'AUTH_RESPONSE',
+      requestId: String(message.requestId),
+      token
+    });
+  });
+}
+
+setupAuthChannel();
+window.addEventListener('pagehide', ()=> authChannel?.close(), { once: true });
+
 const showLogin= ()=>{
   if (statusSection) statusSection.style.display='none';
   if (loginSection)  loginSection.style.display='block';
