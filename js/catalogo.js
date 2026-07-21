@@ -8,6 +8,7 @@ import {
   actualizarContador
 } from './carrito-utils.js';
 import { buildShareUrl, shareIcon, shareVisualItem } from './social-actions.js?v=2';
+import { setupSearchTracking } from './search-tracking.js?v=1';
 
 const productosPorPagina = PRODUCTOS_POR_PAGINA;
 let productosGlobal = [];
@@ -102,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#orden').addEventListener('change', aplicarFiltros);
   $('#estado').addEventListener('change', aplicarFiltros);
   $('#buscador').addEventListener('input', debounce(aplicarFiltros, 300));
+  setupSearchTracking($('#buscador'), 'CATALOGO');
   $('#precio-min')?.addEventListener('input', debounce(aplicarFiltros, 300));
   $('#precio-max')?.addEventListener('input', debounce(aplicarFiltros, 300));
   $('#limpiar-precio')?.addEventListener('click', () => {

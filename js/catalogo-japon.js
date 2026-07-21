@@ -1,5 +1,6 @@
 import { API_URL, whatsappLink } from './config.js';
 import { API_CACHE_TTL, cachedFetchText } from './api-client.js';
+import { setupSearchTracking } from './search-tracking.js?v=1';
 
 const PAGE_SIZE = 20;
 const SPREADSHEET_ID = '17UeC7f4aIGmqEdmXD20wlV-kNidpm1MKK4V5v33X5yc';
@@ -495,6 +496,25 @@ function drawContainedImage(ctx, image, x, y, width, height){
   ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
 }
 
+function drawShareImageFallback(ctx, id){
+  const fallback = ctx.createLinearGradient(110, 136, 970, 1186);
+  fallback.addColorStop(0, '#f8efe4');
+  fallback.addColorStop(1, '#e6d4bd');
+  ctx.fillStyle = fallback;
+  ctx.fillRect(110, 136, 860, 1050);
+
+  ctx.fillStyle = '#a8322a';
+  ctx.textAlign = 'center';
+  ctx.font = '900 120px Arial, sans-serif';
+  ctx.fillText('M', 540, 570);
+  ctx.fillStyle = '#30261f';
+  ctx.font = '900 54px Arial, sans-serif';
+  ctx.fillText(`Lote #${id}`, 540, 690);
+  ctx.fillStyle = '#756452';
+  ctx.font = '700 34px Arial, sans-serif';
+  ctx.fillText('Mira la imagen completa en mardant.com', 540, 770);
+}
+
 function canvasToBlob(canvas){
   return new Promise((resolve, reject) => {
     try {
@@ -542,15 +562,15 @@ async function createShareImageBlob(item){
 
   const imageUrl = String(item.imagen_url || '').trim();
   if (imageUrl) {
-    const image = await loadShareImage(item);
-    drawContainedImage(ctx, image, 110, 136, 860, 1050);
+    try {
+      const image = await loadShareImage(item);
+      drawContainedImage(ctx, image, 110, 136, 860, 1050);
+    } catch (error) {
+      console.warn('La imagen original no permite crear el archivo compartible:', error);
+      drawShareImageFallback(ctx, id);
+    }
   } else {
-    ctx.fillStyle = '#ddd1bf';
-    ctx.fillRect(110, 136, 860, 1050);
-    ctx.fillStyle = '#7c6a55';
-    ctx.font = '800 48px Arial, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Sin imagen', 540, 660);
+    drawShareImageFallback(ctx, id);
   }
 
   ctx.save();
@@ -933,6 +953,8 @@ sortSelect?.addEventListener('change', () => {
 searchInput?.addEventListener('input', debounce(() => {
   applyFilters();
 }));
+
+setupSearchTracking(searchInput, 'CATALOGO_JAPON');
 
 animeSelect?.addEventListener('change', () => {
   applyFilters();
