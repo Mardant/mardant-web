@@ -18,6 +18,7 @@ const clientAccessNote = document.querySelector('.client-access-note');
 const loginForm     = document.getElementById('loginForm');
 const loginMsg      = document.getElementById('loginMsg');
 const togglePassBtn = document.getElementById('togglePass');
+let loginInFlight   = false;
 
 const clientNameEl    = document.getElementById('clientName');
 const clientCodeEl    = document.getElementById('clientCode');
@@ -959,18 +960,41 @@ async function loadStatus(){
 ---------------------------------- */
 loginForm?.addEventListener('submit', async (ev)=>{
   ev.preventDefault();
+  if (loginInFlight) return;
+
+  const submitBtn = loginForm.querySelector('button[type="submit"]');
   if (loginMsg) loginMsg.textContent = 'Verificando…';
 
   const client_id = document.getElementById('clientId')?.value.trim();
   const password  = document.getElementById('password')?.value;
 
+  if (!client_id || !password) {
+    if (loginMsg) loginMsg.textContent = 'Completa ambos campos.';
+    return;
+  }
+
+  loginInFlight = true;
+  if (submitBtn) submitBtn.disabled = true;
+  loginForm.setAttribute('aria-busy', 'true');
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 25000);
+
   try{
     const res  = await fetch(API_URL + '?route=login', {
       method:'POST',
       headers:{ 'Content-Type':'text/plain;charset=utf-8' },
-      body: JSON.stringify({ client_id, password })
+      body: JSON.stringify({ client_id, password }),
+      signal: controller.signal
     });
-    const data = await res.json();
+    if (!res.ok) throw new Error('service_unavailable');
+
+    const responseText = await res.text();
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (_) {
+      throw new Error('service_unavailable');
+    }
     if (!data.ok) throw new Error(data.error||'login_failed');
 
     setAuth(data.token, data.client_id, data.name);
@@ -981,15 +1005,23 @@ loginForm?.addEventListener('submit', async (ev)=>{
 
     await loadStatus();
   }catch(err){
+    const errorCode = err?.name === 'AbortError' ? 'login_timeout' : err.message;
     const map = {
       missing_credentials: 'Completa ambos campos.',
       login_limited      : 'Demasiados intentos. Intenta nuevamente en unos minutos.',
       too_many_attempts  : 'Demasiados intentos. Intenta nuevamente en unos minutos.',
+      login_timeout      : 'El servicio está tardando más de lo normal. Espera unos segundos e intenta nuevamente.',
+      service_unavailable: 'No pudimos conectar con Mi Cuenta. Espera unos segundos e intenta nuevamente.',
       login_failed       : 'No se pudo iniciar sesión. Revisa tus datos e intenta nuevamente.',
       client_not_found   : 'No se pudo iniciar sesión. Revisa tus datos e intenta nuevamente.',
       invalid_password   : 'No se pudo iniciar sesión. Revisa tus datos e intenta nuevamente.'
     };
-    if (loginMsg) loginMsg.textContent = map[err.message] || map.login_failed;
+    if (loginMsg) loginMsg.textContent = map[errorCode] || map.login_failed;
+  }finally{
+    clearTimeout(timeoutId);
+    loginInFlight = false;
+    if (submitBtn) submitBtn.disabled = false;
+    loginForm.removeAttribute('aria-busy');
   }
 });
 
