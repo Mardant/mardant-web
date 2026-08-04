@@ -836,6 +836,46 @@ function renderPedidos(pedidos){
 /* ---------------------------------
    Carga de panel (status)
 ---------------------------------- */
+async function fetchStatusData(token){
+  let lastError = new Error('service_unavailable');
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+    try {
+      const res = await fetch(API_URL + '?route=status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ token }),
+        signal: controller.signal
+      });
+      if (!res.ok) throw new Error('service_unavailable');
+
+      const responseText = await res.text();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (_) {
+        throw new Error('service_unavailable');
+      }
+
+      if (data?.error === 'server_error') throw new Error('service_unavailable');
+      return data;
+    } catch (err) {
+      lastError = err?.name === 'AbortError'
+        ? new Error('status_timeout')
+        : err;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    if (attempt === 0) await new Promise(resolve => setTimeout(resolve, 800));
+  }
+
+  throw lastError;
+}
+
 async function loadStatus(){
   const token = getToken();
   if (!token){ showLogin(); return; }
@@ -858,12 +898,7 @@ async function loadStatus(){
   renderPuntos(null);
 
   try{
-    const res = await fetch(API_URL + '?route=status', {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ token })
-    });
-    const data = await res.json();
+    const data = await fetchStatusData(token);
 
     if (!data.ok){
       if (data.error === 'invalid_token'){ clearAuth(); showLogin(); return; }
@@ -947,7 +982,9 @@ async function loadStatus(){
     renderPedidos(pedidos);
 
   }catch(err){
-    const msg = 'No se pudo cargar el estado ('+(err.message||err)+')';
+    const msg = err?.message === 'status_timeout'
+      ? 'Mi Cuenta está tardando más de lo normal. Intenta recargar en unos segundos.'
+      : 'No pudimos cargar los datos de tu cuenta. Intenta recargar en unos segundos.';
     if (almacenMsg) almacenMsg.textContent = msg;
     if (preMsg)     preMsg.textContent     = msg;
     if (pedidosMsg) pedidosMsg.textContent = msg;
