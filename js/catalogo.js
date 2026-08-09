@@ -150,7 +150,7 @@ async function loadCatalogPage({ urlMode = 'replace' } = {}) {
     const data = await cachedFetchJSON('productosPage', {
       ttl: API_CACHE_TTL.PRODUCTOS,
       params: catalogParams(),
-      cacheId: 'productos-page-v1',
+      cacheId: 'productos-page-v2',
       signal: catalogRequestController.signal
     });
     if (!data?.ok || !Array.isArray(data.productos)) throw new Error(data?.error || 'productos_page_unavailable');
@@ -161,6 +161,14 @@ async function loadCatalogPage({ urlMode = 'replace' } = {}) {
     renderProductos(data.productos);
     renderPaginacion(totalPaginas);
     syncCatalogUrl('replace');
+
+    if (paginaActual < totalPaginas) {
+      cachedFetchJSON('productosPage', {
+        ttl: API_CACHE_TTL.PRODUCTOS,
+        params: { ...catalogParams(), page: paginaActual + 1 },
+        cacheId: 'productos-page-v2'
+      }).catch(() => {});
+    }
   } catch (error) {
     if (error?.name === 'AbortError') return;
     await loadCatalogFallback(error);

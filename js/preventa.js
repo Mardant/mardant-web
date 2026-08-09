@@ -55,7 +55,7 @@ async function loadPreventasPage({ urlMode = 'replace' } = {}) {
     const data = await cachedFetchJSON('preventasPage', {
       ttl: API_CACHE_TTL.PREVENTAS,
       params: { page: paginaActual, page_size: ITEMS_PER_PAGE },
-      cacheId: 'preventas-page-v1'
+      cacheId: 'preventas-page-v2'
     });
     if (!data?.ok || !Array.isArray(data.productos)) throw new Error(data?.error || 'preventas_page_unavailable');
 
@@ -64,6 +64,14 @@ async function loadPreventasPage({ urlMode = 'replace' } = {}) {
     render(data.productos);
     renderPagination();
     updateCatalogUrl({ pagina: paginaActual }, 'replace');
+
+    if (paginaActual < totalPaginas) {
+      cachedFetchJSON('preventasPage', {
+        ttl: API_CACHE_TTL.PREVENTAS,
+        params: { page: paginaActual + 1, page_size: ITEMS_PER_PAGE },
+        cacheId: 'preventas-page-v2'
+      }).catch(() => {});
+    }
   } catch (serverError) {
     try {
       if (!preventasGlobal.length) {

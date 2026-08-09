@@ -1031,6 +1031,14 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
       statusEl.classList.remove('is-error');
       dateEl.textContent = 'Prueba con otra búsqueda o cambia los filtros';
     }
+
+    if (currentPage < serverTotalPages) {
+      cachedFetchJSON('catalogoPreventasJaponPage', {
+        params: catalogRequestParams(currentPage + 1),
+        ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
+        cacheId: 'catalogo-japon-page'
+      }).catch(() => {});
+    }
     return data;
   } catch (error) {
     if (error?.name === 'AbortError') return null;

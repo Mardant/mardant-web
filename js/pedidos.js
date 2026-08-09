@@ -218,7 +218,7 @@ async function loadPedidosPage({ urlMode = 'replace' } = {}) {
     const data = await cachedFetchJSON('pedidosDisponiblesPage', {
       ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES,
       params: { page: paginaActual, page_size: ITEMS_PER_PAGE, sort: ordenActual },
-      cacheId: 'pedidos-page-v1'
+      cacheId: 'pedidos-page-v2'
     });
     if (!data?.ok || !Array.isArray(data.productos)) throw new Error(data?.error || 'pedidos_page_unavailable');
 
@@ -228,6 +228,14 @@ async function loadPedidosPage({ urlMode = 'replace' } = {}) {
     pintarPagina();
     dibujarPaginacion();
     syncPedidosUrl('replace');
+
+    if (paginaActual < totalPaginas) {
+      cachedFetchJSON('pedidosDisponiblesPage', {
+        ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES,
+        params: { page: paginaActual + 1, page_size: ITEMS_PER_PAGE, sort: ordenActual },
+        cacheId: 'pedidos-page-v2'
+      }).catch(() => {});
+    }
   } catch (serverError) {
     try {
       if (!allPedidos.length) {
