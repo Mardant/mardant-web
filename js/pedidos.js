@@ -12,6 +12,7 @@ import {
   shareIcon,
   shareVisualItem
 } from './social-actions.js?v=2';
+import { pageFromUrl, renderCatalogPagination, updateCatalogUrl } from './pagination-utils.js?v=1';
 
 const $ = (s) => document.querySelector(s);
 const ITEMS_PER_PAGE = 21;
@@ -20,8 +21,9 @@ const PEDIDOS_SAVES_KEY = 'mardant_pedidos_saves_v1';
 
 let allPedidos = [];
 let pedidos = [];
-let paginaActual = 1;
-let ordenActual = 'newest';
+let paginaActual = pageFromUrl();
+let ordenActual = new URLSearchParams(location.search).get('orden') === 'oldest' ? 'oldest' : 'newest';
+let totalPaginas = 1;
 let pedidoLikes = new Map();
 let likedPedidos = loadStoredSet(PEDIDOS_LIKES_KEY);
 let savedPedidos = loadStoredSet(PEDIDOS_SAVES_KEY);
@@ -47,43 +49,27 @@ const norm = (s) =>
     .trim();
 
 document.addEventListener('DOMContentLoaded', () => {
-  Promise.all([
-    cachedFetchJSON('pedidosDisponibles', { ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES }),
-    cargarInteraccionesPedidos()
-  ])
-    .then(([lista]) => renderLista(lista))
-    .catch(showErr);
+  cargarInteraccionesPedidos().then(() => loadPedidosPage()).catch(showErr);
 
   actualizarCarritoUI();
 
   const orderSelect = document.getElementById('pedidoOrdenSelect');
   if (orderSelect) {
+    orderSelect.value = ordenActual;
     orderSelect.addEventListener('change', () => {
       ordenActual = orderSelect.value === 'oldest' ? 'oldest' : 'newest';
-      aplicarFiltrosYRedibujar();
+      paginaActual = 1;
+      loadPedidosPage();
     });
   }
 
-  const pag = $('#paginacion');
-  if (pag) {
-    pag.addEventListener('click', (ev) => {
-      const btn = ev.target.closest('button[data-page]');
-      if (!btn || btn.disabled) return;
-
-      const nueva = Number(btn.dataset.page);
-      const totalPaginas = Math.ceil(pedidos.length / ITEMS_PER_PAGE);
-      if (Number.isNaN(nueva) || nueva < 1 || nueva > totalPaginas) return;
-
-      paginaActual = nueva;
-      pintarPagina();
-      dibujarPaginacion();
-
-      const cont = $('#contenedor');
-      if (cont) {
-        window.scrollTo({ top: cont.offsetTop - 120, behavior: 'smooth' });
-      }
-    });
-  }
+  window.addEventListener('popstate', () => {
+    const params = new URLSearchParams(location.search);
+    paginaActual = pageFromUrl();
+    ordenActual = params.get('orden') === 'oldest' ? 'oldest' : 'newest';
+    if (orderSelect) orderSelect.value = ordenActual;
+    loadPedidosPage();
+  });
 
   $('#contenedor')?.addEventListener('click', (event) => {
     const shareBtn = event.target.closest('[data-pedido-share]');
@@ -210,57 +196,65 @@ async function togglePedidoInteraction(tipo, id, button){
   }
 }
 
-function renderLista(lista = []) {
-  const cont = $('#contenedor');
-  const pag = $('#paginacion');
-  if (cont) cont.innerHTML = '';
-  if (pag) pag.innerHTML = '';
-
-  if (!lista || !lista.length) {
-    if (cont) cont.innerHTML = '<p>No hay productos disponibles para cotizar en este momento.</p>';
-    return;
-  }
-
-  allPedidos = lista.map((p) => ({
+function normalizePedidos(lista = []) {
+  return lista.map((p) => ({
     id: (p.id ?? p.ID ?? '').toString().trim(),
     nombre: (p.nombre ?? '').toString().trim(),
     imagen: (p.imagen ?? '').toString().trim(),
     estado: (p.estado ?? '').toString().trim()
   }));
-
-  aplicarFiltrosYRedibujar();
 }
 
-function aplicarFiltrosYRedibujar() {
-  const cont = $('#contenedor');
-  const pag = $('#paginacion');
+function syncPedidosUrl(mode = 'replace') {
+  updateCatalogUrl({
+    pagina: paginaActual,
+    orden: ordenActual === 'oldest' ? 'oldest' : ''
+  }, mode);
+}
 
-  if (!allPedidos.length) {
-    if (cont) cont.innerHTML = '<p>No hay productos disponibles para cotizar.</p>';
-    if (pag) pag.innerHTML = '';
-    return;
+async function loadPedidosPage({ urlMode = 'replace' } = {}) {
+  syncPedidosUrl(urlMode);
+  try {
+    const data = await cachedFetchJSON('pedidosDisponiblesPage', {
+      ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES,
+      params: { page: paginaActual, page_size: ITEMS_PER_PAGE, sort: ordenActual },
+      cacheId: 'pedidos-page-v1'
+    });
+    if (!data?.ok || !Array.isArray(data.productos)) throw new Error(data?.error || 'pedidos_page_unavailable');
+
+    pedidos = normalizePedidos(data.productos);
+    paginaActual = Number(data.page) || 1;
+    totalPaginas = Number(data.total_pages) || 1;
+    pintarPagina();
+    dibujarPaginacion();
+    syncPedidosUrl('replace');
+  } catch (serverError) {
+    try {
+      if (!allPedidos.length) {
+        const data = await cachedFetchJSON('pedidosDisponibles', { ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES });
+        allPedidos = normalizePedidos(data);
+      }
+      const filtered = allPedidos.filter((p) => {
+        const estado = norm(p.estado);
+        return !estado || estado === 'DISPONIBLE' || estado === 'DISPONIBLE A PEDIDO';
+      });
+      filtered.sort((a, b) => {
+        const na = Number(a.id) || 0;
+        const nb = Number(b.id) || 0;
+        return ordenActual === 'oldest' ? na - nb : nb - na;
+      });
+      totalPaginas = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+      paginaActual = Math.min(paginaActual, totalPaginas);
+      const start = (paginaActual - 1) * ITEMS_PER_PAGE;
+      pedidos = filtered.slice(start, start + ITEMS_PER_PAGE);
+      pintarPagina();
+      dibujarPaginacion();
+      syncPedidosUrl('replace');
+      console.warn('Endpoint paginado no disponible; usando pedidos compatibles:', serverError);
+    } catch (error) {
+      showErr(error);
+    }
   }
-
-  pedidos = allPedidos.filter((p) => {
-    const estado = norm(p.estado);
-    return !estado || estado === 'DISPONIBLE' || estado === 'DISPONIBLE A PEDIDO';
-  });
-
-  pedidos.sort((a, b) => {
-    const na = Number(a.id) || 0;
-    const nb = Number(b.id) || 0;
-    return ordenActual === 'oldest' ? na - nb : nb - na;
-  });
-
-  if (!pedidos.length) {
-    if (cont) cont.innerHTML = '<p>No hay productos disponibles para cotizar por ahora.</p>';
-    if (pag) pag.innerHTML = '';
-    return;
-  }
-
-  paginaActual = 1;
-  pintarPagina();
-  dibujarPaginacion();
 }
 
 function pintarPagina() {
@@ -269,53 +263,26 @@ function pintarPagina() {
 
   cont.innerHTML = '';
 
-  const totalPaginas = Math.ceil(pedidos.length / ITEMS_PER_PAGE);
-  if (!totalPaginas) {
+  if (!pedidos.length) {
     cont.innerHTML = '<p>No hay productos disponibles para cotizar en este momento.</p>';
     return;
   }
 
-  const inicio = (paginaActual - 1) * ITEMS_PER_PAGE;
-  const fin = inicio + ITEMS_PER_PAGE;
-  pedidos.slice(inicio, fin).forEach((p) => cont.appendChild(card(p)));
+  pedidos.forEach((p) => cont.appendChild(card(p)));
 }
 
 function dibujarPaginacion() {
-  const pag = $('#paginacion');
-  if (!pag) return;
-
-  const totalPaginas = Math.ceil(pedidos.length / ITEMS_PER_PAGE);
-  pag.innerHTML = '';
-  if (totalPaginas <= 1) return;
-
-  const partes = [];
-  const btn = (page, label = page, disabled = false) => `
-    <button class="page-btn ${page === paginaActual ? 'activa' : ''}"
-      data-page="${page}"
-      ${disabled ? 'disabled' : ''}>${label}</button>`;
-
-  partes.push(btn(Math.max(1, paginaActual - 1), '«', paginaActual === 1));
-
-  if (totalPaginas <= 7) {
-    for (let i = 1; i <= totalPaginas; i++) partes.push(btn(i));
-  } else if (paginaActual <= 3) {
-    for (let i = 1; i <= 4; i++) partes.push(btn(i));
-    partes.push('<span class="page-ellipsis">...</span>');
-    partes.push(btn(totalPaginas));
-  } else if (paginaActual >= totalPaginas - 2) {
-    partes.push(btn(1));
-    partes.push('<span class="page-ellipsis">...</span>');
-    for (let i = totalPaginas - 3; i <= totalPaginas; i++) partes.push(btn(i));
-  } else {
-    partes.push(btn(1));
-    partes.push('<span class="page-ellipsis">...</span>');
-    for (let i = paginaActual - 1; i <= paginaActual + 1; i++) partes.push(btn(i));
-    partes.push('<span class="page-ellipsis">...</span>');
-    partes.push(btn(totalPaginas));
-  }
-
-  partes.push(btn(Math.min(totalPaginas, paginaActual + 1), '»', paginaActual === totalPaginas));
-  pag.innerHTML = partes.join('');
+  renderCatalogPagination($('#paginacion'), {
+    current: paginaActual,
+    total: totalPaginas,
+    buttonClass: 'page-btn',
+    activeClass: 'activa',
+    onSelect: page => {
+      paginaActual = page;
+      loadPedidosPage({ urlMode: 'push' });
+      $('#contenedor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
 }
 
 function card(p) {

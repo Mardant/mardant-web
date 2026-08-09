@@ -9,11 +9,15 @@ import {
 } from './carrito-utils.js';
 import { buildShareUrl, shareIcon, shareVisualItem } from './social-actions.js?v=2';
 import { setupSearchTracking } from './search-tracking.js?v=1';
+import { pageFromUrl, renderCatalogPagination, updateCatalogUrl } from './pagination-utils.js?v=1';
 
 const productosPorPagina = PRODUCTOS_POR_PAGINA;
 let productosGlobal = [];
 let categoriaActual = '';
-let paginaActual = 1;
+let paginaActual = pageFromUrl();
+let totalPaginas = 1;
+let catalogRequestController = null;
+let subcategoriaActual = '';
 
 function parseMoney(value) {
   const text = String(value ?? '').trim();
@@ -48,11 +52,11 @@ function estaAgotado(p) {
 // ---------------------------
 // FUNCIÓN PRINCIPAL DE FILTROS (DECLARADA PRIMERO)
 // ---------------------------
-function aplicarFiltros() {
+function filtrarProductosLocales() {
   const texto = ($('#buscador').value || '').toLowerCase();
   const orden = $('#orden').value;
   const estadoFiltro = $('#estado').value;
-  const subcat = ($('#subfiltro-contenedor select')?.value || '').toLowerCase();
+  const subcat = subcategoriaActual.toLowerCase();
   const precioMin = parseMoney($('#precio-min')?.value);
   const precioMax = parseMoney($('#precio-max')?.value);
 
@@ -91,14 +95,115 @@ function aplicarFiltros() {
     case 'nombre-za':   lista.sort((a, b) => b.nombre.localeCompare(a.nombre, 'es', { sensitivity: 'base' })); break;
   }
 
+  return lista;
+}
+
+function catalogParams() {
+  return {
+    page: paginaActual,
+    page_size: productosPorPagina,
+    search: String($('#buscador')?.value || '').trim(),
+    category: categoriaActual,
+    subcategory: subcategoriaActual,
+    sort: $('#orden')?.value || 'recientes',
+    state: $('#estado')?.value || 'todos',
+    min_price: String($('#precio-min')?.value || '').trim(),
+    max_price: String($('#precio-max')?.value || '').trim()
+  };
+}
+
+function syncCatalogUrl(mode = 'replace') {
+  const params = catalogParams();
+  updateCatalogUrl({
+    pagina: paginaActual,
+    buscar: params.search,
+    categoria: params.category,
+    subcategoria: params.subcategory,
+    orden: params.sort === 'recientes' ? '' : params.sort,
+    estado: params.state === 'todos' ? '' : params.state,
+    min: params.min_price,
+    max: params.max_price
+  }, mode);
+}
+
+function restoreCatalogStateFromUrl() {
+  const params = new URLSearchParams(location.search);
+  paginaActual = pageFromUrl();
+  categoriaActual = String(params.get('categoria') || '').toUpperCase();
+  subcategoriaActual = params.get('subcategoria') || '';
+  if ($('#buscador')) $('#buscador').value = params.get('buscar') || '';
+  if ($('#orden')) $('#orden').value = params.get('orden') || 'recientes';
+  if ($('#estado')) $('#estado').value = params.get('estado') || 'todos';
+  if ($('#precio-min')) $('#precio-min').value = params.get('min') || '';
+  if ($('#precio-max')) $('#precio-max').value = params.get('max') || '';
+  document.querySelectorAll('.categoria-imagen').forEach(button => {
+    button.classList.toggle('selected', String(button.dataset.categoria || '').toUpperCase() === categoriaActual);
+  });
+}
+
+async function loadCatalogPage({ urlMode = 'replace' } = {}) {
+  catalogRequestController?.abort();
+  catalogRequestController = new AbortController();
+  syncCatalogUrl(urlMode);
+
+  try {
+    const data = await cachedFetchJSON('productosPage', {
+      ttl: API_CACHE_TTL.PRODUCTOS,
+      params: catalogParams(),
+      cacheId: 'productos-page-v1',
+      signal: catalogRequestController.signal
+    });
+    if (!data?.ok || !Array.isArray(data.productos)) throw new Error(data?.error || 'productos_page_unavailable');
+
+    paginaActual = Number(data.page) || 1;
+    totalPaginas = Number(data.total_pages) || 1;
+    fillSubcategorias(data.subcategorias || []);
+    renderProductos(data.productos);
+    renderPaginacion(totalPaginas);
+    syncCatalogUrl('replace');
+  } catch (error) {
+    if (error?.name === 'AbortError') return;
+    await loadCatalogFallback(error);
+  }
+}
+
+async function loadCatalogFallback(serverError) {
+  try {
+    if (!productosGlobal.length) {
+      productosGlobal = await cachedFetchJSON('productos', { ttl: API_CACHE_TTL.PRODUCTOS });
+    }
+    fillSubcategorias();
+    const lista = filtrarProductosLocales();
+    totalPaginas = Math.max(1, Math.ceil(lista.length / productosPorPagina));
+    paginaActual = Math.min(paginaActual, totalPaginas);
+    const start = (paginaActual - 1) * productosPorPagina;
+    renderProductos(lista.slice(start, start + productosPorPagina));
+    renderPaginacion(totalPaginas);
+    syncCatalogUrl('replace');
+    console.warn('Endpoint paginado no disponible; usando catalogo compatible:', serverError);
+  } catch (error) {
+    console.error('Error:', error);
+    $('#contenedor').innerHTML = `
+      <div class="error-api">
+        <p>Error al cargar productos. Intenta recargar la pagina.</p>
+        <button onclick="location.reload()">Recargar</button>
+      </div>
+    `;
+  }
+}
+
+function aplicarFiltros() {
   paginaActual = 1;
-  renderProductos(lista);
+  subcategoriaActual = $('#subfiltro-contenedor select')?.value || subcategoriaActual;
+  loadCatalogPage({ urlMode: 'replace' });
 }
 
 // ---------------------------
 // INICIALIZACIÓN (SE DECLARA DESPUÉS DE LAS FUNCIONES QUE USA)
 // ---------------------------
 document.addEventListener('DOMContentLoaded', () => {
+  restoreCatalogStateFromUrl();
+
   // Configurar listeners
   $('#orden').addEventListener('change', aplicarFiltros);
   $('#estado').addEventListener('change', aplicarFiltros);
@@ -142,8 +247,9 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.categoria-imagen').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       categoriaActual = (btn.dataset.categoria || '').toUpperCase();
-      fillSubcategorias();
-      aplicarFiltros();
+      subcategoriaActual = '';
+      paginaActual = 1;
+      loadCatalogPage({ urlMode: 'replace' });
     });
   });
 
@@ -166,22 +272,12 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   }
 
-  // Cargar datos iniciales
-  cachedFetchJSON('productos', { ttl: API_CACHE_TTL.PRODUCTOS })
-    .then(data => {
-      productosGlobal = data;
-      fillSubcategorias();
-      aplicarFiltros();
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      $('#contenedor').innerHTML = `
-        <div class="error-api">
-          <p>⚠️ Error al cargar productos. Intenta recargar la página.</p>
-          <button onclick="location.reload()">Recargar</button>
-        </div>
-      `;
-    });
+  window.addEventListener('popstate', () => {
+    restoreCatalogStateFromUrl();
+    loadCatalogPage({ urlMode: 'replace' });
+  });
+
+  loadCatalogPage({ urlMode: 'replace' });
 
   actualizarCarritoUI();
 });
@@ -209,20 +305,22 @@ const escapeHtml = (t) => {
           .replace(/\//g, '&#x2F;');
 };
 
-function fillSubcategorias() {
+function fillSubcategorias(serverSubcategories) {
   const cont = $('#subfiltro-contenedor');
   cont.innerHTML = '';
 
   if (!categoriaActual) return;
 
-  const subs = [
-    ...new Set(
-      productosGlobal
-        .filter(p => String(p.categoria || '').toUpperCase() === categoriaActual)
-        .map(p => String(p.subcategoria || '').trim())
-        .filter(Boolean)
-    ),
-  ].sort();
+  const subs = Array.isArray(serverSubcategories)
+    ? serverSubcategories
+    : [
+        ...new Set(
+          productosGlobal
+            .filter(p => String(p.categoria || '').toUpperCase() === categoriaActual)
+            .map(p => String(p.subcategoria || '').trim())
+            .filter(Boolean)
+        ),
+      ].sort();
 
   if (!subs.length) return;
 
@@ -230,7 +328,15 @@ function fillSubcategorias() {
   select.id = 'subcategoria-select';
   select.innerHTML = '<option value="">Todos los personajes</option>' +
     subs.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
-  select.addEventListener('change', aplicarFiltros);
+  if ([...select.options].some(option => option.value === subcategoriaActual)) {
+    select.value = subcategoriaActual;
+  } else {
+    subcategoriaActual = '';
+  }
+  select.addEventListener('change', () => {
+    subcategoriaActual = select.value;
+    aplicarFiltros();
+  });
   cont.appendChild(select);
 }
 
@@ -244,13 +350,7 @@ function renderProductos(arr) {
     return;
   }
 
-  const totalPag = Math.ceil(arr.length / productosPorPagina);
-  const desde = (paginaActual - 1) * productosPorPagina;
-  const hasta = desde + productosPorPagina;
-  const page = arr.slice(desde, hasta);
-
-  page.forEach(p => cont.appendChild(cardProducto(p)));
-  renderPaginacion(totalPag, arr);
+  arr.forEach(p => cont.appendChild(cardProducto(p)));
 }
 
 function cardProducto(p) {
@@ -356,39 +456,16 @@ function cardProducto(p) {
   return card;
 }
 
-function renderPaginacion(total, arr) {
-  const pag = $('#paginacion');
-  pag.innerHTML = '';
-
-  const MAX_AROUND = 3;
-  const makeBtn = (txt, num, extra = '') => {
-    const b = document.createElement('button');
-    b.className = `boton ${extra}`;
-    b.textContent = txt;
-    b.setAttribute('aria-label', `Página ${num}`);
-    b.onclick = () => { 
-      paginaActual = num; 
-      renderProductos(arr);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-    return b;
-  };
-
-  if (paginaActual > 1) pag.appendChild(makeBtn('«', paginaActual - 1));
-
-  if (paginaActual > MAX_AROUND + 1) {
-    pag.appendChild(makeBtn('1', 1));
-    pag.appendChild(document.createTextNode(' … '));
-  }
-
-  for (let i = Math.max(1, paginaActual - MAX_AROUND); i <= Math.min(total, paginaActual + MAX_AROUND); i++) {
-    pag.appendChild(makeBtn(i, i, i === paginaActual ? 'active' : ''));
-  }
-
-  if (paginaActual < total - MAX_AROUND) {
-    pag.appendChild(document.createTextNode(' … '));
-    pag.appendChild(makeBtn(total, total));
-  }
-
-  if (paginaActual < total) pag.appendChild(makeBtn('»', paginaActual + 1));
+function renderPaginacion(total) {
+  renderCatalogPagination($('#paginacion'), {
+    current: paginaActual,
+    total,
+    buttonClass: 'boton',
+    activeClass: 'active',
+    onSelect: page => {
+      paginaActual = page;
+      loadCatalogPage({ urlMode: 'push' });
+      $('#contenedor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
 }

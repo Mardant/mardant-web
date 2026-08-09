@@ -3,6 +3,12 @@ import { whatsappLink } from './config.js';
 import { API_CACHE_TTL, cachedFetchJSON } from './api-client.js';
 import { actualizarCarritoUI } from './carrito-utils.js';
 import { buildShareUrl, shareIcon, shareVisualItem } from './social-actions.js?v=2';
+import { pageFromUrl, renderCatalogPagination, updateCatalogUrl } from './pagination-utils.js?v=1';
+
+const ITEMS_PER_PAGE = 21;
+let paginaActual = pageFromUrl();
+let totalPaginas = 1;
+let preventasGlobal = [];
 
 const $ = (s) => document.querySelector(s);
 const escapeHtml = (t) =>
@@ -12,9 +18,12 @@ const escapeHtml = (t) =>
     : t;
 
 document.addEventListener('DOMContentLoaded', () => {
-  cachedFetchJSON('preventas', { ttl: API_CACHE_TTL.PREVENTAS })
-    .then(render)
-    .catch(showErr);
+  loadPreventasPage();
+
+  window.addEventListener('popstate', () => {
+    paginaActual = pageFromUrl();
+    loadPreventasPage();
+  });
 
   actualizarCarritoUI();
 
@@ -40,6 +49,55 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+async function loadPreventasPage({ urlMode = 'replace' } = {}) {
+  updateCatalogUrl({ pagina: paginaActual }, urlMode);
+  try {
+    const data = await cachedFetchJSON('preventasPage', {
+      ttl: API_CACHE_TTL.PREVENTAS,
+      params: { page: paginaActual, page_size: ITEMS_PER_PAGE },
+      cacheId: 'preventas-page-v1'
+    });
+    if (!data?.ok || !Array.isArray(data.productos)) throw new Error(data?.error || 'preventas_page_unavailable');
+
+    paginaActual = Number(data.page) || 1;
+    totalPaginas = Number(data.total_pages) || 1;
+    render(data.productos);
+    renderPagination();
+    updateCatalogUrl({ pagina: paginaActual }, 'replace');
+  } catch (serverError) {
+    try {
+      if (!preventasGlobal.length) {
+        preventasGlobal = await cachedFetchJSON('preventas', { ttl: API_CACHE_TTL.PREVENTAS });
+      }
+      const clean = value => String(value || '').toUpperCase().replace(/\u00A0/g, ' ').trim();
+      const preventas = preventasGlobal.filter(item => clean(item.estado).includes('PREVENTA'));
+      totalPaginas = Math.max(1, Math.ceil(preventas.length / ITEMS_PER_PAGE));
+      paginaActual = Math.min(paginaActual, totalPaginas);
+      const start = (paginaActual - 1) * ITEMS_PER_PAGE;
+      render(preventas.slice(start, start + ITEMS_PER_PAGE));
+      renderPagination();
+      updateCatalogUrl({ pagina: paginaActual }, 'replace');
+      console.warn('Endpoint paginado no disponible; usando preventas compatibles:', serverError);
+    } catch (error) {
+      showErr(error);
+    }
+  }
+}
+
+function renderPagination() {
+  renderCatalogPagination($('#paginacion'), {
+    current: paginaActual,
+    total: totalPaginas,
+    buttonClass: 'boton',
+    activeClass: 'active',
+    onSelect: page => {
+      paginaActual = page;
+      loadPreventasPage({ urlMode: 'push' });
+      $('#contenedor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+}
+
 function render(lista = []) {
   const cont = $('#contenedor');
   cont.innerHTML = '';
@@ -49,6 +107,7 @@ function render(lista = []) {
 
   if (!preventas.length) {
     cont.innerHTML = '<p>No hay productos en preventa en este momento.</p>';
+    $('#paginacion').innerHTML = '';
     return;
   }
   preventas.forEach(p => cont.appendChild(card(p)));
@@ -111,5 +170,6 @@ function card(p) {
 
 function showErr(e){
   $('#contenedor').innerHTML = '<p style="color:red;">Error al cargar productos.</p>';
+  $('#paginacion').innerHTML = '';
   console.error('Error API preventas:', e);
 }

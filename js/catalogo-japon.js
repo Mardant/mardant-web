@@ -1,5 +1,5 @@
 import { API_URL, whatsappLink } from './config.js';
-import { API_CACHE_TTL, cachedFetchText } from './api-client.js';
+import { API_CACHE_TTL, cachedFetchJSON, cachedFetchText } from './api-client.js';
 import { setupSearchTracking } from './search-tracking.js?v=1';
 
 const PAGE_SIZE = 20;
@@ -31,8 +31,12 @@ const clearFiltersBtn = document.getElementById('catalogoJaponClear');
 
 let catalogo = [];
 let filteredCatalogo = [];
-let currentPage = 1;
+let currentPage = Math.max(1, Number(new URLSearchParams(location.search).get('pagina')) || 1);
 let sharedLoteApplied = false;
+let serverPagination = true;
+let serverTotalPages = 1;
+let catalogRequestController = null;
+let likesLoaded = false;
 let likeCounts = new Map();
 let likedLots = new Set(loadLikedLots());
 const catalogImageUrls = new Map();
@@ -189,6 +193,25 @@ function normalizeText(value){
     .toLowerCase();
 }
 
+function catalogSearchTerms(value){
+  return normalizeText(value).split(' ').filter(Boolean);
+}
+
+function matchesCatalogSearch(item, value){
+  const terms = catalogSearchTerms(value);
+  if (!terms.length) return true;
+
+  const searchIndex = normalizeText([
+    item.id_lote,
+    item.etiqueta,
+    item.anime,
+    item.tipo,
+    item.busqueda
+  ].join(' '));
+
+  return terms.every(term => searchIndex.includes(term));
+}
+
 function debounce(fn, delay = 250){
   let timer;
   return (...args) => {
@@ -253,6 +276,7 @@ function likeCountFor(id){
 
 function loteShareUrl(id){
   const url = new URL(location.href);
+  url.search = '';
   url.searchParams.set('lote', String(id));
   url.hash = '';
   return url.toString();
@@ -352,6 +376,55 @@ function requestUrl(){
   return GVIZ_URL;
 }
 
+function restoreCatalogStateFromUrl(){
+  const params = new URLSearchParams(location.search);
+  if (searchInput) searchInput.value = params.get('buscar') || '';
+  if (animeSelect) {
+    const anime = params.get('anime') || '';
+    animeSelect.dataset.initialValue = anime;
+    if ([...animeSelect.options].some(option => option.value === anime)) animeSelect.value = anime;
+  }
+  if (sortSelect) sortSelect.value = params.get('orden') || 'newest';
+  if (minInput) minInput.value = params.get('min') || '';
+  if (maxInput) maxInput.value = params.get('max') || '';
+  currentPage = Math.max(1, Number(params.get('pagina')) || 1);
+}
+
+function catalogRequestParams(page = currentPage){
+  return {
+    page,
+    page_size: PAGE_SIZE,
+    search: String(searchInput?.value || '').trim(),
+    anime: String(animeSelect?.dataset.initialValue ?? animeSelect?.value ?? '').trim(),
+    sort: sortSelect?.value || 'newest',
+    min_price: String(minInput?.value || '').trim(),
+    max_price: String(maxInput?.value || '').trim()
+  };
+}
+
+function updateCatalogUrl(mode = 'replace'){
+  const url = new URL(location.href);
+  const values = catalogRequestParams(currentPage);
+  const mappings = {
+    pagina: currentPage > 1 ? String(currentPage) : '',
+    buscar: values.search,
+    anime: values.anime,
+    orden: values.sort !== 'newest' ? values.sort : '',
+    min: values.min_price,
+    max: values.max_price
+  };
+
+  Object.entries(mappings).forEach(([key, value]) => {
+    if (value) url.searchParams.set(key, value);
+    else url.searchParams.delete(key);
+  });
+  if (!sharedLoteId) url.searchParams.delete('lote');
+
+  const state = { catalogoJapon: true, pagina: currentPage };
+  if (mode === 'push') history.pushState(state, '', url);
+  else history.replaceState(state, '', url);
+}
+
 function headerKey(value){
   return String(value || '').trim().toLowerCase();
 }
@@ -405,7 +478,7 @@ function parseGvizCatalog(text){
 
 function fillFilterSelect(select, values){
   if (!select) return;
-  const current = select.value;
+  const current = select.dataset.initialValue || select.value;
   const defaultOption = document.createElement('option');
   defaultOption.value = '';
   defaultOption.textContent = 'Todos';
@@ -419,6 +492,7 @@ function fillFilterSelect(select, values){
     });
   select.replaceChildren(defaultOption, ...options);
   select.value = options.some(option => option.value === current) ? current : '';
+  delete select.dataset.initialValue;
 }
 
 function openModal(imageUrl, id){
@@ -805,9 +879,14 @@ function renderPagination(totalPages){
     if (active) button.setAttribute('aria-current', 'page');
     button.addEventListener('click', () => {
       if (disabled || page === currentPage) return;
-      currentPage = page;
-      render();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (serverPagination) {
+        loadCatalogPage({ page, historyMode: 'push' });
+      } else {
+        currentPage = page;
+        updateCatalogUrl('push');
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     });
     return button;
   };
@@ -843,10 +922,14 @@ function renderPagination(totalPages){
 function render(){
   resetCatalogImages();
   grid.replaceChildren();
-  const totalPages = Math.max(1, Math.ceil(filteredCatalogo.length / PAGE_SIZE));
+  const totalPages = serverPagination
+    ? Math.max(1, serverTotalPages)
+    : Math.max(1, Math.ceil(filteredCatalogo.length / PAGE_SIZE));
   currentPage = Math.min(Math.max(currentPage, 1), totalPages);
   const start = (currentPage - 1) * PAGE_SIZE;
-  const pageItems = filteredCatalogo.slice(start, start + PAGE_SIZE);
+  const pageItems = serverPagination
+    ? filteredCatalogo
+    : filteredCatalogo.slice(start, start + PAGE_SIZE);
 
   pageItems.forEach(item => grid.appendChild(card(item)));
   setupCatalogImageLazyLoad();
@@ -864,21 +947,23 @@ function render(){
   }
 }
 
-function applyFilters({ resetPage = true } = {}){
-  const search = normalizeText(searchInput?.value);
+function applyFilters({ resetPage = true, historyMode = 'push' } = {}){
+  if (serverPagination) {
+    loadCatalogPage({
+      page: resetPage ? 1 : currentPage,
+      historyMode
+    });
+    return;
+  }
+
+  const search = searchInput?.value || '';
   const anime = normalizeText(animeSelect?.value);
   const minPrice = filterNumber(minInput);
   const maxPrice = filterNumber(maxInput);
   const sortMode = sortSelect?.value || 'newest';
 
   filteredCatalogo = catalogo.filter(item => {
-    const searchable = normalizeText([
-      item.id_lote,
-      item.anime,
-      item.busqueda,
-      item.etiqueta
-    ].join(' '));
-    if (search && !searchable.includes(search)) return false;
+    if (!matchesCatalogSearch(item, search)) return false;
     if (anime && normalizeText(item.anime) !== anime) return false;
 
     const price = parsePrice(item.precio_producto);
@@ -902,7 +987,66 @@ function applyFilters({ resetPage = true } = {}){
   render();
 }
 
-async function loadCatalog(){
+async function loadCatalogPage({ page = currentPage, historyMode = 'replace', throwOnError = false } = {}){
+  feedback.hidden = false;
+  statusEl.textContent = 'Cargando catálogo...';
+  statusEl.classList.remove('is-error');
+  dateEl.textContent = '';
+  grid.replaceChildren();
+  pagination.replaceChildren();
+
+  if (catalogRequestController) catalogRequestController.abort();
+  catalogRequestController = new AbortController();
+
+  try {
+    const data = await cachedFetchJSON('catalogoPreventasJaponPage', {
+      params: catalogRequestParams(page),
+      ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
+      cacheId: 'catalogo-japon-page',
+      signal: catalogRequestController.signal
+    });
+    if (!data || data.ok === false || !Array.isArray(data.productos)) {
+      throw new Error(data?.error || 'endpoint_paginado_no_disponible');
+    }
+
+    serverPagination = true;
+    catalogo = data.productos;
+    filteredCatalogo = catalogo.slice();
+    currentPage = Math.max(1, Number(data.page) || page || 1);
+    serverTotalPages = Math.max(1, Number(data.total_pages) || 1);
+    fillFilterSelect(animeSelect, Array.isArray(data.animes) ? data.animes : []);
+
+    if (!likesLoaded) {
+      await loadLikeCounts();
+      likesLoaded = true;
+    }
+
+    render();
+    updateCatalogUrl(historyMode);
+    if (historyMode === 'push') window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (!Number(data.total || 0)) {
+      feedback.hidden = false;
+      statusEl.textContent = 'No hay lotes con ese filtro';
+      statusEl.classList.remove('is-error');
+      dateEl.textContent = 'Prueba con otra búsqueda o cambia los filtros';
+    }
+    return data;
+  } catch (error) {
+    if (error?.name === 'AbortError') return null;
+    if (throwOnError) throw error;
+    grid.replaceChildren();
+    pagination.replaceChildren();
+    feedback.hidden = false;
+    statusEl.textContent = 'No se pudo cargar esta página del catálogo';
+    statusEl.classList.add('is-error');
+    dateEl.textContent = 'Intenta nuevamente en unos segundos';
+    console.warn('Error al cargar página del Catálogo Japón:', error);
+    return null;
+  }
+}
+
+async function loadCatalogLegacy(){
   feedback.hidden = false;
   statusEl.textContent = 'Cargando catálogo...';
   statusEl.classList.remove('is-error');
@@ -916,15 +1060,15 @@ async function loadCatalog(){
       cacheId: 'catalogo-japon-gviz'
     });
 
+    serverPagination = false;
     catalogo = parseGvizCatalog(text)
       .sort((a, b) => loteNumber(b.id_lote) - loteNumber(a.id_lote));
     fillFilterSelect(animeSelect, catalogo.map(item => item.anime));
-    await loadLikeCounts();
-    if (sharedLoteId && !sharedLoteApplied && searchInput && !searchInput.value.trim()) {
-      searchInput.value = sharedLoteId;
-      sharedLoteApplied = true;
+    if (!likesLoaded) {
+      await loadLikeCounts();
+      likesLoaded = true;
     }
-    applyFilters();
+    applyFilters({ resetPage:false, historyMode:'replace' });
     if (!catalogo.length) {
       feedback.hidden = false;
       statusEl.textContent = 'No hay lotes disponibles por ahora';
@@ -941,6 +1085,22 @@ async function loadCatalog(){
   }
 }
 
+async function loadCatalog(){
+  restoreCatalogStateFromUrl();
+  if (sharedLoteId && !sharedLoteApplied && searchInput && !searchInput.value.trim()) {
+    searchInput.value = sharedLoteId;
+    currentPage = 1;
+    sharedLoteApplied = true;
+  }
+
+  try {
+    await loadCatalogPage({ page:currentPage, historyMode:'replace', throwOnError:true });
+  } catch (error) {
+    console.warn('El endpoint paginado todavía no está disponible; usando respaldo GViz:', error);
+    await loadCatalogLegacy();
+  }
+}
+
 filterForm?.addEventListener('submit', event => {
   event.preventDefault();
   applyFilters();
@@ -951,8 +1111,8 @@ sortSelect?.addEventListener('change', () => {
 });
 
 searchInput?.addEventListener('input', debounce(() => {
-  applyFilters();
-}));
+  applyFilters({ historyMode:'replace' });
+}, 500));
 
 setupSearchTracking(searchInput, 'CATALOGO_JAPON');
 
@@ -967,6 +1127,12 @@ clearFiltersBtn?.addEventListener('click', () => {
   if (minInput) minInput.value = '';
   if (maxInput) maxInput.value = '';
   applyFilters();
+});
+
+window.addEventListener('popstate', () => {
+  restoreCatalogStateFromUrl();
+  if (serverPagination) loadCatalogPage({ page:currentPage, historyMode:'replace' });
+  else applyFilters({ resetPage:false, historyMode:'replace' });
 });
 
 grid.addEventListener('click', event => {
