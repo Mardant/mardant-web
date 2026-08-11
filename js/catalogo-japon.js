@@ -24,6 +24,7 @@ const closeBtn = document.getElementById('catalogoJaponClose');
 const filterForm = document.getElementById('catalogoJaponFilters');
 const searchInput = document.getElementById('catalogoJaponSearch');
 const animeSelect = document.getElementById('catalogoJaponAnime');
+const availabilitySelect = document.getElementById('catalogoJaponAvailability');
 const sortSelect = document.getElementById('catalogoJaponSort');
 const minInput = document.getElementById('catalogoJaponMin');
 const maxInput = document.getElementById('catalogoJaponMax');
@@ -356,6 +357,29 @@ function etiquetaInfo(value){
   return { text: 'Disponible', className: 'is-disponible' };
 }
 
+function isAmazonCatalogItem(item){
+  const sourceIndex = normalizeText([
+    item?.plataforma,
+    item?.origen,
+    item?.fuente,
+    item?.busqueda,
+    item?.imagen_url
+  ].join(' '));
+  return sourceIndex.includes('amazon');
+}
+
+function publicAvailability(item){
+  const label = normalizeText(item?.etiqueta);
+  return label === 'preventa' || isAmazonCatalogItem(item) ? 'preventa' : 'disponible';
+}
+
+function matchesAvailability(item, availability){
+  const selected = normalizeText(availability);
+  if (!selected) return true;
+  if (selected === 'rank') return Boolean(String(item?.rank || '').trim());
+  return publicAvailability(item) === selected;
+}
+
 function rankInfo(value){
   const raw = String(value || '').trim().toUpperCase();
   const match = raw.match(/^(?:RANK\s*)?([NSABCD])(?:\s*RANK)?$/i);
@@ -384,6 +408,7 @@ function restoreCatalogStateFromUrl(){
     animeSelect.dataset.initialValue = anime;
     if ([...animeSelect.options].some(option => option.value === anime)) animeSelect.value = anime;
   }
+  if (availabilitySelect) availabilitySelect.value = params.get('disponibilidad') || '';
   if (sortSelect) sortSelect.value = params.get('orden') || 'newest';
   if (minInput) minInput.value = params.get('min') || '';
   if (maxInput) maxInput.value = params.get('max') || '';
@@ -396,6 +421,7 @@ function catalogRequestParams(page = currentPage){
     page_size: PAGE_SIZE,
     search: String(searchInput?.value || '').trim(),
     anime: String(animeSelect?.dataset.initialValue ?? animeSelect?.value ?? '').trim(),
+    availability: String(availabilitySelect?.value || '').trim(),
     sort: sortSelect?.value || 'newest',
     min_price: String(minInput?.value || '').trim(),
     max_price: String(maxInput?.value || '').trim()
@@ -409,6 +435,7 @@ function updateCatalogUrl(mode = 'replace'){
     pagina: currentPage > 1 ? String(currentPage) : '',
     buscar: values.search,
     anime: values.anime,
+    disponibilidad: values.availability,
     orden: values.sort !== 'newest' ? values.sort : '',
     min: values.min_price,
     max: values.max_price
@@ -447,6 +474,13 @@ function parseGvizCatalog(text){
     const index = headers.indexOf(name);
     return index >= 0 ? index : fallback;
   };
+  const indexOfAny = names => {
+    for (const name of names) {
+      const index = headers.indexOf(name);
+      if (index >= 0) return index;
+    }
+    return -1;
+  };
   const cols = {
     id_lote: indexOf('id_lote', 0),
     imagen_url: indexOf('imagen_url', 1),
@@ -457,7 +491,8 @@ function parseGvizCatalog(text){
     anime: indexOf('anime', 6),
     tipo: indexOf('tipo', 7),
     busqueda: indexOf('busqueda', 8),
-    rank: indexOf('rank', 9)
+    rank: indexOf('rank', 9),
+    plataforma: indexOfAny(['plataforma', 'origen', 'fuente', 'marketplace'])
   };
 
   return (payload.table?.rows || [])
@@ -471,7 +506,8 @@ function parseGvizCatalog(text){
       anime: cellValue(row, cols.anime),
       tipo: cellValue(row, cols.tipo),
       busqueda: cellValue(row, cols.busqueda),
-      rank: cellValue(row, cols.rank)
+      rank: cellValue(row, cols.rank),
+      plataforma: cellValue(row, cols.plataforma)
     }))
     .filter(item => item.id_lote && normalizeText(item.visible) === 'si');
 }
@@ -604,7 +640,7 @@ function canvasToBlob(canvas){
 
 async function createShareImageBlob(item){
   const id = String(item.id_lote || '').trim();
-  const etiqueta = etiquetaInfo(item.etiqueta);
+  const etiqueta = etiquetaInfo(publicAvailability(item));
   const canvas = document.createElement('canvas');
   canvas.width = 1080;
   canvas.height = 1920;
@@ -696,7 +732,7 @@ async function createShareImageBlob(item){
 function card(item){
   const id = String(item.id_lote || '').trim();
   const imageUrl = String(item.imagen_url || '').trim();
-  const etiqueta = etiquetaInfo(item.etiqueta);
+  const etiqueta = etiquetaInfo(publicAvailability(item));
   const rank = rankInfo(item.rank);
   const liked = likedLots.has(id);
   const shareUrl = loteShareUrl(id);
@@ -958,6 +994,7 @@ function applyFilters({ resetPage = true, historyMode = 'push' } = {}){
 
   const search = searchInput?.value || '';
   const anime = normalizeText(animeSelect?.value);
+  const availability = availabilitySelect?.value || '';
   const minPrice = filterNumber(minInput);
   const maxPrice = filterNumber(maxInput);
   const sortMode = sortSelect?.value || 'newest';
@@ -965,6 +1002,7 @@ function applyFilters({ resetPage = true, historyMode = 'push' } = {}){
   filteredCatalogo = catalogo.filter(item => {
     if (!matchesCatalogSearch(item, search)) return false;
     if (anime && normalizeText(item.anime) !== anime) return false;
+    if (!matchesAvailability(item, availability)) return false;
 
     const price = parsePrice(item.precio_producto);
     const hasRange = minPrice !== null || maxPrice !== null;
@@ -1128,9 +1166,14 @@ animeSelect?.addEventListener('change', () => {
   applyFilters();
 });
 
+availabilitySelect?.addEventListener('change', () => {
+  applyFilters();
+});
+
 clearFiltersBtn?.addEventListener('click', () => {
   if (searchInput) searchInput.value = '';
   if (animeSelect) animeSelect.value = '';
+  if (availabilitySelect) availabilitySelect.value = '';
   if (sortSelect) sortSelect.value = 'newest';
   if (minInput) minInput.value = '';
   if (maxInput) maxInput.value = '';
