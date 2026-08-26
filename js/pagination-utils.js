@@ -27,15 +27,15 @@ export function renderCatalogPagination(container, options = {}) {
   container.innerHTML = '';
   if (total <= 1) return;
 
-  const appendButton = (page, label, disabled = false) => {
+  const appendButton = (page, label, { disabled = false, active = false } = {}) => {
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = `${buttonClass}${page === current ? ` ${activeClass}` : ''}`;
+    button.className = `${buttonClass}${active ? ` ${activeClass}` : ''}`;
     button.textContent = label ?? String(page);
     button.disabled = disabled;
     button.dataset.page = String(page);
     button.setAttribute('aria-label', `Pagina ${page}`);
-    if (page === current) button.setAttribute('aria-current', 'page');
+    if (active) button.setAttribute('aria-current', 'page');
     button.addEventListener('click', () => {
       if (!button.disabled && page !== current) onSelect(page);
     });
@@ -50,7 +50,7 @@ export function renderCatalogPagination(container, options = {}) {
     container.appendChild(ellipsis);
   };
 
-  appendButton(Math.max(1, current - 1), '\u00ab', current === 1);
+  appendButton(Math.max(1, current - 1), '\u00ab', { disabled: current === 1 });
 
   let pages;
   if (total <= 7) {
@@ -63,6 +63,8 @@ export function renderCatalogPagination(container, options = {}) {
     pages = [1, 'ellipsis', current - 1, current, current + 1, 'ellipsis', total];
   }
 
-  pages.forEach(page => page === 'ellipsis' ? appendEllipsis() : appendButton(page));
-  appendButton(Math.min(total, current + 1), '\u00bb', current === total);
+  pages.forEach(page => page === 'ellipsis'
+    ? appendEllipsis()
+    : appendButton(page, undefined, { active: page === current }));
+  appendButton(Math.min(total, current + 1), '\u00bb', { disabled: current === total });
 }

@@ -9,7 +9,7 @@ import {
 } from './carrito-utils.js';
 import { buildShareUrl, shareIcon, shareVisualItem } from './social-actions.js?v=2';
 import { setupSearchTracking } from './search-tracking.js?v=1';
-import { pageFromUrl, renderCatalogPagination, updateCatalogUrl } from './pagination-utils.js?v=1';
+import { pageFromUrl, renderCatalogPagination, updateCatalogUrl } from './pagination-utils.js?v=2';
 
 const productosPorPagina = PRODUCTOS_POR_PAGINA;
 let productosGlobal = [];
@@ -17,6 +17,7 @@ let categoriaActual = '';
 let paginaActual = pageFromUrl();
 let totalPaginas = 1;
 let catalogRequestController = null;
+let catalogRequestId = 0;
 let subcategoriaActual = '';
 
 function parseMoney(value) {
@@ -142,21 +143,35 @@ function restoreCatalogStateFromUrl() {
 }
 
 async function loadCatalogPage({ urlMode = 'replace' } = {}) {
+  const requestId = ++catalogRequestId;
   catalogRequestController?.abort();
-  catalogRequestController = new AbortController();
+  const controller = new AbortController();
+  catalogRequestController = controller;
+  const requestedParams = catalogParams();
+  const requestedPage = Number(requestedParams.page) || 1;
   syncCatalogUrl(urlMode);
+  $('#contenedor')?.setAttribute('aria-busy', 'true');
 
   try {
     const data = await cachedFetchJSON('productosPage', {
       ttl: API_CACHE_TTL.PRODUCTOS,
-      params: catalogParams(),
-      cacheId: 'productos-page-v2',
-      signal: catalogRequestController.signal
+      params: requestedParams,
+      cacheId: 'productos-page-v3',
+      signal: controller.signal
     });
+    if (requestId !== catalogRequestId || controller.signal.aborted) return;
     if (!data?.ok || !Array.isArray(data.productos)) throw new Error(data?.error || 'productos_page_unavailable');
 
-    paginaActual = Number(data.page) || 1;
-    totalPaginas = Number(data.total_pages) || 1;
+    const responsePage = Number(data.page) || 1;
+    const responseTotalPages = Number(data.total_pages) || 1;
+    // El servidor solo puede corregir la página si la solicitada dejó de existir.
+    // Una respuesta distinta dentro del rango corresponde a caché o petición vieja.
+    if (responsePage !== requestedPage && requestedPage <= responseTotalPages) {
+      throw new Error('catalog_page_response_mismatch');
+    }
+
+    paginaActual = responsePage;
+    totalPaginas = responseTotalPages;
     fillSubcategorias(data.subcategorias || []);
     renderProductos(data.productos);
     renderPaginacion(totalPaginas);
@@ -165,21 +180,26 @@ async function loadCatalogPage({ urlMode = 'replace' } = {}) {
     if (paginaActual < totalPaginas) {
       cachedFetchJSON('productosPage', {
         ttl: API_CACHE_TTL.PRODUCTOS,
-        params: { ...catalogParams(), page: paginaActual + 1 },
-        cacheId: 'productos-page-v2'
+        params: { ...requestedParams, page: paginaActual + 1 },
+        cacheId: 'productos-page-v3'
       }).catch(() => {});
     }
   } catch (error) {
-    if (error?.name === 'AbortError') return;
-    await loadCatalogFallback(error);
+    if (requestId !== catalogRequestId || controller.signal.aborted || error?.name === 'AbortError') return;
+    await loadCatalogFallback(error, { requestId, controller });
+  } finally {
+    if (requestId === catalogRequestId) $('#contenedor')?.removeAttribute('aria-busy');
   }
 }
 
-async function loadCatalogFallback(serverError) {
+async function loadCatalogFallback(serverError, { requestId, controller } = {}) {
   try {
     if (!productosGlobal.length) {
       productosGlobal = await cachedFetchJSON('productos', { ttl: API_CACHE_TTL.PRODUCTOS });
     }
+    // Una descarga completa también puede terminar después de que el usuario
+    // ya cambió de página. En ese caso no debe volver a pintar datos antiguos.
+    if (requestId !== catalogRequestId || controller?.signal.aborted) return;
     fillSubcategorias();
     const lista = filtrarProductosLocales();
     totalPaginas = Math.max(1, Math.ceil(lista.length / productosPorPagina));

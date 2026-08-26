@@ -12,7 +12,7 @@ import {
   shareIcon,
   shareVisualItem
 } from './social-actions.js?v=2';
-import { pageFromUrl, renderCatalogPagination, updateCatalogUrl } from './pagination-utils.js?v=1';
+import { pageFromUrl, renderCatalogPagination, updateCatalogUrl } from './pagination-utils.js?v=2';
 
 const $ = (s) => document.querySelector(s);
 const ITEMS_PER_PAGE = 21;
@@ -27,6 +27,8 @@ let totalPaginas = 1;
 let pedidoLikes = new Map();
 let likedPedidos = loadStoredSet(PEDIDOS_LIKES_KEY);
 let savedPedidos = loadStoredSet(PEDIDOS_SAVES_KEY);
+let pedidosRequestController = null;
+let pedidosRequestId = 0;
 
 const escapeHtml = (t) =>
   typeof t === 'string'
@@ -49,7 +51,10 @@ const norm = (s) =>
     .trim();
 
 document.addEventListener('DOMContentLoaded', () => {
-  cargarInteraccionesPedidos().then(() => loadPedidosPage()).catch(showErr);
+  loadPedidosPage();
+  cargarInteraccionesPedidos()
+    .then(() => pedidos.forEach(item => actualizarBotonesPedido(item.id)))
+    .catch(error => console.warn('No se pudieron actualizar las interacciones:', error));
 
   actualizarCarritoUI();
 
@@ -213,18 +218,34 @@ function syncPedidosUrl(mode = 'replace') {
 }
 
 async function loadPedidosPage({ urlMode = 'replace' } = {}) {
+  const requestId = ++pedidosRequestId;
+  pedidosRequestController?.abort();
+  const controller = new AbortController();
+  pedidosRequestController = controller;
+  const requestedPage = paginaActual;
+  const requestedSort = ordenActual;
+  const requestedParams = { page: requestedPage, page_size: ITEMS_PER_PAGE, sort: requestedSort };
   syncPedidosUrl(urlMode);
+  $('#contenedor')?.setAttribute('aria-busy', 'true');
   try {
     const data = await cachedFetchJSON('pedidosDisponiblesPage', {
       ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES,
-      params: { page: paginaActual, page_size: ITEMS_PER_PAGE, sort: ordenActual },
-      cacheId: 'pedidos-page-v2'
+      params: requestedParams,
+      cacheId: 'pedidos-page-v3',
+      signal: controller.signal
     });
+    if (requestId !== pedidosRequestId || controller.signal.aborted) return;
     if (!data?.ok || !Array.isArray(data.productos)) throw new Error(data?.error || 'pedidos_page_unavailable');
 
+    const responsePage = Number(data.page) || 1;
+    const responseTotalPages = Number(data.total_pages) || 1;
+    if (responsePage !== requestedPage && requestedPage <= responseTotalPages) {
+      throw new Error('pedidos_page_response_mismatch');
+    }
+
     pedidos = normalizePedidos(data.productos);
-    paginaActual = Number(data.page) || 1;
-    totalPaginas = Number(data.total_pages) || 1;
+    paginaActual = responsePage;
+    totalPaginas = responseTotalPages;
     pintarPagina();
     dibujarPaginacion();
     syncPedidosUrl('replace');
@@ -232,16 +253,18 @@ async function loadPedidosPage({ urlMode = 'replace' } = {}) {
     if (paginaActual < totalPaginas) {
       cachedFetchJSON('pedidosDisponiblesPage', {
         ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES,
-        params: { page: paginaActual + 1, page_size: ITEMS_PER_PAGE, sort: ordenActual },
-        cacheId: 'pedidos-page-v2'
+        params: { ...requestedParams, page: paginaActual + 1 },
+        cacheId: 'pedidos-page-v3'
       }).catch(() => {});
     }
   } catch (serverError) {
+    if (requestId !== pedidosRequestId || controller.signal.aborted || serverError?.name === 'AbortError') return;
     try {
       if (!allPedidos.length) {
         const data = await cachedFetchJSON('pedidosDisponibles', { ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES });
         allPedidos = normalizePedidos(data);
       }
+      if (requestId !== pedidosRequestId || controller.signal.aborted) return;
       const filtered = allPedidos.filter((p) => {
         const estado = norm(p.estado);
         return !estado || estado === 'DISPONIBLE' || estado === 'DISPONIBLE A PEDIDO';
@@ -249,7 +272,7 @@ async function loadPedidosPage({ urlMode = 'replace' } = {}) {
       filtered.sort((a, b) => {
         const na = Number(a.id) || 0;
         const nb = Number(b.id) || 0;
-        return ordenActual === 'oldest' ? na - nb : nb - na;
+        return requestedSort === 'oldest' ? na - nb : nb - na;
       });
       totalPaginas = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
       paginaActual = Math.min(paginaActual, totalPaginas);
@@ -260,8 +283,11 @@ async function loadPedidosPage({ urlMode = 'replace' } = {}) {
       syncPedidosUrl('replace');
       console.warn('Endpoint paginado no disponible; usando pedidos compatibles:', serverError);
     } catch (error) {
+      if (requestId !== pedidosRequestId || controller.signal.aborted || error?.name === 'AbortError') return;
       showErr(error);
     }
+  } finally {
+    if (requestId === pedidosRequestId) $('#contenedor')?.removeAttribute('aria-busy');
   }
 }
 

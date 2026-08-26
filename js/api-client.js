@@ -12,6 +12,21 @@ export const API_CACHE_TTL = {
 
 const DEFAULT_TTL = 10 * 60 * 1000;
 const CACHE_PREFIX = 'mardant_api_cache_v1:';
+const RETRYABLE_PUBLIC_STATUSES = new Set([404, 408, 429, 500, 502, 503, 504]);
+
+function waitForRetry(ms, signal) {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new DOMException('Solicitud cancelada', 'AbortError'));
+      return;
+    }
+    const timer = setTimeout(resolve, ms);
+    signal?.addEventListener('abort', () => {
+      clearTimeout(timer);
+      reject(new DOMException('Solicitud cancelada', 'AbortError'));
+    }, { once: true });
+  });
+}
 
 function storage() {
   try {
@@ -67,6 +82,19 @@ function writeCache(key, data) {
   } catch (_) {}
 }
 
+export function getCachedJSON(accion, options = {}) {
+  const {
+    params = {},
+    ttl = DEFAULT_TTL,
+    cacheId = accion,
+    allowStale = false
+  } = options;
+  const key = cacheKey('json', cacheId, { accion, ...params });
+  const cached = readCache(key, ttl);
+  if (cached.hit) return cached.data;
+  return allowStale ? cached.stale : null;
+}
+
 function buildUrl(accion, params = {}) {
   const query = new URLSearchParams({ accion });
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -78,14 +106,35 @@ function buildUrl(accion, params = {}) {
 }
 
 export async function fetchJSON(accion, options = {}) {
-  const { params = {}, signal, fetchOptions = {} } = options;
-  const response = await fetch(buildUrl(accion, params), {
-    ...fetchOptions,
-    signal
-  });
+  const { params = {}, signal, fetchOptions = {}, retries = 1 } = options;
+  const url = buildUrl(accion, params);
+  let lastError;
 
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json();
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    try {
+      const response = await fetch(url, { ...fetchOptions, signal });
+      if (!response.ok) {
+        const error = new Error(`HTTP ${response.status}`);
+        error.status = response.status;
+        throw error;
+      }
+
+      const raw = await response.text();
+      try {
+        return JSON.parse(raw);
+      } catch (_) {
+        throw new Error('Respuesta JSON invalida del servidor');
+      }
+    } catch (error) {
+      if (error?.name === 'AbortError' || signal?.aborted) throw error;
+      lastError = error;
+      const retryable = !error?.status || RETRYABLE_PUBLIC_STATUSES.has(error.status);
+      if (attempt >= retries || !retryable) break;
+      await waitForRetry(450 * (attempt + 1), signal);
+    }
+  }
+
+  throw lastError || new Error('No se pudo consultar el servidor');
 }
 
 export async function fetchRoute(route, body = {}, options = {}) {
@@ -107,6 +156,7 @@ export async function cachedFetchJSON(accion, options = {}) {
     params = {},
     ttl = DEFAULT_TTL,
     force = false,
+    staleWhileRevalidate = false,
     cacheId = accion,
     signal,
     fetchOptions = {}
@@ -116,6 +166,12 @@ export async function cachedFetchJSON(accion, options = {}) {
   if (!force) {
     const cached = readCache(key, ttl);
     if (cached.hit) return cached.data;
+    if (staleWhileRevalidate && cached.stale !== null && cached.stale !== undefined) {
+      fetchJSON(accion, { params, fetchOptions })
+        .then(data => writeCache(key, data))
+        .catch(error => console.warn(`No se pudo actualizar ${accion} en segundo plano:`, error));
+      return cached.stale;
+    }
   }
 
   const stale = readCache(key, 0).stale;
@@ -124,6 +180,9 @@ export async function cachedFetchJSON(accion, options = {}) {
     writeCache(key, data);
     return data;
   } catch (error) {
+    // Una solicitud abortada fue reemplazada por otra más reciente. Devolver
+    // caché aquí permitiría que una página anterior vuelva a pintar la vista.
+    if (error?.name === 'AbortError' || signal?.aborted) throw error;
     if (stale !== null && stale !== undefined) {
       console.warn(`Usando cache anterior para ${accion}:`, error);
       return stale;
@@ -155,6 +214,7 @@ export async function cachedFetchText(url, options = {}) {
     writeCache(key, text);
     return text;
   } catch (error) {
+    if (error?.name === 'AbortError' || signal?.aborted) throw error;
     if (stale !== null && stale !== undefined) {
       console.warn('Usando cache anterior para recurso publico:', error);
       return stale;

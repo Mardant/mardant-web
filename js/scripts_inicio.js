@@ -1,8 +1,8 @@
 // === js/scripts_inicio.js ===
 import { AUTH_KEYS, whatsappLink } from './config.js';
-import { API_CACHE_TTL, cachedFetchJSON } from './api-client.js';
+import { API_CACHE_TTL, cachedFetchJSON, getCachedJSON } from './api-client.js?v=2';
 import { actualizarCarritoUI } from './carrito-utils.js';
-import { ensureAccountWidget } from './account-widget.js?v=3';
+import { ensureAccountWidget } from './account-widget.js?v=4';
 
 const $ = (sel) => document.querySelector(sel);
 const MAX_HOME_ITEMS = 4;
@@ -316,48 +316,148 @@ function renderCatalogoJaponHome(lista) {
   });
 }
 
-async function fetchHomeFallback() {
-  const [productosRes, preventasRes, pedidosRes, japonRes] = await Promise.allSettled([
-    cachedFetchJSON('productos', { ttl: API_CACHE_TTL.PRODUCTOS }),
-    cachedFetchJSON('preventas', { ttl: API_CACHE_TTL.PREVENTAS }),
-    cachedFetchJSON('pedidosDisponibles', { ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES }),
-    cachedFetchJSON('catalogoPreventasJapon', { ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON })
-  ]);
+async function fetchHomeFallbackProgressive() {
+  const tasks = [
+    cachedFetchJSON('productosPage', {
+      ttl: API_CACHE_TTL.PRODUCTOS,
+      cacheId: 'productos-page-v3',
+      params: { page: 1, page_size: 15, sort: 'recientes' }
+    }).then(data => setupUltimas(normalizarLista(data))),
+    cachedFetchJSON('productosPage', {
+      ttl: API_CACHE_TTL.PRODUCTOS,
+      cacheId: 'productos-page-v3',
+      params: { page: 1, page_size: 30, sort: 'oferta' }
+    }).then(data => renderOfertas(normalizarLista(data))),
+    cachedFetchJSON('preventasPage', {
+      ttl: API_CACHE_TTL.PREVENTAS,
+      cacheId: 'preventas-page-v3',
+      params: { page: 1, page_size: 24 }
+    }).then(data => renderPreventasHome(normalizarLista(data))),
+    cachedFetchJSON('pedidosDisponiblesPage', {
+      ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES,
+      cacheId: 'pedidos-page-v3',
+      params: { page: 1, page_size: 24, sort: 'newest' }
+    }).then(data => renderPedidosHome(normalizarLista(data))),
+    cachedFetchJSON('catalogoPreventasJaponPage', {
+      ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
+      cacheId: 'catalogo-japon-page-v2',
+      params: { page: 1, page_size: 15, sort: 'newest' }
+    }).then(data => renderCatalogoJaponHome(normalizarLista(data)))
+  ];
 
-  const productos = productosRes.status === 'fulfilled' ? normalizarLista(productosRes.value) : [];
+  const results = await Promise.allSettled(tasks);
+  if (!results.some(result => result.status === 'fulfilled')) {
+    throw new Error('No se pudo cargar ninguna sección de la portada');
+  }
+}
+
+function renderCachedHomeSections() {
+  const cachedSections = [
+    {
+      accion: 'productosPage',
+      options: {
+        ttl: API_CACHE_TTL.PRODUCTOS,
+        cacheId: 'productos-page-v3',
+        params: { page: 1, page_size: 15, sort: 'recientes' }
+      },
+      render: data => setupUltimas(normalizarLista(data))
+    },
+    {
+      accion: 'productosPage',
+      options: {
+        ttl: API_CACHE_TTL.PRODUCTOS,
+        cacheId: 'productos-page-v3',
+        params: { page: 1, page_size: 30, sort: 'oferta' }
+      },
+      render: data => renderOfertas(normalizarLista(data))
+    },
+    {
+      accion: 'preventasPage',
+      options: {
+        ttl: API_CACHE_TTL.PREVENTAS,
+        cacheId: 'preventas-page-v3',
+        params: { page: 1, page_size: 24 }
+      },
+      render: data => renderPreventasHome(normalizarLista(data))
+    },
+    {
+      accion: 'pedidosDisponiblesPage',
+      options: {
+        ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES,
+        cacheId: 'pedidos-page-v3',
+        params: { page: 1, page_size: 24, sort: 'newest' }
+      },
+      render: data => renderPedidosHome(normalizarLista(data))
+    },
+    {
+      accion: 'catalogoPreventasJaponPage',
+      options: {
+        ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
+        cacheId: 'catalogo-japon-page-v2',
+        params: { page: 1, page_size: 15, sort: 'newest' }
+      },
+      render: data => renderCatalogoJaponHome(normalizarLista(data))
+    }
+  ];
+
+  return cachedSections.reduce((rendered, section) => {
+    const data = getCachedJSON(section.accion, section.options);
+    if (!data) return rendered;
+    section.render(data);
+    return rendered + 1;
+  }, 0);
+}
+
+async function loadHomeData(signal) {
+  const data = await cachedFetchJSON('homeData', {
+    ttl: API_CACHE_TTL.HOME_DATA,
+    cacheId: 'home-data-v2',
+    staleWhileRevalidate: true,
+    signal
+  });
+  if (!data || data.ok === false || data.error) {
+    throw new Error(data?.error || 'home_data_unavailable');
+  }
+
+  const productos = normalizarLista(data);
+  const ultimas = normalizarLista(data.ultimas, 'ultimas');
+  const ofertas = normalizarLista(data.ofertas, 'ofertas');
   return {
     productos,
-    ultimas: productos,
-    ofertas: productos.filter((p) => p.oferta && !Number.isNaN(Number(p.oferta))),
-    preventas: preventasRes.status === 'fulfilled' ? normalizarLista(preventasRes.value) : [],
-    pedidosDisponibles: pedidosRes.status === 'fulfilled' ? normalizarLista(pedidosRes.value) : [],
-    catalogoJapon: japonRes.status === 'fulfilled' ? normalizarLista(japonRes.value) : []
+    ultimas: ultimas.length ? ultimas : productos,
+    ofertas: ofertas.length
+      ? ofertas
+      : productos.filter((p) => p.oferta && !Number.isNaN(Number(p.oferta))),
+    preventas: normalizarLista(data.preventas || data, 'preventas'),
+    pedidosDisponibles: normalizarLista(data.pedidosDisponibles || data, 'pedidosDisponibles'),
+    catalogoJapon: normalizarLista(data.catalogoJapon || data, 'catalogoJapon')
   };
 }
 
-async function loadHomeData() {
+async function fetchHomePrimaryOrFallback() {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4500);
   try {
-    const data = await cachedFetchJSON('homeData', { ttl: API_CACHE_TTL.HOME_DATA });
-    if (data && data.ok !== false && !data.error) {
-      const productos = normalizarLista(data);
-      const ultimas = normalizarLista(data.ultimas, 'ultimas');
-      const ofertas = normalizarLista(data.ofertas, 'ofertas');
-      return {
-        productos,
-        ultimas: ultimas.length ? ultimas : productos,
-        ofertas: ofertas.length
-          ? ofertas
-          : productos.filter((p) => p.oferta && !Number.isNaN(Number(p.oferta))),
-        preventas: normalizarLista(data.preventas || data, 'preventas'),
-        pedidosDisponibles: normalizarLista(data.pedidosDisponibles || data, 'pedidosDisponibles'),
-        catalogoJapon: normalizarLista(data.catalogoJapon || data, 'catalogoJapon')
-      };
-    }
+    renderHome(await loadHomeData(controller.signal));
   } catch (error) {
-    console.warn('homeData no disponible, usando endpoints actuales:', error);
+    if (error?.name !== 'AbortError') {
+      console.warn('homeData no disponible, cargando secciones ligeras:', error);
+    }
+    await fetchHomeFallbackProgressive();
+  } finally {
+    clearTimeout(timeout);
   }
+}
 
-  return fetchHomeFallback();
+async function loadHome() {
+  const renderedFromCache = renderCachedHomeSections();
+  if (renderedFromCache > 0) {
+    fetchHomePrimaryOrFallback().catch(error => {
+      console.warn('No se pudo actualizar la portada en segundo plano:', error);
+    });
+    return;
+  }
+  await fetchHomePrimaryOrFallback();
 }
 
 function renderHome(data) {
@@ -377,8 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try { actualizarCarritoUI(); } catch (error) { console.error(error); }
   }
 
-  loadHomeData()
-    .then(renderHome)
+  loadHome()
     .catch((error) => console.error('Error cargando portada:', error));
 });
 
