@@ -6,7 +6,7 @@
   <title>Libro de Reclamaciones | Mardant Perú</title>
   <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="../css/estilos.css?v=17" />
-  <link rel="stylesheet" href="../css/legal.css?v=3" />
+  <link rel="stylesheet" href="../css/legal.css?v=4" />
 </head>
 <body class="legal-page claim-page">
   <nav class="legal-nav" aria-label="Navegación principal">
@@ -63,6 +63,10 @@
 
     <section id="claimFormPanel" class="legal-panel claim-form-panel">
       <form id="claimForm" class="claim-form" novalidate>
+        <label class="claim-honeypot" aria-hidden="true">
+          Sitio web
+          <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </label>
         <section class="claim-section">
           <span class="legal-kicker">1. Tipo de solicitud</span>
           <div class="claim-grid one">
@@ -86,7 +90,7 @@
           <div class="claim-grid">
             <label>
               Nombre completo <strong>*</strong>
-              <input id="nombreCompleto" name="nombreCompleto" autocomplete="name" required />
+              <input id="nombreCompleto" name="nombreCompleto" autocomplete="name" minlength="5" maxlength="160" required />
             </label>
             <label>
               Tipo de documento <strong>*</strong>
@@ -100,15 +104,15 @@
             </label>
             <label>
               Número de documento <strong>*</strong>
-              <input id="numeroDocumento" name="numeroDocumento" inputmode="text" required />
+              <input id="numeroDocumento" name="numeroDocumento" inputmode="text" maxlength="20" required />
             </label>
             <label>
               Teléfono <strong>*</strong>
-              <input id="telefono" name="telefono" inputmode="tel" autocomplete="tel" required />
+              <input id="telefono" name="telefono" inputmode="tel" autocomplete="tel" maxlength="30" required />
             </label>
             <label>
               Correo electrónico <strong>*</strong>
-              <input id="correo" name="correo" type="email" autocomplete="email" required />
+              <input id="correo" name="correo" type="email" autocomplete="email" maxlength="120" required />
             </label>
             <label>
               Domicilio
@@ -134,7 +138,7 @@
           <div class="claim-grid">
             <label>
               Producto o servicio reclamado <strong>*</strong>
-              <input id="productoServicio" name="productoServicio" required />
+              <input id="productoServicio" name="productoServicio" minlength="3" maxlength="220" required />
             </label>
             <label>
               Monto reclamado
@@ -142,7 +146,7 @@
             </label>
             <label>
               Fecha de compra
-              <input id="fechaCompra" name="fechaCompra" type="date" />
+              <input id="fechaCompra" name="fechaCompra" type="date" min="2000-01-01" />
             </label>
             <label>
               Número de pedido
@@ -168,11 +172,11 @@
           <div class="claim-grid one">
             <label>
               Detalle del reclamo o queja <strong>*</strong>
-              <textarea id="detalle" name="detalle" rows="6" required></textarea>
+              <textarea id="detalle" name="detalle" rows="6" minlength="20" maxlength="2500" required></textarea>
             </label>
             <label>
               Pedido del consumidor <strong>*</strong>
-              <textarea id="pedidoConsumidor" name="pedidoConsumidor" rows="5" required></textarea>
+              <textarea id="pedidoConsumidor" name="pedidoConsumidor" rows="5" minlength="10" maxlength="1800" required></textarea>
             </label>
           </div>
         </section>
@@ -224,6 +228,6 @@
 
   <script type="module" src="../js/tracking.js?v=8"></script>
   <script type="module" src="../js/account-widget.js?v=3"></script>
-  <script type="module" src="../js/libro-reclamaciones.js?v=2"></script>
+  <script type="module" src="../js/libro-reclamaciones.js?v=3"></script>
 </body>
 </html>
