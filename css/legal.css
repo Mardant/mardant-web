@@ -293,6 +293,17 @@
   gap:18px;
 }
 
+.claim-honeypot{
+  position:absolute !important;
+  left:-10000px !important;
+  top:auto !important;
+  width:1px !important;
+  height:1px !important;
+  overflow:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+
 .claim-section{
   padding:18px;
   border:1px solid rgba(181,139,92,.34);
