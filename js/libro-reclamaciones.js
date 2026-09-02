@@ -22,6 +22,8 @@ const printBtn = document.getElementById('printReceiptBtn');
 const newClaimBtn = document.getElementById('newClaimBtn');
 
 let latestReceipt = null;
+let reclamacionChallenge = '';
+let formStartedAt = Date.now();
 
 const fieldIds = [
   'tipo',
@@ -83,6 +85,11 @@ function normalizePhone(phone) {
   return phone.replace(/\s+/g, ' ').trim();
 }
 
+function hasNaturalWords(text, minLength, minWords) {
+  const words = String(text || '').match(/[A-Za-zÀ-ÿÑñ]{2,}/g) || [];
+  return String(text || '').length >= minLength && words.length >= minWords;
+}
+
 function buildPayload() {
   return {
     tipo: value('tipo'),
@@ -101,8 +108,31 @@ function buildPayload() {
     tipoPedido: value('tipoPedido'),
     detalle: value('detalle'),
     pedidoConsumidor: value('pedidoConsumidor'),
-    aceptaDeclaracion: el('aceptaDeclaracion').checked
+    aceptaDeclaracion: el('aceptaDeclaracion').checked,
+    website: value('website'),
+    reclamacionChallenge,
+    formStartedAt
   };
+}
+
+async function loadReclamacionChallenge() {
+  reclamacionChallenge = '';
+  submitBtn.disabled = true;
+  try {
+    const response = await fetch(`${API_URL}?accion=reclamacionChallenge&_=${Date.now()}`, {
+      cache: 'no-store'
+    });
+    const result = await response.json();
+    if (!response.ok || !result.ok || !result.challenge) throw new Error('challenge_unavailable');
+    reclamacionChallenge = result.challenge;
+    formStartedAt = Date.now();
+    return true;
+  } catch (_) {
+    setStatus('No se pudo preparar el formulario. Recarga la página e intenta nuevamente.', 'error');
+    return false;
+  } finally {
+    submitBtn.disabled = !reclamacionChallenge;
+  }
 }
 
 function validatePayload(payload) {
@@ -136,6 +166,51 @@ function validatePayload(payload) {
   if (payload.telefono && !/^[+0-9\s()\-]{6,30}$/.test(payload.telefono)) {
     errors.push('Ingresa un teléfono válido.');
     invalid.push('telefono');
+  }
+
+  const phoneDigits = payload.telefono.replace(/\D/g, '');
+  if (payload.telefono && (phoneDigits.length < 9 || phoneDigits.length > 15 || /^(\d)\1+$/.test(phoneDigits))) {
+    errors.push('El teléfono debe tener entre 9 y 15 dígitos válidos.');
+    invalid.push('telefono');
+  }
+
+  const documentNumber = payload.numeroDocumento.replace(/[\s.-]/g, '');
+  if (payload.tipoDocumento === 'DNI' && !/^\d{8}$/.test(documentNumber)) {
+    errors.push('El DNI debe tener 8 dígitos.');
+    invalid.push('numeroDocumento');
+  } else if (payload.tipoDocumento === 'RUC' && !/^\d{11}$/.test(documentNumber)) {
+    errors.push('El RUC debe tener 11 dígitos.');
+    invalid.push('numeroDocumento');
+  } else if ((payload.tipoDocumento === 'CE' || payload.tipoDocumento === 'Pasaporte') &&
+      !/^[A-Za-z0-9-]{6,20}$/.test(documentNumber)) {
+    errors.push('Ingresa un número de documento válido.');
+    invalid.push('numeroDocumento');
+  }
+
+  if (payload.nombreCompleto && !hasNaturalWords(payload.nombreCompleto, 5, 2)) {
+    errors.push('Ingresa tu nombre y apellido.');
+    invalid.push('nombreCompleto');
+  }
+
+  if (payload.detalle && !hasNaturalWords(payload.detalle, 20, 4)) {
+    errors.push('Describe el reclamo o queja con un poco más de detalle.');
+    invalid.push('detalle');
+  }
+
+  if (payload.pedidoConsumidor && !hasNaturalWords(payload.pedidoConsumidor, 10, 2)) {
+    errors.push('Explica con más detalle qué solución solicitas.');
+    invalid.push('pedidoConsumidor');
+  }
+
+  if (payload.fechaCompra) {
+    const selectedDate = new Date(`${payload.fechaCompra}T00:00:00`);
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(payload.fechaCompra) ||
+        selectedDate.getFullYear() < 2000 || selectedDate > today) {
+      errors.push('Ingresa una fecha de compra válida.');
+      invalid.push('fechaCompra');
+    }
   }
 
   if (payload.menorEdad && !payload.datosApoderado) {
@@ -300,10 +375,16 @@ function resetForm() {
   successPanel.classList.add('is-hidden');
   formPanel.classList.remove('is-hidden');
   formPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  loadReclamacionChallenge();
 }
 
 async function submitClaim(event) {
   event.preventDefault();
+  if (!reclamacionChallenge) {
+    setStatus('El formulario aún no está listo. Espera un momento e intenta nuevamente.', 'error');
+    await loadReclamacionChallenge();
+    return;
+  }
   const payload = buildPayload();
   const errors = validatePayload(payload);
   if (errors.length) {
@@ -323,6 +404,7 @@ async function submitClaim(event) {
     const result = await response.json();
     if (!result.ok) throw new Error(result.error || 'No se pudo registrar la hoja de reclamación.');
 
+    reclamacionChallenge = '';
     const receipt = {
       ...payload,
       ...result,
@@ -332,8 +414,9 @@ async function submitClaim(event) {
     showSuccess(receipt);
   } catch (err) {
     setStatus(err.message || 'No se pudo registrar la hoja de reclamación.', 'error');
+    await loadReclamacionChallenge();
   } finally {
-    submitBtn.disabled = false;
+    submitBtn.disabled = !reclamacionChallenge && !latestReceipt;
   }
 }
 
@@ -347,6 +430,16 @@ function setupNoticeFallback() {
   }, { once: true });
 }
 
+function setDateLimits() {
+  const dateInput = el('fechaCompra');
+  if (!dateInput) return;
+  const today = new Date();
+  const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 10);
+  dateInput.max = localToday;
+}
+
 menorEdad.addEventListener('change', toggleApoderado);
 form.addEventListener('submit', submitClaim);
 downloadBtn.addEventListener('click', downloadReceipt);
@@ -356,3 +449,5 @@ window.addEventListener('afterprint', () => document.body.classList.remove('clai
 
 toggleApoderado();
 setupNoticeFallback();
+setDateLimits();
+loadReclamacionChallenge();
