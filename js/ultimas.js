@@ -1,5 +1,5 @@
 /* js/ultimas.js  – “Últimas importaciones” (12 más recientes) */
-import { API_URL }          from './config.js';
+import { API_CACHE_TTL, cachedFetchJSON } from './api-client.js?v=3';
 import { actualizarCarritoUI } from './carrito-utils.js';
 
 /* util para escapar posibles ‘< > &’ en nombres, etc.  */
@@ -14,9 +14,15 @@ const $ = s => document.querySelector(s);
 const cont = $('#contenedor');
 
 document.addEventListener('DOMContentLoaded', () => {
-  fetch(`${API_URL}?accion=productos`)
-    .then(r => r.ok ? r.json() : Promise.reject('API error'))
-    .then(pintar)
+  cachedFetchJSON('productosPage', {
+    ttl: API_CACHE_TTL.PRODUCTOS,
+    cacheId: 'productos-page-v3',
+    params: { page: 1, page_size: 12, sort: 'recientes', include_meta: '0' },
+    staleWhileRevalidate: true,
+    retries: 0,
+    timeoutMs: 12000
+  })
+    .then(data => pintar(data?.productos || []))
     .catch(() => { cont.innerHTML = '<p>Error al cargar productos.</p>'; });
 
   actualizarCarritoUI();    // contador del carrito

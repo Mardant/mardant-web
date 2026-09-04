@@ -6,13 +6,15 @@ export const API_CACHE_TTL = {
   PREVENTAS: 10 * 60 * 1000,
   PEDIDOS_DISPONIBLES: 10 * 60 * 1000,
   CATALOGO_PREVENTAS_JAPON: 10 * 60 * 1000,
-  PRODUCTO: 5 * 60 * 1000,
-  CATALOGO_JAPON_GVIZ: 10 * 60 * 1000
+  PRODUCTO: 5 * 60 * 1000
 };
 
 const DEFAULT_TTL = 10 * 60 * 1000;
-const CACHE_PREFIX = 'mardant_api_cache_v1:';
+const DEFAULT_MAX_STALE = 30 * 60 * 1000;
+const DEFAULT_REQUEST_TIMEOUT = 15 * 1000;
+const CACHE_PREFIX = 'mardant_api_cache_v2:';
 const RETRYABLE_PUBLIC_STATUSES = new Set([404, 408, 429, 500, 502, 503, 504]);
+const inFlightJSON = new Map();
 
 function waitForRetry(ms, signal) {
   return new Promise((resolve, reject) => {
@@ -20,12 +22,63 @@ function waitForRetry(ms, signal) {
       reject(new DOMException('Solicitud cancelada', 'AbortError'));
       return;
     }
-    const timer = setTimeout(resolve, ms);
-    signal?.addEventListener('abort', () => {
+
+    const cleanup = () => signal?.removeEventListener('abort', abortWait);
+    const timer = setTimeout(() => {
+      cleanup();
+      resolve();
+    }, ms);
+    const abortWait = () => {
       clearTimeout(timer);
+      cleanup();
       reject(new DOMException('Solicitud cancelada', 'AbortError'));
-    }, { once: true });
+    };
+    signal?.addEventListener('abort', abortWait, { once: true });
   });
+}
+
+function waitForRequest(promise, signal) {
+  if (!signal) return promise;
+  if (signal.aborted) return Promise.reject(new DOMException('Solicitud cancelada', 'AbortError'));
+
+  return new Promise((resolve, reject) => {
+    const cleanup = () => signal.removeEventListener('abort', abortRequest);
+    const abortRequest = () => {
+      cleanup();
+      reject(new DOMException('Solicitud cancelada', 'AbortError'));
+    };
+
+    signal.addEventListener('abort', abortRequest, { once: true });
+    promise.then(
+      value => {
+        cleanup();
+        resolve(value);
+      },
+      error => {
+        cleanup();
+        reject(error);
+      }
+    );
+  });
+}
+
+async function fetchWithTimeout(url, fetchOptions = {}, timeoutMs = DEFAULT_REQUEST_TIMEOUT, signal) {
+  const controller = new AbortController();
+  const abortRequest = () => controller.abort();
+  const timeout = setTimeout(abortRequest, Math.max(1, Number(timeoutMs) || DEFAULT_REQUEST_TIMEOUT));
+
+  if (signal?.aborted) controller.abort();
+  else signal?.addEventListener('abort', abortRequest, { once: true });
+
+  try {
+    return await fetch(url, {
+      ...fetchOptions,
+      signal: controller.signal
+    });
+  } finally {
+    clearTimeout(timeout);
+    signal?.removeEventListener('abort', abortRequest);
+  }
 }
 
 function storage() {
@@ -55,7 +108,7 @@ function cacheKey(type, id, params = {}) {
   return `${CACHE_PREFIX}${type}:${id}:${stableStringify(params)}`;
 }
 
-function readCache(key, ttl) {
+function readCache(key, ttl, maxStale = DEFAULT_MAX_STALE) {
   const store = storage();
   if (!store) return { hit: false, stale: null };
 
@@ -66,6 +119,10 @@ function readCache(key, ttl) {
     const cached = JSON.parse(raw);
     const age = Date.now() - Number(cached.time || 0);
     if (age <= ttl) return { hit: true, data: cached.data };
+    if (age > maxStale) {
+      store.removeItem(key);
+      return { hit: false, stale: null };
+    }
 
     return { hit: false, stale: cached.data };
   } catch (_) {
@@ -106,46 +163,62 @@ function buildUrl(accion, params = {}) {
 }
 
 export async function fetchJSON(accion, options = {}) {
-  const { params = {}, signal, fetchOptions = {}, retries = 1 } = options;
+  const {
+    params = {},
+    signal,
+    fetchOptions = {},
+    retries = 1,
+    timeoutMs = DEFAULT_REQUEST_TIMEOUT
+  } = options;
   const url = buildUrl(accion, params);
-  let lastError;
+  let request = inFlightJSON.get(url);
 
-  for (let attempt = 0; attempt <= retries; attempt += 1) {
-    try {
-      const response = await fetch(url, { ...fetchOptions, signal });
-      if (!response.ok) {
-        const error = new Error(`HTTP ${response.status}`);
-        error.status = response.status;
-        throw error;
-      }
+  if (!request) {
+    request = (async () => {
+      let lastError;
+      for (let attempt = 0; attempt <= retries; attempt += 1) {
+        try {
+          const response = await fetchWithTimeout(url, fetchOptions, timeoutMs);
+          if (!response.ok) {
+            const error = new Error(`HTTP ${response.status}`);
+            error.status = response.status;
+            throw error;
+          }
 
-      const raw = await response.text();
-      try {
-        return JSON.parse(raw);
-      } catch (_) {
-        throw new Error('Respuesta JSON invalida del servidor');
+          const raw = await response.text();
+          try {
+            return JSON.parse(raw);
+          } catch (_) {
+            throw new Error('Respuesta JSON invalida del servidor');
+          }
+        } catch (error) {
+          lastError = error?.name === 'AbortError'
+            ? new Error('El servidor demoro demasiado en responder')
+            : error;
+          const retryable = !error?.status || RETRYABLE_PUBLIC_STATUSES.has(error.status);
+          if (attempt >= retries || !retryable) break;
+          await waitForRetry(450 * (attempt + 1));
+        }
       }
-    } catch (error) {
-      if (error?.name === 'AbortError' || signal?.aborted) throw error;
-      lastError = error;
-      const retryable = !error?.status || RETRYABLE_PUBLIC_STATUSES.has(error.status);
-      if (attempt >= retries || !retryable) break;
-      await waitForRetry(450 * (attempt + 1), signal);
-    }
+      throw lastError || new Error('No se pudo consultar el servidor');
+    })();
+    inFlightJSON.set(url, request);
+    request.finally(() => {
+      if (inFlightJSON.get(url) === request) inFlightJSON.delete(url);
+    }).catch(() => {});
   }
 
-  throw lastError || new Error('No se pudo consultar el servidor');
+  return waitForRequest(request, signal);
 }
 
 export async function fetchRoute(route, body = {}, options = {}) {
-  const { signal, fetchOptions = {} } = options;
-  const response = await fetch(`${API_URL}?route=${encodeURIComponent(route)}`, {
+  const { signal, fetchOptions = {}, timeoutMs = DEFAULT_REQUEST_TIMEOUT } = options;
+  const response = await fetchWithTimeout(`${API_URL}?route=${encodeURIComponent(route)}`, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(body || {}),
-    ...fetchOptions,
-    signal
-  });
+    ...fetchOptions
+  }, timeoutMs, signal);
 
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.json();
@@ -159,7 +232,9 @@ export async function cachedFetchJSON(accion, options = {}) {
     staleWhileRevalidate = false,
     cacheId = accion,
     signal,
-    fetchOptions = {}
+    fetchOptions = {},
+    retries = 1,
+    timeoutMs = DEFAULT_REQUEST_TIMEOUT
   } = options;
   const key = cacheKey('json', cacheId, { accion, ...params });
 
@@ -167,7 +242,7 @@ export async function cachedFetchJSON(accion, options = {}) {
     const cached = readCache(key, ttl);
     if (cached.hit) return cached.data;
     if (staleWhileRevalidate && cached.stale !== null && cached.stale !== undefined) {
-      fetchJSON(accion, { params, fetchOptions })
+      fetchJSON(accion, { params, fetchOptions, retries, timeoutMs })
         .then(data => writeCache(key, data))
         .catch(error => console.warn(`No se pudo actualizar ${accion} en segundo plano:`, error));
       return cached.stale;
@@ -176,9 +251,14 @@ export async function cachedFetchJSON(accion, options = {}) {
 
   const stale = readCache(key, 0).stale;
   try {
-    const data = await fetchJSON(accion, { params, signal, fetchOptions });
-    writeCache(key, data);
-    return data;
+    // Aunque la vista cambie y deje de esperar esta solicitud, la respuesta
+    // termina de llenar su propia clave de cache para una visita posterior.
+    const request = fetchJSON(accion, { params, fetchOptions, retries, timeoutMs })
+      .then(data => {
+        writeCache(key, data);
+        return data;
+      });
+    return await waitForRequest(request, signal);
   } catch (error) {
     // Una solicitud abortada fue reemplazada por otra más reciente. Devolver
     // caché aquí permitiría que una página anterior vuelva a pintar la vista.
@@ -191,34 +271,33 @@ export async function cachedFetchJSON(accion, options = {}) {
   }
 }
 
-export async function cachedFetchText(url, options = {}) {
+export async function prefetchJSONPages(accion, options = {}) {
   const {
+    current = 1,
+    total = 1,
+    ahead = 3,
+    behind = 1,
+    params = {},
     ttl = DEFAULT_TTL,
-    force = false,
-    cacheId = url,
-    signal,
-    fetchOptions = {}
+    cacheId = accion
   } = options;
-  const key = cacheKey('text', cacheId);
-
-  if (!force) {
-    const cached = readCache(key, ttl);
-    if (cached.hit) return cached.data;
+  const first = Math.max(1, Number(current) - Math.max(0, Number(behind) || 0));
+  const last = Math.min(Number(total) || 1, Number(current) + Math.max(0, Number(ahead) || 0));
+  const pages = [];
+  for (let page = first; page <= last; page += 1) {
+    if (page !== Number(current)) pages.push(page);
   }
 
-  const stale = readCache(key, 0).stale;
-  try {
-    const response = await fetch(url, { ...fetchOptions, signal });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const text = await response.text();
-    writeCache(key, text);
-    return text;
-  } catch (error) {
-    if (error?.name === 'AbortError' || signal?.aborted) throw error;
-    if (stale !== null && stale !== undefined) {
-      console.warn('Usando cache anterior para recurso publico:', error);
-      return stale;
-    }
-    throw error;
+  for (const page of pages) {
+    try {
+      await cachedFetchJSON(accion, {
+        ttl,
+        cacheId,
+        params: { ...params, page },
+        staleWhileRevalidate: true,
+        retries: 0,
+        timeoutMs: 12000
+      });
+    } catch (_) {}
   }
 }

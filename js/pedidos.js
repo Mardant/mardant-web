@@ -1,6 +1,6 @@
 /* js/pedidos.js */
-import { API_URL, whatsappLink } from './config.js';
-import { API_CACHE_TTL, cachedFetchJSON } from './api-client.js';
+import { whatsappLink } from './config.js';
+import { API_CACHE_TTL, cachedFetchJSON, fetchRoute, prefetchJSONPages } from './api-client.js?v=3';
 import { actualizarCarritoUI } from './carrito-utils.js';
 import {
   bookmarkIcon,
@@ -121,9 +121,14 @@ function likeCountForPedido(id){
 
 async function cargarInteraccionesPedidos(){
   try {
-    const res = await fetch(`${API_URL}?accion=pedidosSocialCounts&ts=${Date.now()}`, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+    const data = await cachedFetchJSON('pedidosSocialCounts', {
+      ttl: 2 * 60 * 1000,
+      cacheId: 'pedidos-social-counts-v1',
+      staleWhileRevalidate: true,
+      retries: 0,
+      timeoutMs: 8000,
+      fetchOptions: { cache: 'no-store' }
+    });
     if (!data || data.ok === false) throw new Error(data?.error || 'social_counts_error');
     pedidoLikes = new Map(Object.entries(data.likes || {}).map(([id, count]) => [String(id), Number(count) || 0]));
   } catch (error) {
@@ -174,18 +179,16 @@ async function togglePedidoInteraction(tipo, id, button){
   actualizarBotonesPedido(itemId);
 
   try {
-    const res = await fetch(`${API_URL}?route=pedido_social_toggle`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({
-        item_id: itemId,
-        tipo,
-        active: nextActive,
-        visitor_id: getVisitorId(),
-        user_agent: navigator.userAgent || ''
-      })
+    const data = await fetchRoute('pedido_social_toggle', {
+      item_id: itemId,
+      tipo,
+      active: nextActive,
+      visitor_id: getVisitorId(),
+      user_agent: navigator.userAgent || ''
+    }, {
+      timeoutMs: 10000,
+      fetchOptions: { cache: 'no-store' }
     });
-    const data = await res.json();
     if (!data || data.ok === false) throw new Error(data?.error || 'social_toggle_error');
     if (isLike && data.count != null) pedidoLikes.set(itemId, Number(data.count) || 0);
     actualizarBotonesPedido(itemId);
@@ -232,6 +235,9 @@ async function loadPedidosPage({ urlMode = 'replace' } = {}) {
       ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES,
       params: requestedParams,
       cacheId: 'pedidos-page-v3',
+      staleWhileRevalidate: true,
+      retries: 0,
+      timeoutMs: 12000,
       signal: controller.signal
     });
     if (requestId !== pedidosRequestId || controller.signal.aborted) return;
@@ -250,18 +256,24 @@ async function loadPedidosPage({ urlMode = 'replace' } = {}) {
     dibujarPaginacion();
     syncPedidosUrl('replace');
 
-    if (paginaActual < totalPaginas) {
-      cachedFetchJSON('pedidosDisponiblesPage', {
-        ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES,
-        params: { ...requestedParams, page: paginaActual + 1 },
-        cacheId: 'pedidos-page-v3'
-      }).catch(() => {});
-    }
+    prefetchJSONPages('pedidosDisponiblesPage', {
+      current: paginaActual,
+      total: totalPaginas,
+      ahead: 3,
+      behind: 1,
+      ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES,
+      params: requestedParams,
+      cacheId: 'pedidos-page-v3'
+    }).catch(() => {});
   } catch (serverError) {
     if (requestId !== pedidosRequestId || controller.signal.aborted || serverError?.name === 'AbortError') return;
     try {
       if (!allPedidos.length) {
-        const data = await cachedFetchJSON('pedidosDisponibles', { ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES });
+        const data = await cachedFetchJSON('pedidosDisponibles', {
+          ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES,
+          retries: 0,
+          timeoutMs: 12000
+        });
         allPedidos = normalizePedidos(data);
       }
       if (requestId !== pedidosRequestId || controller.signal.aborted) return;

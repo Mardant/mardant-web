@@ -30,7 +30,7 @@
   <header class="banner">
     <img src="https://i.imgur.com/wfOe9n4.png"
          alt="Banner Anime Mardant"
-         loading="lazy" referrerpolicy="no-referrer">
+         loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
     <div class="bienvenida"></div>
   </header>
 
@@ -48,9 +48,9 @@
 
   <!-- Carrusel -->
   <div class="carrusel">
-    <img src="https://i.imgur.com/D9qJpmt.png" class="activo" alt="Slide 1" referrerpolicy="no-referrer">
-    <img src="https://i.imgur.com/iFcP1c3.png"               alt="Slide 2" referrerpolicy="no-referrer">
-    <img src="https://i.imgur.com/YXrMQqw.png"               alt="Slide 3" referrerpolicy="no-referrer">
+    <img src="https://i.imgur.com/D9qJpmt.png" class="activo" alt="Slide 1" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
+    <img src="https://i.imgur.com/iFcP1c3.png"               alt="Slide 2" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+    <img src="https://i.imgur.com/YXrMQqw.png"               alt="Slide 3" loading="lazy" decoding="async" referrerpolicy="no-referrer">
     <div class="carrusel-indicadores" id="indicadores"></div>
   </div>
 
@@ -147,7 +147,7 @@
 </section>
 
 <!-- Lógica de portada -->
-<script type="module" src="../js/scripts_inicio.js?v=11"></script>
+<script type="module" src="../js/scripts_inicio.js?v=14"></script>
 
 <!-- Lightbox para imágenes de cards -->
 <script>

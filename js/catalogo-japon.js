@@ -1,11 +1,8 @@
-import { API_URL, whatsappLink } from './config.js';
-import { API_CACHE_TTL, cachedFetchJSON, cachedFetchText } from './api-client.js';
-import { setupSearchTracking } from './search-tracking.js?v=1';
+import { whatsappLink } from './config.js';
+import { API_CACHE_TTL, cachedFetchJSON, fetchJSON, fetchRoute, prefetchJSONPages } from './api-client.js?v=3';
+import { setupSearchTracking } from './search-tracking.js?v=3';
 
 const PAGE_SIZE = 20;
-const SPREADSHEET_ID = '17UeC7f4aIGmqEdmXD20wlV-kNidpm1MKK4V5v33X5yc';
-const SHEET_NAME = 'catalogo';
-const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&tq=select%20*`;
 const LIKES_STORAGE_KEY = 'mardant_japon_likes_v1';
 const VISITOR_STORAGE_KEY = 'mardant_japon_visitor_id_v1';
 const sharedLoteId = new URLSearchParams(location.search).get('lote') || '';
@@ -39,6 +36,7 @@ let serverTotalPages = 1;
 let catalogRequestController = null;
 let catalogRequestId = 0;
 let likesLoaded = false;
+let animeMetaLoaded = false;
 let likesLoadPromise = null;
 let likeCounts = new Map();
 let likedLots = new Set(loadLikedLots());
@@ -398,10 +396,6 @@ function rankInfo(value){
   return { rank, description: descriptions[rank] };
 }
 
-function requestUrl(){
-  return GVIZ_URL;
-}
-
 function restoreCatalogStateFromUrl(){
   const params = new URLSearchParams(location.search);
   if (searchInput) searchInput.value = params.get('buscar') || '';
@@ -452,66 +446,6 @@ function updateCatalogUrl(mode = 'replace'){
   const state = { catalogoJapon: true, pagina: currentPage };
   if (mode === 'push') history.pushState(state, '', url);
   else history.replaceState(state, '', url);
-}
-
-function headerKey(value){
-  return String(value || '').trim().toLowerCase();
-}
-
-function cellValue(row, index){
-  if (index < 0) return '';
-  const cell = row?.c?.[index];
-  const value = cell?.v ?? cell?.f ?? '';
-  return String(value ?? '').trim();
-}
-
-function parseGvizCatalog(text){
-  const jsonText = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
-  const safeJsonText = jsonText
-    .replace(/:\s*new Date\(([^)]*)\)/g, ':"$1"')
-    .replace(/:\s*Date\(([^)]*)\)/g, ':"$1"');
-  const payload = JSON.parse(safeJsonText);
-  const headers = (payload.table?.cols || []).map(col => headerKey(col.label || col.id));
-  const indexOf = (name, fallback) => {
-    const index = headers.indexOf(name);
-    return index >= 0 ? index : fallback;
-  };
-  const indexOfAny = names => {
-    for (const name of names) {
-      const index = headers.indexOf(name);
-      if (index >= 0) return index;
-    }
-    return -1;
-  };
-  const cols = {
-    id_lote: indexOf('id_lote', 0),
-    imagen_url: indexOf('imagen_url', 1),
-    etiqueta: indexOf('etiqueta', 2),
-    precio_producto: indexOf('precio_producto', 3),
-    visible: indexOf('visible', 4),
-    ultima_revision: indexOf('ultima_revision', 5),
-    anime: indexOf('anime', 6),
-    tipo: indexOf('tipo', 7),
-    busqueda: indexOf('busqueda', 8),
-    rank: indexOf('rank', 9),
-    plataforma: indexOfAny(['plataforma', 'origen', 'fuente', 'marketplace'])
-  };
-
-  return (payload.table?.rows || [])
-    .map(row => ({
-      id_lote: cellValue(row, cols.id_lote),
-      imagen_url: cellValue(row, cols.imagen_url),
-      etiqueta: cellValue(row, cols.etiqueta),
-      precio_producto: cellValue(row, cols.precio_producto),
-      visible: cellValue(row, cols.visible),
-      ultima_revision: cellValue(row, cols.ultima_revision),
-      anime: cellValue(row, cols.anime),
-      tipo: cellValue(row, cols.tipo),
-      busqueda: cellValue(row, cols.busqueda),
-      rank: cellValue(row, cols.rank),
-      plataforma: cellValue(row, cols.plataforma)
-    }))
-    .filter(item => item.id_lote && normalizeText(item.visible) === 'si');
 }
 
 function fillFilterSelect(select, values){
@@ -571,9 +505,12 @@ function loadImageForCanvas(src){
 async function loadShareImage(item){
   const id = String(item.id_lote || '').trim();
   try {
-    const res = await fetch(`${API_URL}?accion=catalogoJaponImage&id_lote=${encodeURIComponent(id)}&ts=${Date.now()}`, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+    const data = await fetchJSON('catalogoJaponImage', {
+      params: { id_lote: id, ts: Date.now() },
+      retries: 0,
+      timeoutMs: 10000,
+      fetchOptions: { cache: 'no-store' }
+    });
     if (!data || data.ok === false || !data.base64) throw new Error(data?.error || 'image_proxy_error');
     return loadImageForCanvas(`data:${data.mime || 'image/jpeg'};base64,${data.base64}`);
   } catch (error) {
@@ -795,9 +732,14 @@ function card(item){
 
 async function loadLikeCounts(){
   try {
-    const res = await fetch(`${API_URL}?accion=catalogoJaponLikes&ts=${Date.now()}`, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+    const data = await cachedFetchJSON('catalogoJaponLikes', {
+      ttl: 2 * 60 * 1000,
+      cacheId: 'catalogo-japon-likes-v1',
+      staleWhileRevalidate: true,
+      retries: 0,
+      timeoutMs: 8000,
+      fetchOptions: { cache: 'no-store' }
+    });
     if (!data || data.ok === false) throw new Error(data?.error || 'likes_error');
     likeCounts = new Map(Object.entries(data.likes || {}).map(([id, count]) => [String(id), Number(count) || 0]));
   } catch (error) {
@@ -884,16 +826,14 @@ async function toggleLikeLote(id, button){
 
   try {
     const route = nextLiked ? 'catalogo_japon_like' : 'catalogo_japon_unlike';
-    const res = await fetch(`${API_URL}?route=${route}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({
-        id_lote: loteId,
-        visitor_id: getVisitorId(),
-        user_agent: navigator.userAgent || ''
-      })
+    const data = await fetchRoute(route, {
+      id_lote: loteId,
+      visitor_id: getVisitorId(),
+      user_agent: navigator.userAgent || ''
+    }, {
+      timeoutMs: 10000,
+      fetchOptions: { cache: 'no-store' }
     });
-    const data = await res.json();
     if (!data || data.ok === false) throw new Error(data?.error || 'like_error');
     setLikeCount(loteId, data.count);
     updateLikeButtons(loteId);
@@ -1045,14 +985,18 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
   statusEl.textContent = 'Cargando catálogo...';
   statusEl.classList.remove('is-error');
   dateEl.textContent = '';
-  grid.replaceChildren();
-  pagination.replaceChildren();
+  pagination.querySelectorAll('button').forEach(button => { button.disabled = true; });
 
   if (catalogRequestController) catalogRequestController.abort();
   const controller = new AbortController();
   catalogRequestController = controller;
   const requestedPage = Math.max(1, Number(page) || 1);
   const requestedParams = catalogRequestParams(requestedPage);
+  requestedParams.include_meta = animeMetaLoaded ? '0' : '1';
+  const filteredRequest = Boolean(
+    requestedParams.search || requestedParams.anime || requestedParams.availability ||
+    requestedParams.min_price || requestedParams.max_price || requestedParams.sort !== 'newest'
+  );
   grid?.setAttribute('aria-busy', 'true');
 
   try {
@@ -1060,6 +1004,11 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
       params: requestedParams,
       ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
       cacheId: 'catalogo-japon-page-v2',
+      staleWhileRevalidate: true,
+      retries: 0,
+      // La primera búsqueda puede construir el índice de una hoja muy grande.
+      // No la repetimos: las páginas vecinas reutilizan ese índice y su caché.
+      timeoutMs: filteredRequest ? 30000 : 15000,
       signal: controller.signal
     });
     if (requestId !== catalogRequestId || controller.signal.aborted) return null;
@@ -1078,7 +1027,10 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
     filteredCatalogo = catalogo.slice();
     currentPage = responsePage;
     serverTotalPages = responseTotalPages;
-    fillFilterSelect(animeSelect, Array.isArray(data.animes) ? data.animes : []);
+    if (Array.isArray(data.animes)) {
+      fillFilterSelect(animeSelect, data.animes);
+      animeMetaLoaded = true;
+    }
 
     render();
     ensureLikeCountsLoaded();
@@ -1092,19 +1044,19 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
       dateEl.textContent = 'Prueba con otra búsqueda o cambia los filtros';
     }
 
-    if (currentPage < serverTotalPages) {
-      cachedFetchJSON('catalogoPreventasJaponPage', {
-        params: { ...requestedParams, page: currentPage + 1 },
-        ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
-        cacheId: 'catalogo-japon-page-v2'
-      }).catch(() => {});
-    }
+    prefetchJSONPages('catalogoPreventasJaponPage', {
+      current: currentPage,
+      total: serverTotalPages,
+      ahead: 3,
+      behind: 1,
+      params: { ...requestedParams, include_meta: '0' },
+      ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
+      cacheId: 'catalogo-japon-page-v2'
+    }).catch(() => {});
     return data;
   } catch (error) {
     if (requestId !== catalogRequestId || controller.signal.aborted || error?.name === 'AbortError') return null;
     if (throwOnError) throw error;
-    grid.replaceChildren();
-    pagination.replaceChildren();
     feedback.hidden = false;
     statusEl.textContent = 'No se pudo cargar esta página del catálogo';
     statusEl.classList.add('is-error');
@@ -1112,43 +1064,10 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
     console.warn('Error al cargar página del Catálogo Japón:', error);
     return null;
   } finally {
-    if (requestId === catalogRequestId) grid?.removeAttribute('aria-busy');
-  }
-}
-
-async function loadCatalogLegacy(){
-  feedback.hidden = false;
-  statusEl.textContent = 'Cargando catálogo...';
-  statusEl.classList.remove('is-error');
-  dateEl.textContent = '';
-  grid.replaceChildren();
-  pagination.replaceChildren();
-
-  try {
-    const text = await cachedFetchText(requestUrl(), {
-      ttl: API_CACHE_TTL.CATALOGO_JAPON_GVIZ,
-      cacheId: 'catalogo-japon-gviz'
-    });
-
-    serverPagination = false;
-    catalogo = parseGvizCatalog(text)
-      .sort((a, b) => loteNumber(b.id_lote) - loteNumber(a.id_lote));
-    fillFilterSelect(animeSelect, catalogo.map(item => item.anime));
-    applyFilters({ resetPage:false, historyMode:'replace' });
-    ensureLikeCountsLoaded();
-    if (!catalogo.length) {
-      feedback.hidden = false;
-      statusEl.textContent = 'No hay lotes disponibles por ahora';
-      dateEl.textContent = '';
+    if (requestId === catalogRequestId) {
+      grid?.removeAttribute('aria-busy');
+      pagination.querySelectorAll('button').forEach(button => { button.disabled = false; });
     }
-  } catch (error) {
-    catalogo = [];
-    grid.replaceChildren();
-    pagination.replaceChildren();
-    feedback.hidden = false;
-    statusEl.textContent = `No se pudo cargar el catálogo: ${error.message}`;
-    statusEl.classList.add('is-error');
-    dateEl.textContent = 'Revisa que el Google Sheet sea publico y tenga la pestana catalogo';
   }
 }
 
@@ -1160,12 +1079,7 @@ async function loadCatalog(){
     sharedLoteApplied = true;
   }
 
-  try {
-    await loadCatalogPage({ page:currentPage, historyMode:'replace', throwOnError:true });
-  } catch (error) {
-    console.warn('El endpoint paginado todavía no está disponible; usando respaldo GViz:', error);
-    await loadCatalogLegacy();
-  }
+  await loadCatalogPage({ page:currentPage, historyMode:'replace' });
 }
 
 filterForm?.addEventListener('submit', event => {

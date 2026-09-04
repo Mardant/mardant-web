@@ -1,6 +1,6 @@
 /* js/catalogo.js - Versión Final Corregida */
 import { PRODUCTOS_POR_PAGINA } from './config.js';
-import { API_CACHE_TTL, cachedFetchJSON } from './api-client.js';
+import { API_CACHE_TTL, cachedFetchJSON, prefetchJSONPages } from './api-client.js?v=3';
 import { 
   agregarAlCarrito,
   actualizarCarritoUI,
@@ -8,7 +8,7 @@ import {
   actualizarContador
 } from './carrito-utils.js';
 import { buildShareUrl, shareIcon, shareVisualItem } from './social-actions.js?v=2';
-import { setupSearchTracking } from './search-tracking.js?v=1';
+import { setupSearchTracking } from './search-tracking.js?v=3';
 import { pageFromUrl, renderCatalogPagination, updateCatalogUrl } from './pagination-utils.js?v=2';
 
 const productosPorPagina = PRODUCTOS_POR_PAGINA;
@@ -19,6 +19,7 @@ let totalPaginas = 1;
 let catalogRequestController = null;
 let catalogRequestId = 0;
 let subcategoriaActual = '';
+let subcategoryMetaKey = null;
 
 function parseMoney(value) {
   const text = String(value ?? '').trim();
@@ -149,6 +150,8 @@ async function loadCatalogPage({ urlMode = 'replace' } = {}) {
   catalogRequestController = controller;
   const requestedParams = catalogParams();
   const requestedPage = Number(requestedParams.page) || 1;
+  const requestedMetaKey = String(requestedParams.category || '');
+  requestedParams.include_meta = subcategoryMetaKey === requestedMetaKey ? '0' : '1';
   syncCatalogUrl(urlMode);
   $('#contenedor')?.setAttribute('aria-busy', 'true');
 
@@ -157,6 +160,9 @@ async function loadCatalogPage({ urlMode = 'replace' } = {}) {
       ttl: API_CACHE_TTL.PRODUCTOS,
       params: requestedParams,
       cacheId: 'productos-page-v3',
+      staleWhileRevalidate: true,
+      retries: 0,
+      timeoutMs: 12000,
       signal: controller.signal
     });
     if (requestId !== catalogRequestId || controller.signal.aborted) return;
@@ -172,18 +178,23 @@ async function loadCatalogPage({ urlMode = 'replace' } = {}) {
 
     paginaActual = responsePage;
     totalPaginas = responseTotalPages;
-    fillSubcategorias(data.subcategorias || []);
+    if (Array.isArray(data.subcategorias)) {
+      fillSubcategorias(data.subcategorias);
+      subcategoryMetaKey = requestedMetaKey;
+    }
     renderProductos(data.productos);
     renderPaginacion(totalPaginas);
     syncCatalogUrl('replace');
 
-    if (paginaActual < totalPaginas) {
-      cachedFetchJSON('productosPage', {
-        ttl: API_CACHE_TTL.PRODUCTOS,
-        params: { ...requestedParams, page: paginaActual + 1 },
-        cacheId: 'productos-page-v3'
-      }).catch(() => {});
-    }
+    prefetchJSONPages('productosPage', {
+      current: paginaActual,
+      total: totalPaginas,
+      ahead: 3,
+      behind: 1,
+      ttl: API_CACHE_TTL.PRODUCTOS,
+      params: { ...requestedParams, include_meta: '0' },
+      cacheId: 'productos-page-v3'
+    }).catch(() => {});
   } catch (error) {
     if (requestId !== catalogRequestId || controller.signal.aborted || error?.name === 'AbortError') return;
     await loadCatalogFallback(error, { requestId, controller });
@@ -195,7 +206,11 @@ async function loadCatalogPage({ urlMode = 'replace' } = {}) {
 async function loadCatalogFallback(serverError, { requestId, controller } = {}) {
   try {
     if (!productosGlobal.length) {
-      productosGlobal = await cachedFetchJSON('productos', { ttl: API_CACHE_TTL.PRODUCTOS });
+      productosGlobal = await cachedFetchJSON('productos', {
+        ttl: API_CACHE_TTL.PRODUCTOS,
+        retries: 0,
+        timeoutMs: 12000
+      });
     }
     // Una descarga completa también puede terminar después de que el usuario
     // ya cambió de página. En ese caso no debe volver a pintar datos antiguos.

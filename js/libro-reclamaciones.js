@@ -1,4 +1,4 @@
-import { API_URL } from './config.js';
+import { fetchJSON, fetchRoute } from './api-client.js?v=3';
 
 const PROVIDER = {
   proveedor: 'Mardant',
@@ -119,11 +119,13 @@ async function loadReclamacionChallenge() {
   reclamacionChallenge = '';
   submitBtn.disabled = true;
   try {
-    const response = await fetch(`${API_URL}?accion=reclamacionChallenge&_=${Date.now()}`, {
-      cache: 'no-store'
+    const result = await fetchJSON('reclamacionChallenge', {
+      params: { _: Date.now() },
+      retries: 0,
+      timeoutMs: 15000,
+      fetchOptions: { cache: 'no-store' }
     });
-    const result = await response.json();
-    if (!response.ok || !result.ok || !result.challenge) throw new Error('challenge_unavailable');
+    if (!result.ok || !result.challenge) throw new Error('challenge_unavailable');
     reclamacionChallenge = result.challenge;
     formStartedAt = Date.now();
     return true;
@@ -396,12 +398,10 @@ async function submitClaim(event) {
   setStatus('Enviando hoja de reclamación...', 'info');
 
   try {
-    const response = await fetch(`${API_URL}?action=registrarReclamacion`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
+    const result = await fetchRoute('registrarReclamacion', payload, {
+      timeoutMs: 20000,
+      fetchOptions: { cache: 'no-store' }
     });
-    const result = await response.json();
     if (!result.ok) throw new Error(result.error || 'No se pudo registrar la hoja de reclamación.');
 
     reclamacionChallenge = '';

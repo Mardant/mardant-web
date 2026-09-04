@@ -1,4 +1,5 @@
-import { API_URL, AUTH_KEYS } from './config.js';
+import { AUTH_KEYS } from './config.js';
+import { fetchRoute } from './api-client.js?v=3';
 
 const content = document.getElementById('trackingContent');
 const params = new URLSearchParams(window.location.search);
@@ -280,13 +281,10 @@ async function loadTracking() {
     return;
   }
 
-  const res = await fetch(`${API_URL}?route=tracking_data`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ token, pre_id: preId }),
-    cache: 'no-store'
+  const data = await fetchRoute('tracking_data', { token, pre_id: preId }, {
+    timeoutMs: 15000,
+    fetchOptions: { cache: 'no-store' }
   });
-  const data = await res.json();
 
   if (!data.ok) {
     setError('Seguimiento no disponible', data.mensaje || data.error || 'No se pudo cargar el seguimiento.');

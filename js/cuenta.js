@@ -1,5 +1,6 @@
 // === js/cuenta.js ===
-import { API_URL, AUTH_KEYS, WHATSAPP_NUMBER } from './config.js';
+import { AUTH_KEYS, WHATSAPP_NUMBER } from './config.js';
+import { fetchRoute } from './api-client.js?v=3';
 
 /* =================================
    CONFIG WHATSAPP
@@ -104,6 +105,8 @@ if (lb){
 ---------------------------------- */
 const PEN = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
 const ACCOUNT_PAGE_SIZE = 5;
+const ACCOUNT_STATUS_CACHE_KEY = 'mardant_account_status_v1';
+const ACCOUNT_STATUS_CACHE_MAX_AGE = 30 * 60 * 1000;
 const PUNTOS_DESCUENTO_5 = 100;
 const DESCUENTO_MAXIMO_5 = 30;
 const REWARD_CONFIG = {
@@ -166,8 +169,34 @@ const clearAuth= ()=>{
   authStorage.removeItem(AUTH_KEYS.TOKEN);
   authStorage.removeItem(AUTH_KEYS.CLIENT);
   authStorage.removeItem(AUTH_KEYS.NAME);
+  authStorage.removeItem(ACCOUNT_STATUS_CACHE_KEY);
   clearLegacyAuthStorage();
 };
+
+function readCachedAccountStatus(){
+  try {
+    const cached = JSON.parse(authStorage.getItem(ACCOUNT_STATUS_CACHE_KEY) || 'null');
+    const currentClient = String(authStorage.getItem(AUTH_KEYS.CLIENT) || '').trim().toUpperCase();
+    const cachedClient = String(cached?.clientId || '').trim().toUpperCase();
+    const age = Date.now() - Number(cached?.time || 0);
+    if (!cached?.data?.ok || !currentClient || cachedClient !== currentClient || age > ACCOUNT_STATUS_CACHE_MAX_AGE) {
+      return null;
+    }
+    return cached.data;
+  } catch (_) {
+    return null;
+  }
+}
+
+function storeCachedAccountStatus(data){
+  try {
+    authStorage.setItem(ACCOUNT_STATUS_CACHE_KEY, JSON.stringify({
+      time: Date.now(),
+      clientId: String(data?.client_id || authStorage.getItem(AUTH_KEYS.CLIENT) || ''),
+      data
+    }));
+  } catch (_) {}
+}
 
 const AUTH_CHANNEL_NAME = 'mardant_auth_channel_v1';
 let authChannel = null;
@@ -503,12 +532,10 @@ async function solicitarCanje(tipoCanje){
 
   try {
     if (puntosCanjeMsg) puntosCanjeMsg.textContent = 'Registrando solicitud de canje...';
-    const res = await fetch(API_URL + '?route=puntos_solicitar_canje', {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(body)
+    const data = await fetchAccountRoute('puntos_solicitar_canje', body, {
+      attempts: 1,
+      timeoutMs: 15000
     });
-    const data = await res.json();
 
     if (!data.ok) {
       const map = {
@@ -836,44 +863,106 @@ function renderPedidos(pedidos){
 /* ---------------------------------
    Carga de panel (status)
 ---------------------------------- */
-async function fetchStatusData(token){
+async function fetchAccountRoute(route, body, { attempts = 1, timeoutMs = 20000 } = {}) {
   let lastError = new Error('service_unavailable');
 
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000);
-
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
     try {
-      const res = await fetch(API_URL + '?route=status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ token }),
-        signal: controller.signal
+      const data = await fetchRoute(route, body, {
+        timeoutMs,
+        fetchOptions: { cache: 'no-store' }
       });
-      if (!res.ok) throw new Error('service_unavailable');
-
-      const responseText = await res.text();
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (_) {
-        throw new Error('service_unavailable');
-      }
 
       if (data?.error === 'server_error') throw new Error('service_unavailable');
       return data;
     } catch (err) {
       lastError = err?.name === 'AbortError'
-        ? new Error('status_timeout')
+        ? new Error(`${route}_timeout`)
         : err;
-    } finally {
-      clearTimeout(timeoutId);
     }
 
-    if (attempt === 0) await new Promise(resolve => setTimeout(resolve, 800));
+    if (attempt < attempts - 1) await new Promise(resolve => setTimeout(resolve, 650));
   }
 
   throw lastError;
+}
+
+async function fetchStatusData(token){
+  return fetchAccountRoute('status', { token }, { attempts: 1, timeoutMs: 20000 });
+}
+
+function renderAccountStatus(data){
+  const resolvedClientId = String(data.client_id || authStorage.getItem(AUTH_KEYS.CLIENT) || '').trim();
+  const resolvedName = String(data.name || data.nombre || authStorage.getItem(AUTH_KEYS.NAME) || '').trim();
+  if (resolvedClientId) authStorage.setItem(AUTH_KEYS.CLIENT, resolvedClientId);
+  if (resolvedName) authStorage.setItem(AUTH_KEYS.NAME, resolvedName);
+  if (clientCodeEl) clientCodeEl.textContent = resolvedClientId;
+  if (clientNameEl) clientNameEl.textContent = resolvedName;
+
+  if (diasGratisEl) diasGratisEl.textContent = data.dias_gratis;
+  if (diasUsadosEl) diasUsadosEl.textContent = data.dias_usados;
+  if (diasRestantesEl) diasRestantesEl.textContent = data.dias_restantes;
+  if (diasExcedidosEl) diasExcedidosEl.textContent = data.dias_excedidos;
+  renderPuntos(data.puntos);
+
+  const items = data.almacen || data.items || [];
+  if (itemsTbody) itemsTbody.innerHTML = '';
+
+  const nearDue = [];
+  items.forEach(it => {
+    const restantes = getRestantes(it, data.dias_gratis);
+    if (!it.excedido && restantes != null && restantes <= WARN_THRESHOLD) {
+      nearDue.push({ id: it.item_id, rest: Math.max(restantes, 0) });
+    }
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${thumb(it.foto_url)}</td>
+      <td>${escapeHtml(it.item_id)}</td>
+      <td>${escapeHtml(it.descripcion || '-')}</td>
+      <td>${escapeHtml(it.fecha_ingreso || '-')}</td>
+      <td>${stateBadge(it.estado)}</td>
+      <td class="right">${renderDaysBadge(it, data.dias_gratis)}</td>
+    `;
+    itemsTbody?.appendChild(tr);
+  });
+
+  if (!items.length){
+    if (almacenMsg) almacenMsg.textContent = 'No tienes ítems en almacén.';
+  } else if (nearDue.length){
+    const lista = nearDue.map(x => `${x.id} (${x.rest}d)`).join(', ');
+    if (almacenMsg) almacenMsg.innerHTML = `⚠️ Los siguientes ítems están por vencer (≤ ${WARN_THRESHOLD} días): <strong>${escapeHtml(lista)}</strong>.`;
+  } else if (almacenMsg) {
+    almacenMsg.textContent = '';
+  }
+  renderAlmacen(items, data.dias_gratis);
+
+  const prevs = sortPreventasNewestFirst(data.preventas || []);
+  renderPuntosPreventaOptions(prevs);
+  if (preTbody) preTbody.innerHTML = '';
+  prevs.forEach(p => {
+    const pagado = (Number(p.deposito) || 0) + (Number(p.pagos_adic) || 0);
+    const saldo = Number(p.saldo_restante ?? (Number(p.monto_total || 0) - pagado));
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${thumb(p.foto_url)}</td>
+      <td>${stateBadge(p.estado)}</td>
+      <td class="right">${PEN.format(Number(p.monto_total || 0))}</td>
+      <td class="right">${PEN.format(Number(p.deposito || 0))}</td>
+      <td class="right">${PEN.format(Number(p.pagos_adic || 0))}</td>
+      <td class="right">${PEN.format(saldo)}</td>
+      <td>${escapeHtml(p.fecha_pedido || '-')}</td>
+      <td>${escapeHtml(p.fecha_aprox || '-')}</td>
+      <td>${escapeHtml(p.pre_id)}</td>
+      <td>${trackingCell(p)}</td>
+    `;
+    preTbody?.appendChild(tr);
+  });
+  if (preMsg) preMsg.textContent = prevs.length ? '' : 'No tienes preventas registradas.';
+  renderPreventas(prevs);
+
+  const pedidos = data.pedidos || data.cotizaciones || [];
+  renderPedidos(pedidos);
 }
 
 async function loadStatus(){
@@ -883,19 +972,22 @@ async function loadStatus(){
   showPanel();
   if (clientCodeEl) clientCodeEl.textContent = authStorage.getItem(AUTH_KEYS.CLIENT)||'';
   if (clientNameEl) clientNameEl.textContent = authStorage.getItem(AUTH_KEYS.NAME)||'';
+  const cachedStatus = readCachedAccountStatus();
 
-  // placeholders
-  if (almacenMsg) almacenMsg.textContent = 'Cargando…';
-  if (preMsg)     preMsg.textContent     = 'Cargando…';
-  if (itemsTbody) itemsTbody.innerHTML   = '';
-  if (preTbody)   preTbody.innerHTML     = '';
-  if (almacenPagination) almacenPagination.hidden = true;
-  if (prePagination) prePagination.hidden = true;
-
-  if (pedidosMsg) pedidosMsg.textContent   = 'Cargando…';
-  if (pedidosTbody) pedidosTbody.innerHTML = '';
+  if (cachedStatus) {
+    renderAccountStatus(cachedStatus);
+  } else {
+    if (almacenMsg) almacenMsg.textContent = 'Cargando…';
+    if (preMsg) preMsg.textContent = 'Cargando…';
+    if (itemsTbody) itemsTbody.innerHTML = '';
+    if (preTbody) preTbody.innerHTML = '';
+    if (almacenPagination) almacenPagination.hidden = true;
+    if (prePagination) prePagination.hidden = true;
+    if (pedidosMsg) pedidosMsg.textContent = 'Cargando…';
+    if (pedidosTbody) pedidosTbody.innerHTML = '';
+    renderPuntos(null);
+  }
   if (puntosCanjeMsg) puntosCanjeMsg.textContent = '';
-  renderPuntos(null);
 
   try{
     const data = await fetchStatusData(token);
@@ -905,83 +997,11 @@ async function loadStatus(){
       throw new Error(data.error||'error');
     }
 
-    const resolvedClientId = String(data.client_id || authStorage.getItem(AUTH_KEYS.CLIENT) || '').trim();
-    const resolvedName = String(data.name || data.nombre || authStorage.getItem(AUTH_KEYS.NAME) || '').trim();
-    if (resolvedClientId) authStorage.setItem(AUTH_KEYS.CLIENT, resolvedClientId);
-    if (resolvedName) authStorage.setItem(AUTH_KEYS.NAME, resolvedName);
-    if (clientCodeEl) clientCodeEl.textContent = resolvedClientId;
-    if (clientNameEl) clientNameEl.textContent = resolvedName;
-
-    // KPIs
-    if (diasGratisEl)    diasGratisEl.textContent    = data.dias_gratis;
-    if (diasUsadosEl)    diasUsadosEl.textContent    = data.dias_usados;
-    if (diasRestantesEl) diasRestantesEl.textContent = data.dias_restantes;
-    if (diasExcedidosEl) diasExcedidosEl.textContent = data.dias_excedidos;
-    renderPuntos(data.puntos);
-
-    /* ---------- ALMACÉN ---------- */
-    const items = data.almacen || data.items || [];
-    if (itemsTbody) itemsTbody.innerHTML = '';
-
-    const nearDue = [];
-    items.forEach(it=>{
-      const restantes = getRestantes(it, data.dias_gratis);
-      if (!it.excedido && restantes != null && restantes <= WARN_THRESHOLD) {
-        nearDue.push({ id: it.item_id, rest: Math.max(restantes, 0) });
-      }
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${thumb(it.foto_url)}</td>
-        <td>${escapeHtml(it.item_id)}</td>
-        <td>${escapeHtml(it.descripcion || '-')}</td>
-        <td>${escapeHtml(it.fecha_ingreso || '-')}</td>
-        <td>${stateBadge(it.estado)}</td>
-        <td class="right">${renderDaysBadge(it, data.dias_gratis)}</td>
-      `;
-      itemsTbody?.appendChild(tr);
-    });
-
-    if (!items.length){
-      if (almacenMsg) almacenMsg.textContent = 'No tienes ítems en almacén.';
-    } else if (nearDue.length){
-      const lista = nearDue.map(x => `${x.id} (${x.rest}d)`).join(', ');
-      if (almacenMsg) almacenMsg.innerHTML = `⚠️ Los siguientes ítems están por vencer (≤ ${WARN_THRESHOLD} días): <strong>${escapeHtml(lista)}</strong>.`;
-    } else {
-      if (almacenMsg) almacenMsg.textContent = '';
-    }
-    renderAlmacen(items, data.dias_gratis);
-
-    /* ---------- PREVENTAS ---------- */
-    const prevs = sortPreventasNewestFirst(data.preventas || []);
-    renderPuntosPreventaOptions(prevs);
-    if (preTbody) preTbody.innerHTML = '';
-    prevs.forEach(p=>{
-      const pagado = (Number(p.deposito)||0) + (Number(p.pagos_adic)||0);
-      const saldo  = Number(p.saldo_restante ?? (Number(p.monto_total||0) - pagado));
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${thumb(p.foto_url)}</td>
-        <td>${stateBadge(p.estado)}</td>
-        <td class="right">${PEN.format(Number(p.monto_total||0))}</td>
-        <td class="right">${PEN.format(Number(p.deposito||0))}</td>
-        <td class="right">${PEN.format(Number(p.pagos_adic||0))}</td>
-        <td class="right">${PEN.format(saldo)}</td>
-        <td>${escapeHtml(p.fecha_pedido || '-')}</td>
-        <td>${escapeHtml(p.fecha_aprox   || '-')}</td>
-        <td>${escapeHtml(p.pre_id)}</td>
-        <td>${trackingCell(p)}</td>
-      `;
-      preTbody?.appendChild(tr);
-    });
-    if (preMsg) preMsg.textContent = prevs.length ? '' : 'No tienes preventas registradas.';
-    renderPreventas(prevs);
-
-    /* ---------- PEDIDOS / COTIZACIONES ---------- */
-    const pedidos = data.pedidos || data.cotizaciones || [];
-    renderPedidos(pedidos);
+    storeCachedAccountStatus(data);
+    renderAccountStatus(data);
 
   }catch(err){
+    if (cachedStatus) return;
     const msg = err?.message === 'status_timeout'
       ? 'Mi Cuenta está tardando más de lo normal. Intenta recargar en unos segundos.'
       : 'No pudimos cargar los datos de tu cuenta. Intenta recargar en unos segundos.';
@@ -1013,25 +1033,11 @@ loginForm?.addEventListener('submit', async (ev)=>{
   loginInFlight = true;
   if (submitBtn) submitBtn.disabled = true;
   loginForm.setAttribute('aria-busy', 'true');
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 25000);
-
   try{
-    const res  = await fetch(API_URL + '?route=login', {
-      method:'POST',
-      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
-      body: JSON.stringify({ client_id, password }),
-      signal: controller.signal
+    const data = await fetchAccountRoute('login', { client_id, password }, {
+      attempts: 1,
+      timeoutMs: 20000
     });
-    if (!res.ok) throw new Error('service_unavailable');
-
-    const responseText = await res.text();
-    let data;
-    try {
-      data = JSON.parse(responseText);
-    } catch (_) {
-      throw new Error('service_unavailable');
-    }
     if (!data.ok) throw new Error(data.error||'login_failed');
 
     setAuth(data.token, data.client_id, data.name);
@@ -1042,7 +1048,7 @@ loginForm?.addEventListener('submit', async (ev)=>{
 
     await loadStatus();
   }catch(err){
-    const errorCode = err?.name === 'AbortError' ? 'login_timeout' : err.message;
+    const errorCode = err?.message || 'service_unavailable';
     const map = {
       missing_credentials: 'Completa ambos campos.',
       login_limited      : 'Demasiados intentos. Intenta nuevamente en unos minutos.',
@@ -1055,7 +1061,6 @@ loginForm?.addEventListener('submit', async (ev)=>{
     };
     if (loginMsg) loginMsg.textContent = map[errorCode] || map.login_failed;
   }finally{
-    clearTimeout(timeoutId);
     loginInFlight = false;
     if (submitBtn) submitBtn.disabled = false;
     loginForm.removeAttribute('aria-busy');
@@ -1092,12 +1097,10 @@ pedidoForm?.addEventListener('submit', async (ev)=>{
   try{
     if (pedidoFormMsg) pedidoFormMsg.textContent = 'Enviando solicitud…';
 
-    const res = await fetch(API_URL + '?route=pedido_create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(body)
+    const data = await fetchAccountRoute('pedido_create', body, {
+      attempts: 1,
+      timeoutMs: 15000
     });
-    const data = await res.json();
 
     if (!data.ok){
       const map = {
@@ -1132,11 +1135,7 @@ pedidoForm?.addEventListener('submit', async (ev)=>{
 logoutBtn?.addEventListener('click', ()=>{
   const token = getToken();
   if (token) {
-    fetch(API_URL + '?route=logout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ token })
-    }).catch(() => {});
+    fetchAccountRoute('logout', { token }, { attempts: 1, timeoutMs: 5000 }).catch(() => {});
   }
   clearAuth();
   showLogin();

@@ -1,5 +1,5 @@
 import { whatsappLink } from './config.js';
-import { API_CACHE_TTL, cachedFetchJSON } from './api-client.js';
+import { API_CACHE_TTL, cachedFetchJSON } from './api-client.js?v=3';
 import {
   agregarAlCarrito,
   actualizarCarritoUI,
@@ -45,7 +45,9 @@ async function loadProducto(){
     const data = await cachedFetchJSON('producto', {
       params: { id },
       ttl: API_CACHE_TTL.PRODUCTO,
-      cacheId: `producto:${id}`
+      cacheId: `producto:${id}`,
+      retries: 0,
+      timeoutMs: 12000
     });
 
     if (!data || data.ok === false || !data.producto) {

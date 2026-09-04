@@ -1,4 +1,4 @@
-import { fetchRoute } from './api-client.js';
+import { fetchRoute } from './api-client.js?v=3';
 
 const MIN_SEARCH_LENGTH = 3;
 const MAX_SEARCH_LENGTH = 100;
