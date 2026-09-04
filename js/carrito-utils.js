@@ -1,4 +1,4 @@
-import { CARRITO_LOCAL_KEY } from './config.js';
+import { CARRITO_LOCAL_KEY } from './config.js?v=5';
 /* ----------------------------------------------------------
  * js/carrito-utils.js — utilidades compartidas (inicio + catálogo)
  * ---------------------------------------------------------- */

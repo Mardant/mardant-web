@@ -1,6 +1,6 @@
 /* js/ultimas.js  – “Últimas importaciones” (12 más recientes) */
-import { API_CACHE_TTL, cachedFetchJSON } from './api-client.js?v=3';
-import { actualizarCarritoUI } from './carrito-utils.js';
+import { API_CACHE_TTL, cachedFetchJSON } from './api-client.js?v=7';
+import { actualizarCarritoUI } from './carrito-utils.js?v=2';
 
 /* util para escapar posibles ‘< > &’ en nombres, etc.  */
 const esc = (t = '') =>

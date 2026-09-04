@@ -1,4 +1,4 @@
-import { fetchJSON, fetchRoute } from './api-client.js?v=3';
+import { fetchJSON, fetchRoute } from './api-client.js?v=7';
 
 const PROVIDER = {
   proveedor: 'Mardant',

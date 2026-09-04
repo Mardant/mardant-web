@@ -1,7 +1,7 @@
 /* js/pedidos.js */
-import { whatsappLink } from './config.js';
-import { API_CACHE_TTL, cachedFetchJSON, fetchRoute, prefetchJSONPages } from './api-client.js?v=3';
-import { actualizarCarritoUI } from './carrito-utils.js';
+import { whatsappLink } from './config.js?v=5';
+import { API_CACHE_TTL, cachedFetchJSON, fetchRoute, prefetchJSONPages } from './api-client.js?v=7';
+import { actualizarCarritoUI } from './carrito-utils.js?v=2';
 import {
   bookmarkIcon,
   buildShareUrl,
@@ -11,7 +11,7 @@ import {
   saveStoredSet,
   shareIcon,
   shareVisualItem
-} from './social-actions.js?v=2';
+} from './social-actions.js?v=3';
 import { pageFromUrl, renderCatalogPagination, updateCatalogUrl } from './pagination-utils.js?v=2';
 
 const $ = (s) => document.querySelector(s);
@@ -263,7 +263,8 @@ async function loadPedidosPage({ urlMode = 'replace' } = {}) {
       behind: 1,
       ttl: API_CACHE_TTL.PEDIDOS_DISPONIBLES,
       params: requestedParams,
-      cacheId: 'pedidos-page-v3'
+      cacheId: 'pedidos-page-v3',
+      signal: controller.signal
     }).catch(() => {});
   } catch (serverError) {
     if (requestId !== pedidosRequestId || controller.signal.aborted || serverError?.name === 'AbortError') return;

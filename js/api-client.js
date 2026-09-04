@@ -1,4 +1,4 @@
-import { API_URL } from './config.js';
+import { API_URL } from './config.js?v=5';
 
 export const API_CACHE_TTL = {
   HOME_DATA: 10 * 60 * 1000,
@@ -12,7 +12,9 @@ export const API_CACHE_TTL = {
 const DEFAULT_TTL = 10 * 60 * 1000;
 const DEFAULT_MAX_STALE = 30 * 60 * 1000;
 const DEFAULT_REQUEST_TIMEOUT = 15 * 1000;
-const CACHE_PREFIX = 'mardant_api_cache_v2:';
+const CACHE_PREFIX = 'mardant_api_cache_v3:';
+const CACHE_MAX_ENTRIES = 80;
+const CACHE_MAX_BYTES = 3.5 * 1024 * 1024;
 const RETRYABLE_PUBLIC_STATUSES = new Set([404, 408, 429, 500, 502, 503, 504]);
 const inFlightJSON = new Map();
 
@@ -62,7 +64,13 @@ function waitForRequest(promise, signal) {
   });
 }
 
-async function fetchWithTimeout(url, fetchOptions = {}, timeoutMs = DEFAULT_REQUEST_TIMEOUT, signal) {
+async function fetchWithTimeout(
+  url,
+  fetchOptions = {},
+  timeoutMs = DEFAULT_REQUEST_TIMEOUT,
+  signal,
+  consumeResponse
+) {
   const controller = new AbortController();
   const abortRequest = () => controller.abort();
   const timeout = setTimeout(abortRequest, Math.max(1, Number(timeoutMs) || DEFAULT_REQUEST_TIMEOUT));
@@ -71,10 +79,11 @@ async function fetchWithTimeout(url, fetchOptions = {}, timeoutMs = DEFAULT_REQU
   else signal?.addEventListener('abort', abortRequest, { once: true });
 
   try {
-    return await fetch(url, {
+    const response = await fetch(url, {
       ...fetchOptions,
       signal: controller.signal
     });
+    return consumeResponse ? await consumeResponse(response) : response;
   } finally {
     clearTimeout(timeout);
     signal?.removeEventListener('abort', abortRequest);
@@ -108,6 +117,31 @@ function cacheKey(type, id, params = {}) {
   return `${CACHE_PREFIX}${type}:${id}:${stableStringify(params)}`;
 }
 
+function trimCache(store, reserveBytes = 0) {
+  const entries = [];
+  let totalBytes = 0;
+  for (let index = 0; index < store.length; index += 1) {
+    const key = store.key(index);
+    if (!key?.startsWith(CACHE_PREFIX)) continue;
+    const raw = store.getItem(key) || '';
+    totalBytes += key.length + raw.length;
+    let touched = 0;
+    try {
+      const parsed = JSON.parse(raw);
+      touched = Number(parsed.accessed || parsed.time || 0);
+    } catch (_) {}
+    entries.push({ key, bytes:key.length + raw.length, touched });
+  }
+  entries.sort((a, b) => a.touched - b.touched);
+  while (entries.length && (
+    entries.length >= CACHE_MAX_ENTRIES || totalBytes + reserveBytes > CACHE_MAX_BYTES
+  )) {
+    const oldest = entries.shift();
+    store.removeItem(oldest.key);
+    totalBytes -= oldest.bytes;
+  }
+}
+
 function readCache(key, ttl, maxStale = DEFAULT_MAX_STALE) {
   const store = storage();
   if (!store) return { hit: false, stale: null };
@@ -118,7 +152,11 @@ function readCache(key, ttl, maxStale = DEFAULT_MAX_STALE) {
 
     const cached = JSON.parse(raw);
     const age = Date.now() - Number(cached.time || 0);
-    if (age <= ttl) return { hit: true, data: cached.data };
+    if (age <= ttl) {
+      cached.accessed = Date.now();
+      try { store.setItem(key, JSON.stringify(cached)); } catch (_) {}
+      return { hit: true, data: cached.data };
+    }
     if (age > maxStale) {
       store.removeItem(key);
       return { hit: false, stale: null };
@@ -135,8 +173,16 @@ function writeCache(key, data) {
   if (!store) return;
 
   try {
-    store.setItem(key, JSON.stringify({ time: Date.now(), data }));
-  } catch (_) {}
+    const now = Date.now();
+    const raw = JSON.stringify({ time:now, accessed:now, data });
+    trimCache(store, key.length + raw.length);
+    store.setItem(key, raw);
+  } catch (_) {
+    try {
+      trimCache(store, CACHE_MAX_BYTES);
+      store.setItem(key, JSON.stringify({ time:Date.now(), accessed:Date.now(), data }));
+    } catch (_) {}
+  }
 }
 
 export function getCachedJSON(accion, options = {}) {
@@ -144,22 +190,23 @@ export function getCachedJSON(accion, options = {}) {
     params = {},
     ttl = DEFAULT_TTL,
     cacheId = accion,
-    allowStale = false
+    allowStale = false,
+    baseUrl = API_URL
   } = options;
-  const key = cacheKey('json', cacheId, { accion, ...params });
+  const key = cacheKey('json', cacheId, { source:baseUrl, accion, ...params });
   const cached = readCache(key, ttl);
   if (cached.hit) return cached.data;
   return allowStale ? cached.stale : null;
 }
 
-function buildUrl(accion, params = {}) {
+function buildUrl(accion, params = {}, baseUrl = API_URL) {
   const query = new URLSearchParams({ accion });
   Object.entries(params || {}).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
       query.set(key, String(value));
     }
   });
-  return `${API_URL}?${query.toString()}`;
+  return `${baseUrl}?${query.toString()}`;
 }
 
 export async function fetchJSON(accion, options = {}) {
@@ -168,17 +215,17 @@ export async function fetchJSON(accion, options = {}) {
     signal,
     fetchOptions = {},
     retries = 1,
-    timeoutMs = DEFAULT_REQUEST_TIMEOUT
+    timeoutMs = DEFAULT_REQUEST_TIMEOUT,
+    baseUrl = API_URL,
+    abortUnderlying = false
   } = options;
-  const url = buildUrl(accion, params);
-  let request = inFlightJSON.get(url);
+  const url = buildUrl(accion, params, baseUrl);
 
-  if (!request) {
-    request = (async () => {
-      let lastError;
-      for (let attempt = 0; attempt <= retries; attempt += 1) {
-        try {
-          const response = await fetchWithTimeout(url, fetchOptions, timeoutMs);
+  const createRequest = () => (async () => {
+    let lastError;
+    for (let attempt = 0; attempt <= retries; attempt += 1) {
+      try {
+        return await fetchWithTimeout(url, fetchOptions, timeoutMs, abortUnderlying ? signal : undefined, async (response) => {
           if (!response.ok) {
             const error = new Error(`HTTP ${response.status}`);
             error.status = response.status;
@@ -191,17 +238,26 @@ export async function fetchJSON(accion, options = {}) {
           } catch (_) {
             throw new Error('Respuesta JSON invalida del servidor');
           }
-        } catch (error) {
-          lastError = error?.name === 'AbortError'
-            ? new Error('El servidor demoro demasiado en responder')
-            : error;
-          const retryable = !error?.status || RETRYABLE_PUBLIC_STATUSES.has(error.status);
-          if (attempt >= retries || !retryable) break;
-          await waitForRetry(450 * (attempt + 1));
-        }
+        });
+      } catch (error) {
+        if (error?.name === 'AbortError' && signal?.aborted) throw error;
+        lastError = error?.name === 'AbortError'
+          ? new Error('El servidor demoro demasiado en responder')
+          : error;
+        const retryable = !error?.status || RETRYABLE_PUBLIC_STATUSES.has(error.status);
+        if (attempt >= retries || !retryable) break;
+        await waitForRetry(450 * (attempt + 1), abortUnderlying ? signal : undefined);
       }
-      throw lastError || new Error('No se pudo consultar el servidor');
-    })();
+    }
+    throw lastError || new Error('No se pudo consultar el servidor');
+  })();
+
+  if (abortUnderlying) return createRequest();
+
+  let request = inFlightJSON.get(url);
+
+  if (!request) {
+    request = createRequest();
     inFlightJSON.set(url, request);
     request.finally(() => {
       if (inFlightJSON.get(url) === request) inFlightJSON.delete(url);
@@ -212,16 +268,39 @@ export async function fetchJSON(accion, options = {}) {
 }
 
 export async function fetchRoute(route, body = {}, options = {}) {
-  const { signal, fetchOptions = {}, timeoutMs = DEFAULT_REQUEST_TIMEOUT } = options;
-  const response = await fetchWithTimeout(`${API_URL}?route=${encodeURIComponent(route)}`, {
+  const {
+    baseUrl = API_URL,
+    signal,
+    fetchOptions = {},
+    timeoutMs = DEFAULT_REQUEST_TIMEOUT,
+    onTiming
+  } = options;
+  const startedAt = performance.now();
+  const timing = (event, detail = {}) => {
+    if (typeof onTiming !== 'function') return;
+    onTiming(event, { elapsedMs: Math.round(performance.now() - startedAt), ...detail });
+  };
+
+  timing('request_start');
+  return fetchWithTimeout(`${baseUrl}?route=${encodeURIComponent(route)}`, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(body || {}),
     ...fetchOptions
-  }, timeoutMs, signal);
+  }, timeoutMs, signal, async (response) => {
+    timing('response_received', { status: response.status });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json();
+    const raw = await response.text();
+    timing('response_body_received', { bytes: raw.length });
+    try {
+      const data = JSON.parse(raw);
+      timing('json_parsed');
+      return data;
+    } catch (_) {
+      throw new Error('Respuesta JSON invalida del servidor');
+    }
+  });
 }
 
 export async function cachedFetchJSON(accion, options = {}) {
@@ -234,15 +313,17 @@ export async function cachedFetchJSON(accion, options = {}) {
     signal,
     fetchOptions = {},
     retries = 1,
-    timeoutMs = DEFAULT_REQUEST_TIMEOUT
+    timeoutMs = DEFAULT_REQUEST_TIMEOUT,
+    baseUrl = API_URL,
+    abortUnderlying = false
   } = options;
-  const key = cacheKey('json', cacheId, { accion, ...params });
+  const key = cacheKey('json', cacheId, { source:baseUrl, accion, ...params });
 
   if (!force) {
     const cached = readCache(key, ttl);
     if (cached.hit) return cached.data;
     if (staleWhileRevalidate && cached.stale !== null && cached.stale !== undefined) {
-      fetchJSON(accion, { params, fetchOptions, retries, timeoutMs })
+      fetchJSON(accion, { params, fetchOptions, retries, timeoutMs, baseUrl })
         .then(data => writeCache(key, data))
         .catch(error => console.warn(`No se pudo actualizar ${accion} en segundo plano:`, error));
       return cached.stale;
@@ -251,11 +332,17 @@ export async function cachedFetchJSON(accion, options = {}) {
 
   const stale = readCache(key, 0).stale;
   try {
-    // Aunque la vista cambie y deje de esperar esta solicitud, la respuesta
-    // termina de llenar su propia clave de cache para una visita posterior.
-    const request = fetchJSON(accion, { params, fetchOptions, retries, timeoutMs })
+    // Las solicitudes compartidas terminan de llenar cache. Las vistas
+    // interactivas pueden optar por abortUnderlying para cancelar el HTTP real.
+    const request = fetchJSON(accion, {
+      params, fetchOptions, retries, timeoutMs, baseUrl,
+      signal:abortUnderlying ? signal : undefined,
+      abortUnderlying
+    })
       .then(data => {
-        writeCache(key, data);
+        // Los errores de aplicacion deben poder recuperarse en el siguiente
+        // intento; guardarlos durante el TTL bloquearia fallbacks o arreglos.
+        if (!data || data.ok !== false) writeCache(key, data);
         return data;
       });
     return await waitForRequest(request, signal);
@@ -279,8 +366,11 @@ export async function prefetchJSONPages(accion, options = {}) {
     behind = 1,
     params = {},
     ttl = DEFAULT_TTL,
-    cacheId = accion
+    cacheId = accion,
+    baseUrl = API_URL,
+    signal
   } = options;
+  if (signal?.aborted) return;
   const first = Math.max(1, Number(current) - Math.max(0, Number(behind) || 0));
   const last = Math.min(Number(total) || 1, Number(current) + Math.max(0, Number(ahead) || 0));
   const pages = [];
@@ -289,6 +379,7 @@ export async function prefetchJSONPages(accion, options = {}) {
   }
 
   for (const page of pages) {
+    if (signal?.aborted) break;
     try {
       await cachedFetchJSON(accion, {
         ttl,
@@ -296,7 +387,10 @@ export async function prefetchJSONPages(accion, options = {}) {
         params: { ...params, page },
         staleWhileRevalidate: true,
         retries: 0,
-        timeoutMs: 12000
+        timeoutMs: 12000,
+        baseUrl,
+        signal,
+        abortUnderlying:Boolean(signal)
       });
     } catch (_) {}
   }

@@ -1,4 +1,4 @@
-import { whatsappLink } from './config.js';
+import { whatsappLink } from './config.js?v=5';
 
 export function shareIcon(){
   return `

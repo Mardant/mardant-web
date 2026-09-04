@@ -1,14 +1,14 @@
 /* js/catalogo.js - Versión Final Corregida */
-import { PRODUCTOS_POR_PAGINA } from './config.js';
-import { API_CACHE_TTL, cachedFetchJSON, prefetchJSONPages } from './api-client.js?v=3';
+import { PRODUCTOS_POR_PAGINA } from './config.js?v=5';
+import { API_CACHE_TTL, cachedFetchJSON, prefetchJSONPages } from './api-client.js?v=7';
 import { 
   agregarAlCarrito,
   actualizarCarritoUI,
   mostrarMiniCarrito,
   actualizarContador
-} from './carrito-utils.js';
-import { buildShareUrl, shareIcon, shareVisualItem } from './social-actions.js?v=2';
-import { setupSearchTracking } from './search-tracking.js?v=3';
+} from './carrito-utils.js?v=2';
+import { buildShareUrl, shareIcon, shareVisualItem } from './social-actions.js?v=3';
+import { setupSearchTracking } from './search-tracking.js?v=5';
 import { pageFromUrl, renderCatalogPagination, updateCatalogUrl } from './pagination-utils.js?v=2';
 
 const productosPorPagina = PRODUCTOS_POR_PAGINA;
@@ -193,7 +193,8 @@ async function loadCatalogPage({ urlMode = 'replace' } = {}) {
       behind: 1,
       ttl: API_CACHE_TTL.PRODUCTOS,
       params: { ...requestedParams, include_meta: '0' },
-      cacheId: 'productos-page-v3'
+      cacheId: 'productos-page-v3',
+      signal: controller.signal
     }).catch(() => {});
   } catch (error) {
     if (requestId !== catalogRequestId || controller.signal.aborted || error?.name === 'AbortError') return;

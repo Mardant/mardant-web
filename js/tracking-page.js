@@ -1,5 +1,5 @@
-import { AUTH_KEYS } from './config.js';
-import { fetchRoute } from './api-client.js?v=3';
+import { ACCOUNT_API_URL, AUTH_KEYS } from './config.js?v=5';
+import { fetchRoute } from './api-client.js?v=7';
 
 const content = document.getElementById('trackingContent');
 const params = new URLSearchParams(window.location.search);
@@ -282,6 +282,7 @@ async function loadTracking() {
   }
 
   const data = await fetchRoute('tracking_data', { token, pre_id: preId }, {
+    baseUrl: ACCOUNT_API_URL,
     timeoutMs: 15000,
     fetchOptions: { cache: 'no-store' }
   });

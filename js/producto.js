@@ -1,12 +1,12 @@
-import { whatsappLink } from './config.js';
-import { API_CACHE_TTL, cachedFetchJSON } from './api-client.js?v=3';
+import { whatsappLink } from './config.js?v=5';
+import { API_CACHE_TTL, cachedFetchJSON } from './api-client.js?v=7';
 import {
   agregarAlCarrito,
   actualizarCarritoUI,
   mostrarMiniCarrito,
   actualizarContador,
   notificar
-} from './carrito-utils.js';
+} from './carrito-utils.js?v=2';
 
 const $ = (s) => document.querySelector(s);
 

@@ -1,6 +1,6 @@
 // === js/cuenta.js ===
-import { AUTH_KEYS, WHATSAPP_NUMBER } from './config.js';
-import { fetchRoute } from './api-client.js?v=3';
+import { ACCOUNT_API_URL, AUTH_KEYS, WHATSAPP_NUMBER } from './config.js?v=5';
+import { fetchRoute } from './api-client.js?v=7';
 
 /* =================================
    CONFIG WHATSAPP
@@ -18,8 +18,23 @@ const statusSection = document.getElementById('statusSection');
 const clientAccessNote = document.querySelector('.client-access-note');
 const loginForm     = document.getElementById('loginForm');
 const loginMsg      = document.getElementById('loginMsg');
+const accountSummaryMsg = document.getElementById('accountSummaryMsg');
 const togglePassBtn = document.getElementById('togglePass');
 let loginInFlight   = false;
+
+function accountRequestId(route = 'account') {
+  const random = globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2);
+  return `${route}-${Date.now()}-${random}`.replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64);
+}
+
+function logAccountTiming(requestId, route, event, detail = {}) {
+  console.info('[Mardant Account]', {
+    request_id: requestId,
+    route,
+    event,
+    ...detail
+  });
+}
 
 const clientNameEl    = document.getElementById('clientName');
 const clientCodeEl    = document.getElementById('clientCode');
@@ -107,6 +122,8 @@ const PEN = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' 
 const ACCOUNT_PAGE_SIZE = 5;
 const ACCOUNT_STATUS_CACHE_KEY = 'mardant_account_status_v1';
 const ACCOUNT_STATUS_CACHE_MAX_AGE = 30 * 60 * 1000;
+const ACCOUNT_SCOPE_CACHE_PREFIX = 'mardant_account_scope_v1_';
+const ACCOUNT_SCOPES = ['summary', 'preventas', 'almacen', 'puntos', 'cotizaciones'];
 const PUNTOS_DESCUENTO_5 = 100;
 const DESCUENTO_MAXIMO_5 = 30;
 const REWARD_CONFIG = {
@@ -134,6 +151,10 @@ let preventaRows = [];
 let almacenPage = 1;
 let preventaPage = 1;
 let almacenDiasGratis = 0;
+let activeAccountTab = 'preventas';
+let accountLoadGeneration = 0;
+const accountScopeMemory = new Map();
+const accountScopeRequests = new Map();
 
 const authStorage = (() => {
   try {
@@ -160,42 +181,73 @@ function clearLegacyAuthStorage() {
 
 const getToken = () => authStorage.getItem(AUTH_KEYS.TOKEN);
 const setAuth  = (t,id,name)=>{
+  accountLoadGeneration += 1;
+  abortAccountRequests();
+  clearAccountScopeCache();
   clearLegacyAuthStorage();
   authStorage.setItem(AUTH_KEYS.TOKEN,t);
   authStorage.setItem(AUTH_KEYS.CLIENT,id||'');
   authStorage.setItem(AUTH_KEYS.NAME,name||'');
 };
 const clearAuth= ()=>{
+  accountLoadGeneration += 1;
+  abortAccountRequests();
   authStorage.removeItem(AUTH_KEYS.TOKEN);
   authStorage.removeItem(AUTH_KEYS.CLIENT);
   authStorage.removeItem(AUTH_KEYS.NAME);
-  authStorage.removeItem(ACCOUNT_STATUS_CACHE_KEY);
+  clearAccountScopeCache();
   clearLegacyAuthStorage();
 };
 
-function readCachedAccountStatus(){
+function accountScopeCacheKey(scope){
+  return `${ACCOUNT_SCOPE_CACHE_PREFIX}${scope}`;
+}
+
+function clearAccountScopeCache(){
+  accountScopeMemory.clear();
+  ACCOUNT_SCOPES.forEach(scope => authStorage.removeItem(accountScopeCacheKey(scope)));
+  authStorage.removeItem(ACCOUNT_STATUS_CACHE_KEY);
+}
+
+function readCachedAccountScope(scope){
+  if (accountScopeMemory.has(scope)) return accountScopeMemory.get(scope);
   try {
-    const cached = JSON.parse(authStorage.getItem(ACCOUNT_STATUS_CACHE_KEY) || 'null');
+    const cached = JSON.parse(authStorage.getItem(accountScopeCacheKey(scope)) || 'null');
     const currentClient = String(authStorage.getItem(AUTH_KEYS.CLIENT) || '').trim().toUpperCase();
     const cachedClient = String(cached?.clientId || '').trim().toUpperCase();
     const age = Date.now() - Number(cached?.time || 0);
     if (!cached?.data?.ok || !currentClient || cachedClient !== currentClient || age > ACCOUNT_STATUS_CACHE_MAX_AGE) {
       return null;
     }
+    accountScopeMemory.set(scope, cached.data);
     return cached.data;
   } catch (_) {
     return null;
   }
 }
 
-function storeCachedAccountStatus(data){
+function storeCachedAccountScope(scope, data){
+  const cacheData = { ...(data || {}) };
+  delete cacheData._perf;
+  accountScopeMemory.set(scope, cacheData);
   try {
-    authStorage.setItem(ACCOUNT_STATUS_CACHE_KEY, JSON.stringify({
+    authStorage.setItem(accountScopeCacheKey(scope), JSON.stringify({
       time: Date.now(),
-      clientId: String(data?.client_id || authStorage.getItem(AUTH_KEYS.CLIENT) || ''),
-      data
+      clientId: String(authStorage.getItem(AUTH_KEYS.CLIENT) || ''),
+      data: cacheData
     }));
   } catch (_) {}
+  return cacheData;
+}
+
+function invalidateAccountScope(scope){
+  accountScopeMemory.delete(scope);
+  authStorage.removeItem(accountScopeCacheKey(scope));
+}
+
+function abortAccountRequests(){
+  accountScopeRequests.forEach(entry => entry.controller.abort());
+  accountScopeRequests.clear();
 }
 
 const AUTH_CHANNEL_NAME = 'mardant_auth_channel_v1';
@@ -358,7 +410,13 @@ if (togglePassBtn){
 }
 
 /* Tabs */
-function setActiveTab(tabName){
+function scopeForTab(tabName){
+  if (tabName === 'pedido') return 'cotizaciones';
+  return ACCOUNT_SCOPES.includes(tabName) ? tabName : '';
+}
+
+function setActiveTab(tabName, { load = true } = {}){
+  activeAccountTab = tabName;
   tabBtns.forEach(b=>b.classList.remove('active'));
   tabBtns.forEach(b=>{
     if (b.dataset.tab === tabName) b.classList.add('active');
@@ -368,6 +426,12 @@ function setActiveTab(tabName){
   if (tabPreventas) tabPreventas.style.display = (tabName === 'preventas') ? 'block' : 'none';
   if (tabPedido)    tabPedido.style.display    = (tabName === 'pedido')    ? 'block' : 'none';
   if (tabPuntos)    tabPuntos.style.display    = (tabName === 'puntos')    ? 'block' : 'none';
+
+  const scope = scopeForTab(tabName);
+  if (load && scope && getToken()) {
+    void loadAccountScope(scope);
+    if (scope === 'puntos') void loadAccountScope('preventas');
+  }
 }
 
 tabBtns.forEach(btn=>{
@@ -549,7 +613,8 @@ async function solicitarCanje(tipoCanje){
     }
 
     if (puntosCanjeMsg) puntosCanjeMsg.textContent = data.mensaje || 'Solicitud de canje registrada.';
-    await loadStatus();
+    invalidateAccountScope('puntos');
+    await loadAccountScope('puntos', { force:true });
     setActiveTab('puntos');
   } catch (err) {
     if (puntosCanjeMsg) puntosCanjeMsg.textContent = err.message || String(err);
@@ -863,22 +928,45 @@ function renderPedidos(pedidos){
 /* ---------------------------------
    Carga de panel (status)
 ---------------------------------- */
-async function fetchAccountRoute(route, body, { attempts = 1, timeoutMs = 20000 } = {}) {
+async function fetchAccountRoute(
+  route,
+  body,
+  { attempts = 1, timeoutMs = 20000, requestId: suppliedRequestId = '', signal } = {}
+) {
   let lastError = new Error('service_unavailable');
+  const requestId = suppliedRequestId || accountRequestId(route);
+  const startedAt = performance.now();
 
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     try {
-      const data = await fetchRoute(route, body, {
+      const data = await fetchRoute(route, { ...(body || {}), request_id: requestId }, {
+        baseUrl: ACCOUNT_API_URL,
+        signal,
         timeoutMs,
-        fetchOptions: { cache: 'no-store' }
+        fetchOptions: { cache: 'no-store' },
+        onTiming: (event, detail) => logAccountTiming(requestId, route, event, {
+          attempt: attempt + 1,
+          ...detail
+        })
       });
 
       if (data?.error === 'server_error') throw new Error('service_unavailable');
+      logAccountTiming(requestId, route, 'route_complete', {
+        attempt: attempt + 1,
+        elapsedMs: Math.round(performance.now() - startedAt),
+        result: data?.ok ? 'ok' : 'error',
+        errorCode: data?.error || ''
+      });
       return data;
     } catch (err) {
-      lastError = err?.name === 'AbortError'
+      lastError = err?.name === 'AbortError' && !signal?.aborted
         ? new Error(`${route}_timeout`)
         : err;
+      logAccountTiming(requestId, route, 'request_failed', {
+        attempt: attempt + 1,
+        elapsedMs: Math.round(performance.now() - startedAt),
+        errorCode: lastError.message || 'service_unavailable'
+      });
     }
 
     if (attempt < attempts - 1) await new Promise(resolve => setTimeout(resolve, 650));
@@ -887,8 +975,12 @@ async function fetchAccountRoute(route, body, { attempts = 1, timeoutMs = 20000 
   throw lastError;
 }
 
-async function fetchStatusData(token){
-  return fetchAccountRoute('status', { token }, { attempts: 1, timeoutMs: 20000 });
+async function fetchStatusData(token, scope, signal){
+  return fetchAccountRoute('status', { token, scope }, {
+    attempts: 1,
+    timeoutMs: 12000,
+    signal
+  });
 }
 
 function renderAccountStatus(data){
@@ -965,6 +1057,181 @@ function renderAccountStatus(data){
   renderPedidos(pedidos);
 }
 
+function normalizeAccountScopeResponse(scope, data){
+  if (!data?.ok) return data;
+  if (data.scope && data.scope !== scope) throw new Error('status_contract_error');
+
+  const summary = readCachedAccountScope('summary');
+  if (scope === 'summary') {
+    if (!String(data.client_id || '').trim() || !String(data.name || data.nombre || '').trim()) {
+      throw new Error('status_contract_error');
+    }
+    return {
+      ok:true,
+      scope,
+      client_id:data.client_id,
+      name:data.name || data.nombre,
+      dias_gratis:data.dias_gratis,
+      _perf:data._perf
+    };
+  }
+
+  if (scope === 'preventas') {
+    if (!Array.isArray(data.preventas)) throw new Error('status_contract_error');
+    return { ok:true, scope, preventas:data.preventas, _perf:data._perf };
+  }
+
+  if (scope === 'almacen') {
+    const almacen = data.almacen || data.items;
+    if (!Array.isArray(almacen)) throw new Error('status_contract_error');
+    return {
+      ok:true,
+      scope,
+      dias_gratis:data.dias_gratis ?? summary?.dias_gratis,
+      dias_usados:data.dias_usados,
+      dias_restantes:data.dias_restantes,
+      dias_excedidos:data.dias_excedidos,
+      almacen,
+      warnings:Array.isArray(data.warnings) ? data.warnings : [],
+      _perf:data._perf
+    };
+  }
+
+  if (scope === 'puntos') {
+    if (!data.puntos || typeof data.puntos !== 'object') throw new Error('status_contract_error');
+    return { ok:true, scope, puntos:data.puntos, _perf:data._perf };
+  }
+
+  const pedidos = data.pedidos || data.cotizaciones;
+  if (!Array.isArray(pedidos)) throw new Error('status_contract_error');
+  return { ok:true, scope:'cotizaciones', pedidos, _perf:data._perf };
+}
+
+function scopePanel(scope){
+  if (scope === 'preventas') return tabPreventas;
+  if (scope === 'almacen') return tabAlmacen;
+  if (scope === 'puntos') return tabPuntos;
+  if (scope === 'cotizaciones') return tabPedido;
+  return statusSection;
+}
+
+function setScopeBusy(scope, busy){
+  const panel = scopePanel(scope);
+  if (!panel) return;
+  if (busy) panel.setAttribute('aria-busy', 'true');
+  else panel.removeAttribute('aria-busy');
+}
+
+function setScopeMessage(scope, message){
+  if (scope === 'summary' && accountSummaryMsg) accountSummaryMsg.textContent = message;
+  if (scope === 'preventas' && preMsg) preMsg.textContent = message;
+  if (scope === 'almacen' && almacenMsg) almacenMsg.textContent = message;
+  if (scope === 'puntos' && puntosEstadoEl) puntosEstadoEl.textContent = message;
+  if (scope === 'cotizaciones' && pedidosMsg) pedidosMsg.textContent = message;
+}
+
+function renderAccountSummary(data){
+  const resolvedClientId = String(data.client_id || authStorage.getItem(AUTH_KEYS.CLIENT) || '').trim();
+  const resolvedName = String(data.name || data.nombre || authStorage.getItem(AUTH_KEYS.NAME) || '').trim();
+  if (resolvedClientId) authStorage.setItem(AUTH_KEYS.CLIENT, resolvedClientId);
+  if (resolvedName) authStorage.setItem(AUTH_KEYS.NAME, resolvedName);
+  if (clientCodeEl) clientCodeEl.textContent = resolvedClientId;
+  if (clientNameEl) clientNameEl.textContent = resolvedName;
+  if (diasGratisEl) diasGratisEl.textContent = data.dias_gratis ?? '–';
+  if (accountSummaryMsg) accountSummaryMsg.textContent = '';
+}
+
+function renderAccountScope(scope, data){
+  if (scope === 'summary') {
+    renderAccountSummary(data);
+    return;
+  }
+  if (scope === 'preventas') {
+    const preventas = sortPreventasNewestFirst(data.preventas || []);
+    renderPreventas(preventas);
+    renderPuntosPreventaOptions(preventas);
+    return;
+  }
+  if (scope === 'almacen') {
+    if (diasGratisEl) diasGratisEl.textContent = data.dias_gratis ?? '–';
+    if (diasUsadosEl) diasUsadosEl.textContent = data.dias_usados ?? '–';
+    if (diasRestantesEl) diasRestantesEl.textContent = data.dias_restantes ?? '–';
+    if (diasExcedidosEl) diasExcedidosEl.textContent = data.dias_excedidos ?? '–';
+    renderAlmacen(data.almacen || [], Number(data.dias_gratis || 0));
+    return;
+  }
+  if (scope === 'puntos') {
+    renderPuntos(data.puntos);
+    return;
+  }
+  renderPedidos(data.pedidos || []);
+}
+
+function accountScopeErrorMessage(scope, error){
+  if (error?.message === 'status_timeout') {
+    return 'Esta sección está tardando más de lo normal. Intenta abrirla nuevamente.';
+  }
+  if (error?.message === 'status_contract_error') {
+    return 'Esta sección recibió datos incompletos. Intenta recargar en unos segundos.';
+  }
+  return scope === 'summary'
+    ? 'No pudimos cargar el resumen de tu cuenta. Intenta recargar en unos segundos.'
+    : 'No pudimos cargar esta sección. Intenta abrirla nuevamente.';
+}
+
+async function loadAccountScope(scope, { force = false } = {}){
+  const token = getToken();
+  if (!token){ showLogin(); return; }
+
+  const normalizedScope = ACCOUNT_SCOPES.includes(scope) ? scope : 'summary';
+  if (!force) {
+    const cached = readCachedAccountScope(normalizedScope);
+    if (cached) {
+      renderAccountScope(normalizedScope, cached);
+      return cached;
+    }
+  }
+
+  const existing = accountScopeRequests.get(normalizedScope);
+  if (existing) return existing.promise;
+
+  const controller = new AbortController();
+  const generation = accountLoadGeneration;
+  setScopeBusy(normalizedScope, true);
+  setScopeMessage(normalizedScope, normalizedScope === 'summary' ? 'Cargando resumen…' : 'Cargando…');
+
+  const request = (async ()=>{
+    try {
+      const rawData = await fetchStatusData(token, normalizedScope, controller.signal);
+      if (generation !== accountLoadGeneration || token !== getToken()) return null;
+      if (!rawData.ok) {
+        if (rawData.error === 'invalid_token') {
+          clearAuth();
+          showLogin();
+          return null;
+        }
+        throw new Error(rawData.error || 'status_error');
+      }
+
+      const data = normalizeAccountScopeResponse(normalizedScope, rawData);
+      const cachedData = storeCachedAccountScope(normalizedScope, data);
+      renderAccountScope(normalizedScope, cachedData);
+      return cachedData;
+    } catch (error) {
+      if (controller.signal.aborted || generation !== accountLoadGeneration) return null;
+      setScopeMessage(normalizedScope, accountScopeErrorMessage(normalizedScope, error));
+      return null;
+    } finally {
+      const activeRequest = accountScopeRequests.get(normalizedScope);
+      if (activeRequest?.promise === request) accountScopeRequests.delete(normalizedScope);
+      if (generation === accountLoadGeneration) setScopeBusy(normalizedScope, false);
+    }
+  })();
+
+  accountScopeRequests.set(normalizedScope, { controller, promise:request });
+  return request;
+}
+
 async function loadStatus(){
   const token = getToken();
   if (!token){ showLogin(); return; }
@@ -972,44 +1239,16 @@ async function loadStatus(){
   showPanel();
   if (clientCodeEl) clientCodeEl.textContent = authStorage.getItem(AUTH_KEYS.CLIENT)||'';
   if (clientNameEl) clientNameEl.textContent = authStorage.getItem(AUTH_KEYS.NAME)||'';
-  const cachedStatus = readCachedAccountStatus();
-
-  if (cachedStatus) {
-    renderAccountStatus(cachedStatus);
-  } else {
-    if (almacenMsg) almacenMsg.textContent = 'Cargando…';
-    if (preMsg) preMsg.textContent = 'Cargando…';
-    if (itemsTbody) itemsTbody.innerHTML = '';
-    if (preTbody) preTbody.innerHTML = '';
-    if (almacenPagination) almacenPagination.hidden = true;
-    if (prePagination) prePagination.hidden = true;
-    if (pedidosMsg) pedidosMsg.textContent = 'Cargando…';
-    if (pedidosTbody) pedidosTbody.innerHTML = '';
-    renderPuntos(null);
-  }
+  if (diasUsadosEl) diasUsadosEl.textContent = '–';
+  if (diasRestantesEl) diasRestantesEl.textContent = '–';
+  if (diasExcedidosEl) diasExcedidosEl.textContent = '–';
   if (puntosCanjeMsg) puntosCanjeMsg.textContent = '';
 
-  try{
-    const data = await fetchStatusData(token);
+  const summary = await loadAccountScope('summary');
+  if (!summary || token !== getToken()) return;
 
-    if (!data.ok){
-      if (data.error === 'invalid_token'){ clearAuth(); showLogin(); return; }
-      throw new Error(data.error||'error');
-    }
-
-    storeCachedAccountStatus(data);
-    renderAccountStatus(data);
-
-  }catch(err){
-    if (cachedStatus) return;
-    const msg = err?.message === 'status_timeout'
-      ? 'Mi Cuenta está tardando más de lo normal. Intenta recargar en unos segundos.'
-      : 'No pudimos cargar los datos de tu cuenta. Intenta recargar en unos segundos.';
-    if (almacenMsg) almacenMsg.textContent = msg;
-    if (preMsg)     preMsg.textContent     = msg;
-    if (pedidosMsg) pedidosMsg.textContent = msg;
-    if (puntosEstadoEl) puntosEstadoEl.textContent = 'No se pudo cargar puntos.';
-  }
+  const initialScope = scopeForTab(activeAccountTab);
+  if (initialScope && initialScope !== 'summary') void loadAccountScope(initialScope);
 }
 
 /* ---------------------------------
@@ -1030,13 +1269,20 @@ loginForm?.addEventListener('submit', async (ev)=>{
     return;
   }
 
+  const loginClickedAt = performance.now();
+  const loginRequestId = accountRequestId('login');
+  logAccountTiming(loginRequestId, 'login', 'login_click', { elapsedMs:0 });
+  const loginProgressTimer = setTimeout(() => {
+    if (loginMsg) loginMsg.textContent = 'Estamos conectando con Mi Cuenta…';
+  }, 2500);
   loginInFlight = true;
   if (submitBtn) submitBtn.disabled = true;
   loginForm.setAttribute('aria-busy', 'true');
   try{
     const data = await fetchAccountRoute('login', { client_id, password }, {
       attempts: 1,
-      timeoutMs: 20000
+      timeoutMs: 12000,
+      requestId: loginRequestId
     });
     if (!data.ok) throw new Error(data.error||'login_failed');
 
@@ -1044,9 +1290,12 @@ loginForm?.addEventListener('submit', async (ev)=>{
     if (loginMsg) loginMsg.textContent = '';
 
     // Al entrar, muestra preventas por defecto.
-    setActiveTab('preventas');
+    setActiveTab('preventas', { load:false });
 
-    await loadStatus();
+    logAccountTiming(loginRequestId, 'login', 'login_complete', {
+      elapsedMs: Math.round(performance.now() - loginClickedAt)
+    });
+    void loadStatus();
   }catch(err){
     const errorCode = err?.message || 'service_unavailable';
     const map = {
@@ -1061,6 +1310,7 @@ loginForm?.addEventListener('submit', async (ev)=>{
     };
     if (loginMsg) loginMsg.textContent = map[errorCode] || map.login_failed;
   }finally{
+    clearTimeout(loginProgressTimer);
     loginInFlight = false;
     if (submitBtn) submitBtn.disabled = false;
     loginForm.removeAttribute('aria-busy');
@@ -1120,8 +1370,9 @@ pedidoForm?.addEventListener('submit', async (ev)=>{
     if (pedidoTamanoEl) pedidoTamanoEl.value = '';
     if (pedidoYenesEl)  pedidoYenesEl.value = '';
 
-    // Recarga status y muéstrale el tab Pedido
-    await loadStatus();
+    // Recarga solo las cotizaciones y muéstrale el tab Pedido si existe.
+    invalidateAccountScope('cotizaciones');
+    await loadAccountScope('cotizaciones', { force:true });
     setActiveTab('pedido');
 
   }catch(err){
@@ -1143,5 +1394,5 @@ logoutBtn?.addEventListener('click', ()=>{
 
 // Al cargar, por defecto tab preventas.
 clearLegacyAuthStorage();
-setActiveTab('preventas');
+setActiveTab('preventas', { load:false });
 getToken() ? loadStatus() : showLogin();

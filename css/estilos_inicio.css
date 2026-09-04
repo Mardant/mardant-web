@@ -513,6 +513,19 @@ html,body{
 .seccion-catalogo-japon .grid-japon-home{
   margin-top:0;
 }
+.home-section-status{
+  grid-column:1 / -1;
+  margin:0;
+  padding:18px;
+  border:1px solid #d8c6aa;
+  background:#fbf7ef;
+  color:#5d5044;
+  text-align:center;
+  font-weight:800;
+}
+.home-section-status.is-error{
+  color:#9d2d26;
+}
 .grid-japon-home .precio{
   width:min(100%, 170px);
   min-height:52px;

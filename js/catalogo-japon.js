@@ -1,6 +1,12 @@
-import { whatsappLink } from './config.js';
-import { API_CACHE_TTL, cachedFetchJSON, fetchJSON, fetchRoute, prefetchJSONPages } from './api-client.js?v=3';
-import { setupSearchTracking } from './search-tracking.js?v=3';
+import { whatsappLink } from './config.js?v=5';
+import { API_CACHE_TTL } from './api-client.js?v=7';
+import {
+  cachedFetchJapanJSON,
+  fetchJapanJSON,
+  fetchJapanRoute,
+  prefetchJapanJSONPages
+} from './japan-api.js?v=1';
+import { createSearchTracker } from './search-tracking.js?v=5';
 
 const PAGE_SIZE = 20;
 const LIKES_STORAGE_KEY = 'mardant_japon_likes_v1';
@@ -34,6 +40,7 @@ let sharedLoteApplied = false;
 let serverPagination = true;
 let serverTotalPages = 1;
 let catalogRequestController = null;
+let catalogPrefetchController = null;
 let catalogRequestId = 0;
 let likesLoaded = false;
 let animeMetaLoaded = false;
@@ -46,6 +53,7 @@ let catalogImageStyleElement = null;
 let catalogImageStyleSheet = null;
 let catalogImageRules = '';
 let catalogImageObserver = null;
+const searchTracker = createSearchTracker('CATALOGO_JAPON', { requestRoute:fetchJapanRoute });
 
 function escapeHtml(value){
   return String(value ?? '')
@@ -215,10 +223,15 @@ function matchesCatalogSearch(item, value){
 
 function debounce(fn, delay = 250){
   let timer;
-  return (...args) => {
+  const debounced = (...args) => {
     clearTimeout(timer);
     timer = setTimeout(() => fn(...args), delay);
   };
+  debounced.cancel = () => {
+    clearTimeout(timer);
+    timer = null;
+  };
+  return debounced;
 }
 
 function shareIcon(){
@@ -316,16 +329,26 @@ function money(value){
 function parsePrice(value){
   const text = String(value ?? '').trim();
   if (!text) return null;
-  const normalized = text
+  let normalized = text
     .replace(/\s/g, '')
     .replace(/s\//i, '')
-    .replace(/,/g, '.')
-    .replace(/[^\d.]/g, '');
-  const parts = normalized.split('.');
-  const safeNumber = parts.length > 2
-    ? `${parts[0]}.${parts.slice(1).join('')}`
-    : normalized;
-  const number = Number(safeNumber);
+    .replace(/[^\d,.-]/g, '');
+  const lastComma = normalized.lastIndexOf(',');
+  const lastDot = normalized.lastIndexOf('.');
+  if (lastComma >= 0 && lastDot >= 0) {
+    normalized = lastComma > lastDot
+      ? normalized.replace(/\./g, '').replace(',', '.')
+      : normalized.replace(/,/g, '');
+  } else if (lastComma >= 0) {
+    const parts = normalized.split(',');
+    normalized = parts.length > 2 || parts.at(-1).length === 3
+      ? normalized.replace(/,/g, '')
+      : normalized.replace(',', '.');
+  } else if (lastDot >= 0) {
+    const parts = normalized.split('.');
+    if (parts.length > 2 || parts.at(-1).length === 3) normalized = normalized.replace(/\./g, '');
+  }
+  const number = Number(normalized);
   return Number.isFinite(number) ? number : null;
 }
 
@@ -505,7 +528,7 @@ function loadImageForCanvas(src){
 async function loadShareImage(item){
   const id = String(item.id_lote || '').trim();
   try {
-    const data = await fetchJSON('catalogoJaponImage', {
+    const data = await fetchJapanJSON('catalogoJaponImage', {
       params: { id_lote: id, ts: Date.now() },
       retries: 0,
       timeoutMs: 10000,
@@ -732,7 +755,7 @@ function card(item){
 
 async function loadLikeCounts(){
   try {
-    const data = await cachedFetchJSON('catalogoJaponLikes', {
+    const data = await cachedFetchJapanJSON('catalogoJaponLikes', {
       ttl: 2 * 60 * 1000,
       cacheId: 'catalogo-japon-likes-v1',
       staleWhileRevalidate: true,
@@ -826,7 +849,7 @@ async function toggleLikeLote(id, button){
 
   try {
     const route = nextLiked ? 'catalogo_japon_like' : 'catalogo_japon_unlike';
-    const data = await fetchRoute(route, {
+    const data = await fetchJapanRoute(route, {
       id_lote: loteId,
       visitor_id: getVisitorId(),
       user_agent: navigator.userAgent || ''
@@ -988,6 +1011,7 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
   pagination.querySelectorAll('button').forEach(button => { button.disabled = true; });
 
   if (catalogRequestController) catalogRequestController.abort();
+  if (catalogPrefetchController) catalogPrefetchController.abort();
   const controller = new AbortController();
   catalogRequestController = controller;
   const requestedPage = Math.max(1, Number(page) || 1);
@@ -1000,18 +1024,30 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
   grid?.setAttribute('aria-busy', 'true');
 
   try {
-    const data = await cachedFetchJSON('catalogoPreventasJaponPage', {
+    const data = await cachedFetchJapanJSON('catalogoPreventasJaponPage', {
       params: requestedParams,
       ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
-      cacheId: 'catalogo-japon-page-v2',
-      staleWhileRevalidate: true,
+      cacheId: 'catalogo-japon-page-v3',
+      staleWhileRevalidate: false,
       retries: 0,
-      // La primera búsqueda puede construir el índice de una hoja muy grande.
-      // No la repetimos: las páginas vecinas reutilizan ese índice y su caché.
-      timeoutMs: filteredRequest ? 30000 : 15000,
-      signal: controller.signal
+      primaryTimeoutMs: 5000,
+      fallbackTimeoutMs: 15000,
+      signal: controller.signal,
+      abortUnderlying: true
     });
     if (requestId !== catalogRequestId || controller.signal.aborted) return null;
+    const responseError = String(data?.error || '').trim().toLowerCase();
+    const queryIndexPending = data?.ok === false && (
+      responseError === 'query_index_not_ready' ||
+      responseError === 'catalog_query_index_not_ready'
+    );
+    if (queryIndexPending) {
+      feedback.hidden = false;
+      statusEl.textContent = 'La búsqueda del catálogo Japón está actualizándose.';
+      statusEl.classList.remove('is-error');
+      dateEl.textContent = 'Intenta nuevamente en unos minutos.';
+      return null;
+    }
     if (!data || data.ok === false || !Array.isArray(data.productos)) {
       throw new Error(data?.error || 'endpoint_paginado_no_disponible');
     }
@@ -1034,6 +1070,7 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
 
     render();
     ensureLikeCountsLoaded();
+    searchTracker.record(requestedParams.search);
     updateCatalogUrl(historyMode);
     if (historyMode === 'push') window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -1044,15 +1081,21 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
       dateEl.textContent = 'Prueba con otra búsqueda o cambia los filtros';
     }
 
-    prefetchJSONPages('catalogoPreventasJaponPage', {
-      current: currentPage,
-      total: serverTotalPages,
-      ahead: 3,
-      behind: 1,
-      params: { ...requestedParams, include_meta: '0' },
-      ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
-      cacheId: 'catalogo-japon-page-v2'
-    }).catch(() => {});
+    if (!filteredRequest && currentPage < serverTotalPages) {
+      catalogPrefetchController = new AbortController();
+      const prefetch = () => prefetchJapanJSONPages('catalogoPreventasJaponPage', {
+        current: currentPage,
+        total: serverTotalPages,
+        ahead: 1,
+        behind: 0,
+        params: { ...requestedParams, include_meta: '0' },
+        ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
+        cacheId: 'catalogo-japon-page-v3',
+        signal: catalogPrefetchController.signal
+      }).catch(() => {});
+      if ('requestIdleCallback' in window) window.requestIdleCallback(prefetch, { timeout:1500 });
+      else setTimeout(prefetch, 250);
+    }
     return data;
   } catch (error) {
     if (requestId !== catalogRequestId || controller.signal.aborted || error?.name === 'AbortError') return null;
@@ -1082,27 +1125,34 @@ async function loadCatalog(){
   await loadCatalogPage({ page:currentPage, historyMode:'replace' });
 }
 
+const applySearchFiltersDebounced = debounce(() => {
+  const length = normalizeText(searchInput?.value).length;
+  if (length > 0 && length < 3) return;
+  applyFilters({ historyMode:'replace' });
+}, 850);
+
+function applyFiltersNow(options) {
+  applySearchFiltersDebounced.cancel();
+  applyFilters(options);
+}
+
 filterForm?.addEventListener('submit', event => {
   event.preventDefault();
-  applyFilters();
+  applyFiltersNow();
 });
 
 sortSelect?.addEventListener('change', () => {
-  applyFilters();
+  applyFiltersNow();
 });
 
-searchInput?.addEventListener('input', debounce(() => {
-  applyFilters({ historyMode:'replace' });
-}, 500));
-
-setupSearchTracking(searchInput, 'CATALOGO_JAPON');
+searchInput?.addEventListener('input', applySearchFiltersDebounced);
 
 animeSelect?.addEventListener('change', () => {
-  applyFilters();
+  applyFiltersNow();
 });
 
 availabilitySelect?.addEventListener('change', () => {
-  applyFilters();
+  applyFiltersNow();
 });
 
 clearFiltersBtn?.addEventListener('click', () => {
@@ -1112,7 +1162,7 @@ clearFiltersBtn?.addEventListener('click', () => {
   if (sortSelect) sortSelect.value = 'newest';
   if (minInput) minInput.value = '';
   if (maxInput) maxInput.value = '';
-  applyFilters();
+  applyFiltersNow();
 });
 
 window.addEventListener('popstate', () => {

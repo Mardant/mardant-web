@@ -1,4 +1,4 @@
-import { AUTH_KEYS } from './config.js';
+import { AUTH_KEYS } from './config.js?v=5';
 
 const ACCOUNT_WIDGET_ID = 'btnCuenta';
 const MOBILE_CONTROLS_CLASS = 'floating-controls-clear-content';
