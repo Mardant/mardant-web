@@ -1030,8 +1030,8 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
       cacheId: 'catalogo-japon-page-v3',
       staleWhileRevalidate: false,
       retries: 0,
-      primaryTimeoutMs: 5000,
-      fallbackTimeoutMs: 15000,
+      primaryTimeoutMs: 35000,
+      fallbackTimeoutMs: 20000,
       signal: controller.signal,
       abortUnderlying: true
     });
