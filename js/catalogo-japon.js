@@ -3,12 +3,13 @@ import { API_CACHE_TTL } from './api-client.js?v=7';
 import {
   cachedFetchJapanJSON,
   fetchJapanJSON,
-  fetchJapanRoute,
-  prefetchJapanJSONPages
+  fetchJapanRoute
 } from './japan-api.js?v=1';
 import { createSearchTracker } from './search-tracking.js?v=5';
 
 const PAGE_SIZE = 20;
+const CATALOG_PAGE_PRIMARY_TIMEOUT_MS = 35000;
+const CATALOG_PAGE_FALLBACK_TIMEOUT_MS = 20000;
 const LIKES_STORAGE_KEY = 'mardant_japon_likes_v1';
 const VISITOR_STORAGE_KEY = 'mardant_japon_visitor_id_v1';
 const sharedLoteId = new URLSearchParams(location.search).get('lote') || '';
@@ -41,6 +42,8 @@ let serverPagination = true;
 let serverTotalPages = 1;
 let catalogRequestController = null;
 let catalogPrefetchController = null;
+let catalogPrefetchIdleHandle = null;
+let catalogPrefetchIdleType = '';
 let catalogRequestId = 0;
 let likesLoaded = false;
 let animeMetaLoaded = false;
@@ -232,6 +235,81 @@ function debounce(fn, delay = 250){
     timer = null;
   };
   return debounced;
+}
+
+function cancelCatalogPrefetch(){
+  if (catalogPrefetchController) catalogPrefetchController.abort();
+  catalogPrefetchController = null;
+
+  if (catalogPrefetchIdleHandle !== null) {
+    if (catalogPrefetchIdleType === 'idle' && typeof window.cancelIdleCallback === 'function') {
+      window.cancelIdleCallback(catalogPrefetchIdleHandle);
+    } else {
+      clearTimeout(catalogPrefetchIdleHandle);
+    }
+  }
+  catalogPrefetchIdleHandle = null;
+  catalogPrefetchIdleType = '';
+}
+
+function allowsCatalogPrefetch(){
+  const connection = navigator.connection;
+  if (connection?.saveData === true) return false;
+  const effectiveType = String(connection?.effectiveType || '').toLowerCase();
+  return effectiveType !== 'slow-2g' && effectiveType !== '2g';
+}
+
+async function prefetchCatalogPages({ current, total, params, signal }){
+  const last = Math.min(total, current + 2);
+  for (let page = current + 1; page <= last; page += 1) {
+    if (signal.aborted) return;
+    try {
+      const data = await cachedFetchJapanJSON('catalogoPreventasJaponPage', {
+        params: { ...params, page, include_meta: '0' },
+        ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
+        cacheId: 'catalogo-japon-page-v3',
+        staleWhileRevalidate: false,
+        retries: 0,
+        primaryTimeoutMs: CATALOG_PAGE_PRIMARY_TIMEOUT_MS,
+        fallbackTimeoutMs: CATALOG_PAGE_FALLBACK_TIMEOUT_MS,
+        signal,
+        abortUnderlying: true
+      });
+      if (!data || data.ok === false) return;
+    } catch (_) {
+      return;
+    }
+  }
+}
+
+function scheduleCatalogPrefetch({ requestId, page, totalPages, params }){
+  const current = Math.max(1, Number(page) || 1);
+  const total = Math.max(1, Number(totalPages) || 1);
+  if (!allowsCatalogPrefetch() || total <= 1 || current >= total) return;
+
+  const controller = new AbortController();
+  catalogPrefetchController = controller;
+  const prefetch = () => {
+    if (catalogPrefetchController !== controller || controller.signal.aborted || requestId !== catalogRequestId) return;
+    catalogPrefetchIdleHandle = null;
+    catalogPrefetchIdleType = '';
+    prefetchCatalogPages({
+      current,
+      total,
+      params,
+      signal: controller.signal
+    }).catch(() => {}).finally(() => {
+      if (catalogPrefetchController === controller) catalogPrefetchController = null;
+    });
+  };
+
+  if (typeof window.requestIdleCallback === 'function') {
+    catalogPrefetchIdleType = 'idle';
+    catalogPrefetchIdleHandle = window.requestIdleCallback(prefetch, { timeout:1500 });
+  } else {
+    catalogPrefetchIdleType = 'timeout';
+    catalogPrefetchIdleHandle = setTimeout(prefetch, 250);
+  }
 }
 
 function shareIcon(){
@@ -1011,16 +1089,12 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
   pagination.querySelectorAll('button').forEach(button => { button.disabled = true; });
 
   if (catalogRequestController) catalogRequestController.abort();
-  if (catalogPrefetchController) catalogPrefetchController.abort();
+  cancelCatalogPrefetch();
   const controller = new AbortController();
   catalogRequestController = controller;
   const requestedPage = Math.max(1, Number(page) || 1);
   const requestedParams = catalogRequestParams(requestedPage);
   requestedParams.include_meta = animeMetaLoaded ? '0' : '1';
-  const filteredRequest = Boolean(
-    requestedParams.search || requestedParams.anime || requestedParams.availability ||
-    requestedParams.min_price || requestedParams.max_price || requestedParams.sort !== 'newest'
-  );
   grid?.setAttribute('aria-busy', 'true');
 
   try {
@@ -1030,8 +1104,8 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
       cacheId: 'catalogo-japon-page-v3',
       staleWhileRevalidate: false,
       retries: 0,
-      primaryTimeoutMs: 35000,
-      fallbackTimeoutMs: 20000,
+      primaryTimeoutMs: CATALOG_PAGE_PRIMARY_TIMEOUT_MS,
+      fallbackTimeoutMs: CATALOG_PAGE_FALLBACK_TIMEOUT_MS,
       signal: controller.signal,
       abortUnderlying: true
     });
@@ -1081,21 +1155,12 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
       dateEl.textContent = 'Prueba con otra búsqueda o cambia los filtros';
     }
 
-    if (!filteredRequest && currentPage < serverTotalPages) {
-      catalogPrefetchController = new AbortController();
-      const prefetch = () => prefetchJapanJSONPages('catalogoPreventasJaponPage', {
-        current: currentPage,
-        total: serverTotalPages,
-        ahead: 1,
-        behind: 0,
-        params: { ...requestedParams, include_meta: '0' },
-        ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
-        cacheId: 'catalogo-japon-page-v3',
-        signal: catalogPrefetchController.signal
-      }).catch(() => {});
-      if ('requestIdleCallback' in window) window.requestIdleCallback(prefetch, { timeout:1500 });
-      else setTimeout(prefetch, 250);
-    }
+    scheduleCatalogPrefetch({
+      requestId,
+      page:currentPage,
+      totalPages:serverTotalPages,
+      params:requestedParams
+    });
     return data;
   } catch (error) {
     if (requestId !== catalogRequestId || controller.signal.aborted || error?.name === 'AbortError') return null;
@@ -1133,6 +1198,7 @@ const applySearchFiltersDebounced = debounce(() => {
 
 function applyFiltersNow(options) {
   applySearchFiltersDebounced.cancel();
+  cancelCatalogPrefetch();
   applyFilters(options);
 }
 
@@ -1145,7 +1211,10 @@ sortSelect?.addEventListener('change', () => {
   applyFiltersNow();
 });
 
-searchInput?.addEventListener('input', applySearchFiltersDebounced);
+searchInput?.addEventListener('input', () => {
+  cancelCatalogPrefetch();
+  applySearchFiltersDebounced();
+});
 
 animeSelect?.addEventListener('change', () => {
   applyFiltersNow();
