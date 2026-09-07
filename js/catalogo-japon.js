@@ -41,9 +41,10 @@ let sharedLoteApplied = false;
 let serverPagination = true;
 let serverTotalPages = 1;
 let catalogRequestController = null;
-let catalogPrefetchController = null;
 let catalogPrefetchIdleHandle = null;
 let catalogPrefetchIdleType = '';
+let activeCatalogQueryKey = '';
+const catalogPrefetchRequests = new Map();
 let catalogRequestId = 0;
 let likesLoaded = false;
 let animeMetaLoaded = false;
@@ -237,10 +238,7 @@ function debounce(fn, delay = 250){
   return debounced;
 }
 
-function cancelCatalogPrefetch(){
-  if (catalogPrefetchController) catalogPrefetchController.abort();
-  catalogPrefetchController = null;
-
+function cancelCatalogPrefetchIdle(){
   if (catalogPrefetchIdleHandle !== null) {
     if (catalogPrefetchIdleType === 'idle' && typeof window.cancelIdleCallback === 'function') {
       window.cancelIdleCallback(catalogPrefetchIdleHandle);
@@ -252,6 +250,12 @@ function cancelCatalogPrefetch(){
   catalogPrefetchIdleType = '';
 }
 
+function cancelCatalogPrefetch(){
+  cancelCatalogPrefetchIdle();
+  catalogPrefetchRequests.forEach(entry => entry.controller.abort());
+  catalogPrefetchRequests.clear();
+}
+
 function allowsCatalogPrefetch(){
   const connection = navigator.connection;
   if (connection?.saveData === true) return false;
@@ -259,22 +263,63 @@ function allowsCatalogPrefetch(){
   return effectiveType !== 'slow-2g' && effectiveType !== '2g';
 }
 
-async function prefetchCatalogPages({ current, total, params, signal }){
-  const last = Math.min(total, current + 2);
+function catalogQueryKey(params){
+  return [
+    'page_size', 'search', 'anime', 'availability', 'sort', 'min_price', 'max_price'
+  ].map(key => `${key}=${encodeURIComponent(String(params?.[key] ?? ''))}`).join('&');
+}
+
+function catalogPageRequestKey(params){
+  return `${catalogQueryKey(params)}&page=${Number(params?.page) || 1}&include_meta=${String(params?.include_meta || '0')}`;
+}
+
+function waitForCatalogRequest(promise, signal){
+  if (!signal) return promise;
+  if (signal.aborted) return Promise.reject(new DOMException('Solicitud cancelada', 'AbortError'));
+  return new Promise((resolve, reject) => {
+    const cleanup = () => signal.removeEventListener('abort', abortWait);
+    const abortWait = () => {
+      cleanup();
+      reject(new DOMException('Solicitud cancelada', 'AbortError'));
+    };
+    signal.addEventListener('abort', abortWait, { once:true });
+    promise.then(
+      value => { cleanup(); resolve(value); },
+      error => { cleanup(); reject(error); }
+    );
+  });
+}
+
+function getOrStartCatalogPrefetch(params){
+  const key = catalogPageRequestKey(params);
+  const existing = catalogPrefetchRequests.get(key);
+  if (existing) return existing.promise;
+
+  const controller = new AbortController();
+  const entry = { controller, promise:null };
+  entry.promise = cachedFetchJapanJSON('catalogoPreventasJaponPage', {
+    params,
+    ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
+    cacheId: 'catalogo-japon-page-v3',
+    staleWhileRevalidate: false,
+    retries: 0,
+    primaryTimeoutMs: CATALOG_PAGE_PRIMARY_TIMEOUT_MS,
+    fallbackTimeoutMs: CATALOG_PAGE_FALLBACK_TIMEOUT_MS,
+    signal: controller.signal,
+    abortUnderlying: true
+  }).finally(() => {
+    if (catalogPrefetchRequests.get(key) === entry) catalogPrefetchRequests.delete(key);
+  });
+  entry.promise.catch(() => {});
+  catalogPrefetchRequests.set(key, entry);
+  return entry.promise;
+}
+
+async function prefetchCatalogPages({ current, total, ahead, params }){
+  const last = Math.min(total, current + ahead);
   for (let page = current + 1; page <= last; page += 1) {
-    if (signal.aborted) return;
     try {
-      const data = await cachedFetchJapanJSON('catalogoPreventasJaponPage', {
-        params: { ...params, page, include_meta: '0' },
-        ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
-        cacheId: 'catalogo-japon-page-v3',
-        staleWhileRevalidate: false,
-        retries: 0,
-        primaryTimeoutMs: CATALOG_PAGE_PRIMARY_TIMEOUT_MS,
-        fallbackTimeoutMs: CATALOG_PAGE_FALLBACK_TIMEOUT_MS,
-        signal,
-        abortUnderlying: true
-      });
+      const data = await getOrStartCatalogPrefetch({ ...params, page, include_meta:'0' });
       if (!data || data.ok === false) return;
     } catch (_) {
       return;
@@ -287,20 +332,17 @@ function scheduleCatalogPrefetch({ requestId, page, totalPages, params }){
   const total = Math.max(1, Number(totalPages) || 1);
   if (!allowsCatalogPrefetch() || total <= 1 || current >= total) return;
 
-  const controller = new AbortController();
-  catalogPrefetchController = controller;
+  cancelCatalogPrefetchIdle();
   const prefetch = () => {
-    if (catalogPrefetchController !== controller || controller.signal.aborted || requestId !== catalogRequestId) return;
+    if (requestId !== catalogRequestId) return;
     catalogPrefetchIdleHandle = null;
     catalogPrefetchIdleType = '';
     prefetchCatalogPages({
       current,
       total,
-      params,
-      signal: controller.signal
-    }).catch(() => {}).finally(() => {
-      if (catalogPrefetchController === controller) catalogPrefetchController = null;
-    });
+      ahead:current === 1 ? 1 : 2,
+      params
+    }).catch(() => {});
   };
 
   if (typeof window.requestIdleCallback === 'function') {
@@ -1089,26 +1131,34 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
   pagination.querySelectorAll('button').forEach(button => { button.disabled = true; });
 
   if (catalogRequestController) catalogRequestController.abort();
-  cancelCatalogPrefetch();
+  cancelCatalogPrefetchIdle();
   const controller = new AbortController();
   catalogRequestController = controller;
   const requestedPage = Math.max(1, Number(page) || 1);
   const requestedParams = catalogRequestParams(requestedPage);
   requestedParams.include_meta = animeMetaLoaded ? '0' : '1';
+  const requestedQueryKey = catalogQueryKey(requestedParams);
+  if (activeCatalogQueryKey && requestedQueryKey !== activeCatalogQueryKey) {
+    cancelCatalogPrefetch();
+  }
+  activeCatalogQueryKey = requestedQueryKey;
   grid?.setAttribute('aria-busy', 'true');
 
   try {
-    const data = await cachedFetchJapanJSON('catalogoPreventasJaponPage', {
-      params: requestedParams,
-      ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
-      cacheId: 'catalogo-japon-page-v3',
-      staleWhileRevalidate: false,
-      retries: 0,
-      primaryTimeoutMs: CATALOG_PAGE_PRIMARY_TIMEOUT_MS,
-      fallbackTimeoutMs: CATALOG_PAGE_FALLBACK_TIMEOUT_MS,
-      signal: controller.signal,
-      abortUnderlying: true
-    });
+    const prefetched = catalogPrefetchRequests.get(catalogPageRequestKey(requestedParams));
+    const data = prefetched
+      ? await waitForCatalogRequest(prefetched.promise, controller.signal)
+      : await cachedFetchJapanJSON('catalogoPreventasJaponPage', {
+          params: requestedParams,
+          ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
+          cacheId: 'catalogo-japon-page-v3',
+          staleWhileRevalidate: false,
+          retries: 0,
+          primaryTimeoutMs: CATALOG_PAGE_PRIMARY_TIMEOUT_MS,
+          fallbackTimeoutMs: CATALOG_PAGE_FALLBACK_TIMEOUT_MS,
+          signal: controller.signal,
+          abortUnderlying: true
+        });
     if (requestId !== catalogRequestId || controller.signal.aborted) return null;
     const responseError = String(data?.error || '').trim().toLowerCase();
     const queryIndexPending = data?.ok === false && (
