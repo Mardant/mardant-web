@@ -10,8 +10,6 @@ import { createSearchTracker } from './search-tracking.js?v=5';
 const PAGE_SIZE = 20;
 const CATALOG_PAGE_PRIMARY_TIMEOUT_MS = 35000;
 const CATALOG_PAGE_FALLBACK_TIMEOUT_MS = 20000;
-const LIKES_STORAGE_KEY = 'mardant_japon_likes_v1';
-const VISITOR_STORAGE_KEY = 'mardant_japon_visitor_id_v1';
 const sharedLoteId = new URLSearchParams(location.search).get('lote') || '';
 const PRODUCT_NOTE = 'No incluye envío de Japón 🇯🇵 a Perú 🇵🇪';
 
@@ -46,11 +44,7 @@ let catalogPrefetchIdleType = '';
 let activeCatalogQueryKey = '';
 const catalogPrefetchRequests = new Map();
 let catalogRequestId = 0;
-let likesLoaded = false;
 let animeMetaLoaded = false;
-let likesLoadPromise = null;
-let likeCounts = new Map();
-let likedLots = new Set(loadLikedLots());
 const catalogImageUrls = new Map();
 const catalogImageClassNames = new Map();
 let catalogImageStyleElement = null;
@@ -290,14 +284,8 @@ function waitForCatalogRequest(promise, signal){
   });
 }
 
-function getOrStartCatalogPrefetch(params){
-  const key = catalogPageRequestKey(params);
-  const existing = catalogPrefetchRequests.get(key);
-  if (existing) return existing.promise;
-
-  const controller = new AbortController();
-  const entry = { controller, promise:null };
-  entry.promise = cachedFetchJapanJSON('catalogoPreventasJaponPage', {
+function fetchCatalogPageForeground(params, signal){
+  return cachedFetchJapanJSON('catalogoPreventasJaponPage', {
     params,
     ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
     cacheId: 'catalogo-japon-page-v3',
@@ -305,9 +293,35 @@ function getOrStartCatalogPrefetch(params){
     retries: 0,
     primaryTimeoutMs: CATALOG_PAGE_PRIMARY_TIMEOUT_MS,
     fallbackTimeoutMs: CATALOG_PAGE_FALLBACK_TIMEOUT_MS,
-    signal: controller.signal,
+    signal,
     abortUnderlying: true
-  }).finally(() => {
+  });
+}
+
+async function fetchCatalogPage(params, signal){
+  const key = catalogPageRequestKey(params);
+  const prefetched = catalogPrefetchRequests.get(key);
+  if (prefetched) {
+    try {
+      return await waitForCatalogRequest(prefetched.promise, signal);
+    } catch (error) {
+      if (error?.name === 'AbortError' || signal?.aborted) throw error;
+      if (catalogPrefetchRequests.get(key) === prefetched) {
+        catalogPrefetchRequests.delete(key);
+      }
+    }
+  }
+  return fetchCatalogPageForeground(params, signal);
+}
+
+function getOrStartCatalogPrefetch(params){
+  const key = catalogPageRequestKey(params);
+  const existing = catalogPrefetchRequests.get(key);
+  if (existing) return existing.promise;
+
+  const controller = new AbortController();
+  const entry = { controller, promise:null };
+  entry.promise = fetchCatalogPageForeground(params, controller.signal).finally(() => {
     if (catalogPrefetchRequests.get(key) === entry) catalogPrefetchRequests.delete(key);
   });
   entry.promise.catch(() => {});
@@ -364,79 +378,12 @@ function shareIcon(){
   `;
 }
 
-function likeIcon(){
-  return `
-    <svg class="japan-tool-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M7 10v11"></path>
-      <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h.5a2.5 2.5 0 0 1 2.5 3.88Z"></path>
-    </svg>
-  `;
-}
-
-function loadLikedLots(){
-  try {
-    const raw = localStorage.getItem(LIKES_STORAGE_KEY);
-    const values = raw ? JSON.parse(raw) : [];
-    return Array.isArray(values) ? values.map(String) : [];
-  } catch (_) {
-    return [];
-  }
-}
-
-function saveLikedLots(){
-  try {
-    localStorage.setItem(LIKES_STORAGE_KEY, JSON.stringify([...likedLots]));
-  } catch (_) {}
-}
-
-function getVisitorId(){
-  try {
-    let visitorId = localStorage.getItem(VISITOR_STORAGE_KEY);
-    if (!visitorId) {
-      const random = (crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`)
-        .replace(/[^\w-]/g, '');
-      visitorId = `vj-${random}`;
-      localStorage.setItem(VISITOR_STORAGE_KEY, visitorId);
-    }
-    return visitorId;
-  } catch (_) {
-    return `vj-${Date.now()}`;
-  }
-}
-
-function likeCountFor(id){
-  return likeCounts.get(String(id)) || 0;
-}
-
 function loteShareUrl(id){
   const url = new URL(location.href);
   url.search = '';
   url.searchParams.set('lote', String(id));
   url.hash = '';
   return url.toString();
-}
-
-function setLikeCount(id, count){
-  likeCounts.set(String(id), Math.max(0, Number(count) || 0));
-  document.querySelectorAll('.japan-like-button').forEach(button => {
-    if (button.dataset.likeId !== String(id)) return;
-    const countEl = button.querySelector('.japan-like-count');
-    if (countEl) countEl.textContent = String(likeCountFor(id));
-  });
-}
-
-function updateLikeButtons(id){
-  document.querySelectorAll('.japan-like-button').forEach(button => {
-    const loteId = button.dataset.likeId || '';
-    if (id && loteId !== String(id)) return;
-    const isLiked = likedLots.has(loteId);
-    button.classList.toggle('is-liked', isLiked);
-    button.setAttribute('aria-pressed', isLiked ? 'true' : 'false');
-    button.setAttribute('aria-label', `${isLiked ? 'Quitar me gusta' : 'Me gusta'} lote #${loteId}`);
-    button.title = isLiked ? 'Quitar me gusta' : 'Me gusta';
-    const countEl = button.querySelector('.japan-like-count');
-    if (countEl) countEl.textContent = String(likeCountFor(loteId));
-  });
 }
 
 function money(value){
@@ -816,7 +763,6 @@ function card(item){
   const imageUrl = String(item.imagen_url || '').trim();
   const etiqueta = etiquetaInfo(publicAvailability(item));
   const rank = rankInfo(item.rank);
-  const liked = likedLots.has(id);
   const shareUrl = loteShareUrl(id);
   registerCatalogImage(id, imageUrl);
   const article = document.createElement('article');
@@ -863,44 +809,10 @@ function card(item){
           ${shareIcon()}
           <span class="japan-sr-only">Compartir</span>
         </button>
-        <button class="japan-like-button${liked ? ' is-liked' : ''}" type="button" data-like-id="${escapeHtml(id)}" aria-label="${liked ? 'Quitar me gusta' : 'Me gusta'} lote #${escapeHtml(id)}" aria-pressed="${liked ? 'true' : 'false'}" title="${liked ? 'Quitar me gusta' : 'Me gusta'}">
-          ${likeIcon()}
-          <strong class="japan-like-count">${likeCountFor(id)}</strong>
-        </button>
       </div>
     </div>
   `;
   return article;
-}
-
-async function loadLikeCounts(){
-  try {
-    const data = await cachedFetchJapanJSON('catalogoJaponLikes', {
-      ttl: 2 * 60 * 1000,
-      cacheId: 'catalogo-japon-likes-v1',
-      staleWhileRevalidate: true,
-      retries: 0,
-      timeoutMs: 8000,
-      fetchOptions: { cache: 'no-store' }
-    });
-    if (!data || data.ok === false) throw new Error(data?.error || 'likes_error');
-    likeCounts = new Map(Object.entries(data.likes || {}).map(([id, count]) => [String(id), Number(count) || 0]));
-  } catch (error) {
-    console.warn('No se pudieron cargar likes del catalogo Japon:', error);
-    likeCounts = new Map();
-  }
-}
-
-function ensureLikeCountsLoaded(){
-  if (likesLoaded || likesLoadPromise) return;
-  likesLoadPromise = loadLikeCounts()
-    .then(() => {
-      likesLoaded = true;
-      catalogo.forEach(item => updateLikeButtons(item.id_lote));
-    })
-    .finally(() => {
-      likesLoadPromise = null;
-    });
 }
 
 async function shareLote(id, url, button){
@@ -947,47 +859,6 @@ async function shareLote(id, url, button){
     if (error?.name !== 'AbortError') console.warn('No se pudo compartir el lote:', error);
   } finally {
     button?.classList.remove('is-loading');
-    if (button) button.disabled = false;
-  }
-}
-
-async function toggleLikeLote(id, button){
-  const loteId = String(id || '').trim();
-  if (!loteId) return;
-
-  const wasLiked = likedLots.has(loteId);
-  const nextLiked = !wasLiked;
-  const previousCount = likeCountFor(loteId);
-
-  if (button) button.disabled = true;
-
-  if (nextLiked) likedLots.add(loteId);
-  else likedLots.delete(loteId);
-  saveLikedLots();
-  setLikeCount(loteId, Math.max(0, previousCount + (nextLiked ? 1 : -1)));
-  updateLikeButtons(loteId);
-
-  try {
-    const route = nextLiked ? 'catalogo_japon_like' : 'catalogo_japon_unlike';
-    const data = await fetchJapanRoute(route, {
-      id_lote: loteId,
-      visitor_id: getVisitorId(),
-      user_agent: navigator.userAgent || ''
-    }, {
-      timeoutMs: 10000,
-      fetchOptions: { cache: 'no-store' }
-    });
-    if (!data || data.ok === false) throw new Error(data?.error || 'like_error');
-    setLikeCount(loteId, data.count);
-    updateLikeButtons(loteId);
-  } catch (error) {
-    if (wasLiked) likedLots.add(loteId);
-    else likedLots.delete(loteId);
-    saveLikedLots();
-    setLikeCount(loteId, previousCount);
-    updateLikeButtons(loteId);
-    alert('No se pudo actualizar tu me gusta. Intentalo otra vez.');
-  } finally {
     if (button) button.disabled = false;
   }
 }
@@ -1145,20 +1016,7 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
   grid?.setAttribute('aria-busy', 'true');
 
   try {
-    const prefetched = catalogPrefetchRequests.get(catalogPageRequestKey(requestedParams));
-    const data = prefetched
-      ? await waitForCatalogRequest(prefetched.promise, controller.signal)
-      : await cachedFetchJapanJSON('catalogoPreventasJaponPage', {
-          params: requestedParams,
-          ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
-          cacheId: 'catalogo-japon-page-v3',
-          staleWhileRevalidate: false,
-          retries: 0,
-          primaryTimeoutMs: CATALOG_PAGE_PRIMARY_TIMEOUT_MS,
-          fallbackTimeoutMs: CATALOG_PAGE_FALLBACK_TIMEOUT_MS,
-          signal: controller.signal,
-          abortUnderlying: true
-        });
+    const data = await fetchCatalogPage(requestedParams, controller.signal);
     if (requestId !== catalogRequestId || controller.signal.aborted) return null;
     const responseError = String(data?.error || '').trim().toLowerCase();
     const queryIndexPending = data?.ok === false && (
@@ -1193,7 +1051,6 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
     }
 
     render();
-    ensureLikeCountsLoaded();
     searchTracker.record(requestedParams.search);
     updateCatalogUrl(historyMode);
     if (historyMode === 'push') window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1294,12 +1151,6 @@ grid.addEventListener('click', event => {
   const shareButton = event.target.closest('.japan-share-button');
   if (shareButton) {
     shareLote(shareButton.dataset.shareId, shareButton.dataset.shareUrl, shareButton);
-    return;
-  }
-
-  const likeButton = event.target.closest('.japan-like-button');
-  if (likeButton) {
-    toggleLikeLote(likeButton.dataset.likeId, likeButton);
     return;
   }
 
