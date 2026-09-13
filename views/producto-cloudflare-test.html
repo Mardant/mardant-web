@@ -11,22 +11,16 @@
   <link rel="stylesheet" href="../css/producto.css?v=11">
 </head>
 <body>
-  <div style="position:sticky;top:0;z-index:99999;background:#111;color:#fff;padding:8px 12px;text-align:center;font:700 13px Arial,sans-serif;border-bottom:2px solid #f48120">🧪 TEST CLOUDFLARE D1 · DETALLE DE PRODUCTO · NO ES PRODUCCIÓN</div>
+  <div style="position:sticky;top:0;z-index:99999;background:#111;color:#fff;padding:8px 12px;text-align:center;font:700 13px Arial,sans-serif;border-bottom:2px solid #f48120">🧪 TEST CLOUDFLARE D1 · DETALLE DE PRODUCTO · BUILD 6 · NO ES PRODUCCIÓN</div>
 
   <div class="pdp-wrap">
-    <div class="pdp-top">
-      <a class="pdp-back" href="./catalogo-cloudflare-test.html">← Volver al catálogo TEST</a>
-    </div>
-
+    <div class="pdp-top"><a class="pdp-back" href="./catalogo-cloudflare-test.html">← Volver al catálogo TEST</a></div>
     <div id="pdp-error" class="pdp-error" style="display:none;"></div>
     <div id="pdp" class="pdp" style="display:none;">
       <div class="pdp-grid">
         <div class="pdp-media"><img id="pdp-img" class="pdp-img" alt=""></div>
         <div class="pdp-info">
-          <div class="pdp-badges">
-            <span id="pdp-estado" class="pdp-badge"></span>
-            <span id="pdp-id" class="pdp-badge pdp-badge-muted"></span>
-          </div>
+          <div class="pdp-badges"><span id="pdp-estado" class="pdp-badge"></span><span id="pdp-id" class="pdp-badge pdp-badge-muted"></span></div>
           <h1 id="pdp-nombre" class="pdp-title"></h1>
           <div id="pdp-precio" class="pdp-precio"></div>
           <div class="pdp-actions">
@@ -34,10 +28,7 @@
             <button id="pdp-copy" class="boton pdp-btn-sec">🔗 Copiar link</button>
             <a id="pdp-wa" class="boton pdp-btn-wa" href="#" target="_blank" rel="noopener noreferrer">💬 Pedir por WhatsApp</a>
           </div>
-          <div class="pdp-meta">
-            <div><strong>Categoría:</strong> <span id="pdp-cat">-</span></div>
-            <div><strong>Subcategoría:</strong> <span id="pdp-sub">-</span></div>
-          </div>
+          <div class="pdp-meta"><div><strong>Categoría:</strong> <span id="pdp-cat">-</span></div><div><strong>Subcategoría:</strong> <span id="pdp-sub">-</span></div></div>
         </div>
       </div>
     </div>
@@ -46,6 +37,33 @@
   <a class="boton-carrito-flotante" href="./carrito.html" aria-label="Ir al carrito">🛒 <span id="contador-carrito" class="contador-carrito"></span></a>
   <div id="mini-carrito" class="mini-carrito"></div>
 
-  <script type="module" src="../js/producto-cloudflare-test.js?v=4"></script>
+  <script type="module" src="../js/producto-cloudflare-test.js?v=6"></script>
+  <script>
+    document.addEventListener('click', function (e) {
+      const btn = e.target.closest && e.target.closest('#pdp-add');
+      if (!btn) return;
+      let before = 0;
+      try { before = JSON.parse(localStorage.getItem('carritoMardant') || '[]').length; } catch (_) {}
+      setTimeout(function () {
+        let cart = [];
+        try { cart = JSON.parse(localStorage.getItem('carritoMardant') || '[]'); } catch (_) {}
+        if (!Array.isArray(cart)) cart = [];
+        if (cart.length > before) return;
+        const nombre = (document.getElementById('pdp-nombre')?.textContent || '').trim();
+        const id = (document.getElementById('pdp-id')?.textContent || '').replace(/^ID:\s*/i, '').trim();
+        const imagen = document.getElementById('pdp-img')?.src || '';
+        const nums = (document.getElementById('pdp-precio')?.textContent || '').match(/\d+(?:\.\d{1,2})?/g) || [];
+        const precio = Number(nums[nums.length - 1] || 0);
+        if (!nombre || !id || !Number.isFinite(precio)) return;
+        cart.push({ id, nombre, precio, imagen });
+        localStorage.setItem('carritoMardant', JSON.stringify(cart));
+        const contador = document.getElementById('contador-carrito');
+        if (contador) { contador.textContent = String(cart.length); contador.style.display = 'inline-block'; }
+        const n = document.createElement('div');
+        n.className = 'notificacion-flotante'; n.textContent = '✅ Producto añadido al carrito TEST'; n.style.backgroundColor = '#4CAF50';
+        document.body.appendChild(n); setTimeout(() => n.remove(), 2200);
+      }, 80);
+    }, true);
+  </script>
 </body>
 </html>
