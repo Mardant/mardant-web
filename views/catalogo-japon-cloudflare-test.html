@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow">
+  <title>[TEST] Catálogo Japón Mardant · Cloudflare D1</title>
+  <meta name="description" content="Prueba aislada del Catálogo Japón de Mardant usando Cloudflare Worker y D1.">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/estilos.css?v=19">
+  <link rel="stylesheet" href="../css/catalogo-japon.css?v=12">
+</head>
+<body>
+  <div style="position:sticky;top:0;z-index:99999;background:#111;color:#fff;padding:8px 12px;text-align:center;font:700 13px Arial,sans-serif;border-bottom:2px solid #f48120">
+    🧪 TEST CLOUDFLARE D1 · 30,000 productos · NO ES PRODUCCIÓN
+  </div>
+
+  <h1 class="sr-only">Catálogo de productos en Japón Mardant — prueba Cloudflare D1</h1>
+
+  <img
+    class="japan-banner-img"
+    src="https://i.imgur.com/K7nyK2A.png"
+    alt="Catálogo de productos en Japón"
+    referrerpolicy="no-referrer"
+  />
+
+  <div class="contacto-centro japan-title-block">
+    <h2 class="titulo-seccion">Catálogo de Productos en Japón</h2>
+  </div>
+
+  <div class="cta-japan">
+    <a href="./catalogo-japon.html" class="btn-pill">↩️ <span>Volver al catálogo real</span></a>
+    <a href="./preventa.html" class="btn-pill alt">📦 <span>Ver preventas</span></a>
+    <a href="./pedidos.html" class="btn-pill japan"><span>取寄</span><span>A pedido</span></a>
+  </div>
+
+  <main class="japan-page">
+    <section class="japan-filter-panel" aria-label="Filtros del catalogo Japon">
+      <form id="catalogoJaponFilters" class="japan-filters">
+        <label class="japan-search-field">
+          <span>Buscar</span>
+          <input id="catalogoJaponSearch" type="search" autocomplete="off" placeholder="Pokemon, Pikachu, figura...">
+        </label>
+        <label>
+          <span>Anime</span>
+          <select id="catalogoJaponAnime">
+            <option value="">Todos</option>
+          </select>
+        </label>
+        <label>
+          <span>Disponibilidad</span>
+          <select id="catalogoJaponAvailability">
+            <option value="">Todos</option>
+            <option value="disponible">Disponible</option>
+            <option value="preventa">Preventa</option>
+            <option value="rank">Rank</option>
+          </select>
+        </label>
+        <label>
+          <span>Ordenar</span>
+          <select id="catalogoJaponSort">
+            <option value="newest">&Uacute;ltimos a&ntilde;adidos</option>
+            <option value="price_asc">Precio: menor a mayor</option>
+            <option value="price_desc">Precio: mayor a menor</option>
+          </select>
+        </label>
+        <label>
+          <span>Precio m&iacute;nimo</span>
+          <input id="catalogoJaponMin" type="number" min="0" step="1" inputmode="numeric" placeholder="1">
+        </label>
+        <label>
+          <span>Precio m&aacute;ximo</span>
+          <input id="catalogoJaponMax" type="number" min="0" step="1" inputmode="numeric" placeholder="100">
+        </label>
+        <div class="japan-filter-actions">
+          <button class="japan-filter-apply" type="submit">Aplicar</button>
+          <button class="japan-filter-clear" id="catalogoJaponClear" type="button">Limpiar</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="catalogoJaponFeedback" class="japan-feedback" aria-live="polite" hidden>
+      <strong id="catalogoJaponEstado">Cargando catálogo...</strong>
+      <span id="catalogoJaponFecha"></span>
+    </section>
+
+    <section id="catalogoJaponGrid" class="japan-grid" aria-live="polite"></section>
+    <nav id="catalogoJaponPagination" class="japan-pagination" aria-label="Paginación del catálogo Japón"></nav>
+  </main>
+
+  <footer class="japan-footer">
+    © 2026 Mardant Perú · PRUEBA CLOUDFLARE D1
+  </footer>
+
+  <div id="catalogoJaponModal" class="japan-modal" aria-hidden="true">
+    <div class="japan-modal-panel" role="dialog" aria-modal="true" aria-label="Vista del producto">
+      <div class="japan-modal-head">
+        <strong id="catalogoJaponModalTitle">Lote</strong>
+        <button id="catalogoJaponClose" type="button" aria-label="Cerrar">Cerrar</button>
+      </div>
+      <div class="japan-modal-stage">
+        <img id="catalogoJaponModalImage" alt="">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Prueba aislada: el frontend normal sigue intacto. Solo redirigimos la
+    // consulta paginada del Catálogo Japón al Worker de prueba.
+    (() => {
+      const nativeFetch = window.fetch.bind(window);
+      const testApi = 'https://mardant-japon-test.gamesmardant.workers.dev/';
+
+      window.fetch = (input, init) => {
+        const raw = typeof input === 'string' ? input : input?.url;
+
+        try {
+          const source = new URL(raw, location.href);
+          const accion = source.searchParams.get('accion');
+          const route = source.searchParams.get('route');
+
+          if (accion === 'catalogoPreventasJaponPage') {
+            const target = new URL(testApi);
+            source.searchParams.forEach((value, key) => target.searchParams.set(key, value));
+            return nativeFetch(target.toString(), init);
+          }
+
+          // Evita contaminar el tracking real mientras hacemos la prueba.
+          if (route === 'registrar_busqueda_catalogo') {
+            return Promise.resolve(new Response(JSON.stringify({ ok:true, test:true }), {
+              status: 200,
+              headers: { 'Content-Type':'application/json' }
+            }));
+          }
+        } catch (_) {}
+
+        return nativeFetch(input, init);
+      };
+    })();
+  </script>
+
+  <script type="module" src="../js/catalogo-japon.js?v=32"></script>
+</body>
+</html>
