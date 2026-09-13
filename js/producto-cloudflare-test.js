@@ -50,40 +50,39 @@ function notify(message) {
   }, 2200);
 }
 
-function installTestCartHandler() {
-  const button = document.getElementById('pdp-add');
+function addVisibleProductToCart() {
   const nameEl = document.getElementById('pdp-nombre');
   const imgEl = document.getElementById('pdp-img');
   const idEl = document.getElementById('pdp-id');
   const priceEl = document.getElementById('pdp-precio');
 
-  if (!button || !nameEl || !imgEl || !idEl || !priceEl) return false;
-  if (document.getElementById('pdp')?.style.display === 'none') return false;
+  const id = String(idEl?.textContent || '').replace(/^ID:\s*/i, '').trim();
+  const nombre = String(nameEl?.textContent || '').trim();
+  const imagen = String(imgEl?.src || '').trim();
+  const priceMatches = String(priceEl?.textContent || '').match(/\d+(?:\.\d{1,2})?/g) || [];
+  const precio = Number(priceMatches.at(-1) || 0);
 
-  // Sustituimos el onclick instalado por producto.js SOLO en la pagina TEST.
-  button.onclick = () => {
-    const cart = readCart();
-    const id = String(idEl.textContent || '').replace(/^ID:\s*/i, '').trim();
-    const name = String(nameEl.textContent || '').trim();
-    const image = String(imgEl.src || '').trim();
+  if (!nombre || !id || !Number.isFinite(precio)) {
+    notify('⚠️ Aún no termina de cargar el producto');
+    return;
+  }
 
-    const priceMatches = String(priceEl.textContent || '').match(/\d+(?:\.\d{1,2})?/g) || [];
-    const price = Number(priceMatches.at(-1) || 0);
-
-    cart.push({ id, nombre: name, precio: price, imagen: image });
-    localStorage.setItem(CART_KEY, JSON.stringify(cart));
-    updateCounter();
-    notify('✅ Producto añadido al carrito TEST');
-  };
-
+  const cart = readCart();
+  cart.push({ id, nombre, precio, imagen });
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
   updateCounter();
-  return true;
+  notify('✅ Producto añadido al carrito TEST');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  let attempts = 0;
-  const timer = setInterval(() => {
-    attempts += 1;
-    if (installTestCartHandler() || attempts > 50) clearInterval(timer);
-  }, 100);
-});
+// Interceptamos ANTES que el onclick de producto.js.
+document.addEventListener('click', (event) => {
+  const button = event.target.closest?.('#pdp-add');
+  if (!button) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+  event.stopImmediatePropagation();
+  addVisibleProductToCart();
+}, true);
+
+document.addEventListener('DOMContentLoaded', updateCounter);
