@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow">
+  <title>[TEST] Preventas Mardant · Cloudflare D1</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/estilos.css?v=18" />
+  <style>
+    html, body { overflow-x: hidden; }
+    :root{ --card-max-mobile:380px; --pill-radius:9999px; }
+    .test-bar{position:sticky;top:0;z-index:99999;background:#111;color:#fff;padding:8px 12px;text-align:center;font:700 13px Arial,sans-serif;border-bottom:2px solid #f48120}
+    .btn-pill{display:inline-flex;align-items:center;gap:10px;color:#fff;font-weight:800;line-height:1;padding:14px 22px;border-radius:var(--pill-radius);text-decoration:none;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0)),#a8322a;box-shadow:0 10px 24px rgba(168,50,42,.22)}
+    .btn-pill.alt{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0)),#171411}
+    .btn-pill.japan{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0)),#6f2b26;border:1px solid rgba(244,208,111,.28)}
+    .titulo-seccion{color:#171411}.titulo-seccion::after{background:#a8322a}
+    .cta-preventa{display:flex;justify-content:center;flex-wrap:wrap;gap:14px;margin:12px auto 30px;padding:0 12px;background:none!important;box-shadow:none!important;border:0!important}
+    .grid-preventa{display:grid;grid-template-columns:repeat(3,minmax(260px,1fr));gap:28px;max-width:1200px;margin:0 auto 60px;padding:0 16px;box-sizing:border-box}
+    .grid-preventa .producto{width:100%;padding-bottom:22px}
+    .grid-preventa .producto img{display:block!important;width:100%!important;max-width:100%!important;height:auto!important;object-fit:contain!important;border-radius:10px;cursor:zoom-in}
+    .grid-preventa .producto a.boton{background:linear-gradient(180deg,#b13a31,#8f2722);border:1px solid rgba(244,208,111,.30);border-radius:8px;color:#fff;font-weight:900;letter-spacing:.04em;box-shadow:0 8px 18px rgba(0,0,0,.22)}
+    .grid-preventa .producto .estado{color:#d7c8ae;font-weight:900}
+    @media(max-width:1100px){.grid-preventa{grid-template-columns:repeat(2,minmax(260px,1fr))}}
+    @media(max-width:720px){.grid-preventa{grid-template-columns:1fr;gap:18px}.grid-preventa .producto{max-width:var(--card-max-mobile);margin:0 auto;padding-bottom:26px}}
+    .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:10000;padding:16px}
+    .lightbox[hidden]{display:none!important}.lightbox img{max-width:94vw;max-height:88vh;border-radius:12px}.lb-close{position:absolute;top:10px;right:14px;background:transparent;border:none;color:#fff;font-size:36px;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="test-bar">🧪 TEST CLOUDFLARE D1 · PREVENTAS CORE · 27 registros · NO ES PRODUCCIÓN</div>
+  <h1 class="sr-only">Preventas Mardant Cloudflare D1</h1>
+
+  <img src="https://i.imgur.com/ZMGeepN.png" alt="Preventa Mardant" style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #a8322a;" referrerpolicy="no-referrer" />
+
+  <div class="contacto-centro"><h2 class="titulo-seccion">Productos en Preventa</h2></div>
+
+  <div class="cta-preventa">
+    <a href="./preventa.html" class="btn-pill">↩️ <span>Volver a preventas reales</span></a>
+    <a href="./catalogo-cloudflare-test.html" class="btn-pill alt">🛍️ <span>Catálogo TEST</span></a>
+    <a href="./catalogo-japon-cloudflare-test.html" class="btn-pill japan"><span>日本</span><span>Japón TEST</span></a>
+  </div>
+
+  <div id="contenedor" class="grid-preventa"><p style="text-align:center;width:100%;">Cargando preventas desde Cloudflare D1…</p></div>
+  <div id="paginacion" class="paginacion catalog-pagination" aria-label="Paginas de preventas"></div>
+
+  <a href="carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒" data-vista="carrito">🛒</a>
+
+  <div id="lb" class="lightbox" hidden><img alt="Vista ampliada"><button class="lb-close" aria-label="Cerrar">×</button></div>
+
+  <script type="module" src="../js/preventa-cloudflare-test.js?v=1"></script>
+
+  <script>
+    (() => {
+      const cont=document.getElementById('contenedor');const lb=document.getElementById('lb');const img=lb.querySelector('img');
+      cont.addEventListener('click',e=>{const el=e.target;if(el&&el.tagName==='IMG'){img.src=el.src;lb.hidden=false;document.body.style.overflow='hidden';}});
+      const close=()=>{lb.hidden=true;img.src='';document.body.style.overflow='';};
+      lb.addEventListener('click',close);lb.querySelector('.lb-close').addEventListener('click',ev=>{ev.stopPropagation();close();});
+      document.addEventListener('keydown',ev=>{if(!lb.hidden&&ev.key==='Escape')close();});
+    })();
+  </script>
+</body>
+</html>
