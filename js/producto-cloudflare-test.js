@@ -1,88 +1,113 @@
-// Prueba aislada de detalle de producto usando Cloudflare Worker + D1.
-// Produccion sigue usando producto.js directamente.
+import { whatsappLink } from './config.js?v=5';
+import { agregarAlCarrito, actualizarCarritoUI, actualizarContador, notificar } from './carrito-utils.js?v=2';
 
-import './producto.js?v=7';
-
-const nativeFetch = window.fetch.bind(window);
 const CORE_TEST_API = 'https://mardant-core-test.gamesmardant.workers.dev/';
-const CART_KEY = 'carritoMardant';
+const $ = (s) => document.querySelector(s);
 
-window.fetch = (input, init) => {
-  const raw = typeof input === 'string' ? input : input?.url;
+function showError(html){
+  const box = $('#pdp-error');
+  box.innerHTML = `⚠️ ${html}`;
+  box.style.display = 'block';
+  $('#pdp').style.display = 'none';
+}
+
+function updateCounterNow(){
+  actualizarCarritoUI();
+  actualizarContador();
+}
+
+async function loadProducto(){
+  const id = new URLSearchParams(location.search).get('id');
+  if (!id) return showError('Falta el parámetro <b>id</b> en el link del producto.');
+
   try {
-    const source = new URL(raw, location.href);
-    const accion = source.searchParams.get('accion');
-    if (accion === 'producto') {
-      const target = new URL(CORE_TEST_API);
-      source.searchParams.forEach((value, key) => target.searchParams.set(key, value));
-      return nativeFetch(target.toString(), init);
+    const url = new URL(CORE_TEST_API);
+    url.searchParams.set('accion', 'producto');
+    url.searchParams.set('id', id);
+
+    const res = await fetch(url.toString(), { cache:'no-store' });
+    const data = await res.json();
+    if (!res.ok || !data?.ok || !data?.producto) throw new Error(data?.error || 'not_found');
+
+    renderProducto(data.producto);
+  } catch (err) {
+    console.error(err);
+    showError('No se pudo cargar el producto desde Cloudflare D1.');
+  }
+}
+
+function renderProducto(p){
+  $('#pdp-error').style.display = 'none';
+  $('#pdp').style.display = 'block';
+
+  const nombre = String(p.nombre || '').trim();
+  const img = String(p.imagen || '').trim();
+  const id = String(p.id ?? '').trim();
+  const precioNum = Number(p.precio_num ?? p.precio ?? 0);
+  const ofertaNum = Number(p.oferta_num ?? p.oferta ?? NaN);
+  const tieneOferta = Number.isFinite(ofertaNum) && ofertaNum > 0 && ofertaNum < precioNum;
+  const rawEstado = String(p.estado || '').toUpperCase();
+  const estaAgotado = rawEstado.includes('SIN STOCK') || rawEstado.includes('AGOTADO');
+  const precioFinal = !estaAgotado && tieneOferta ? ofertaNum : precioNum;
+
+  $('#pdp-nombre').textContent = nombre || 'Producto';
+  $('#pdp-id').textContent = id ? `ID: ${id}` : '';
+  $('#pdp-cat').textContent = p.categoria || '-';
+  $('#pdp-sub').textContent = p.subcategoria || '-';
+  $('#pdp-estado').textContent = estaAgotado ? 'AGOTADO' : (tieneOferta ? 'OFERTA' : 'DISPONIBLE');
+
+  const imgEl = $('#pdp-img');
+  imgEl.src = img || 'https://via.placeholder.com/900x900?text=Sin+imagen';
+  imgEl.alt = nombre;
+  imgEl.referrerPolicy = 'no-referrer';
+
+  const precioEl = $('#pdp-precio');
+  if (!estaAgotado && tieneOferta) {
+    precioEl.innerHTML = `<span class="pdp-old">S/. ${precioNum.toFixed(2)}</span> <span class="pdp-new">S/. ${precioFinal.toFixed(2)}</span>`;
+  } else {
+    precioEl.textContent = `S/. ${precioFinal.toFixed(2)}`;
+  }
+
+  const addBtn = $('#pdp-add');
+  addBtn.hidden = estaAgotado;
+  addBtn.disabled = estaAgotado;
+  addBtn.addEventListener('click', () => {
+    agregarAlCarrito({
+      id,
+      nombre,
+      precio: precioFinal,
+      oferta: null,
+      imagen: img
+    });
+    updateCounterNow();
+  });
+
+  const copyBtn = $('#pdp-copy');
+  copyBtn.hidden = estaAgotado;
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(location.href);
+      notificar('🔗 Link copiado', 'success');
+    } catch (_) {
+      notificar('No se pudo copiar el link.', 'warning');
     }
-  } catch (_) {}
-  return nativeFetch(input, init);
-};
+  });
 
-function readCart() {
-  try {
-    const value = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
-    return Array.isArray(value) ? value : [];
-  } catch (_) {
-    return [];
-  }
+  const waBtn = $('#pdp-wa');
+  const msg = [
+    estaAgotado ? 'Hola, quiero cotizar este producto agotado:' : '¡Hola! Quiero este producto:',
+    `• ${nombre}`,
+    id ? `• ID: ${id}` : null,
+    `• Precio: S/. ${precioFinal.toFixed(2)}`,
+    `• Link: ${location.href}`
+  ].filter(Boolean).join('\n');
+  waBtn.href = whatsappLink(msg);
+  waBtn.textContent = estaAgotado ? 'Cotizar producto agotado' : 'Pedir por WhatsApp';
+
+  updateCounterNow();
 }
 
-function updateCounter() {
-  const counter = document.getElementById('contador-carrito');
-  if (!counter) return;
-  const qty = readCart().length;
-  counter.textContent = String(qty);
-  counter.style.display = qty ? 'inline-block' : 'none';
-}
-
-function notify(message) {
-  const el = document.createElement('div');
-  el.className = 'notificacion-flotante';
-  el.textContent = message;
-  el.style.backgroundColor = '#4CAF50';
-  document.body.appendChild(el);
-  setTimeout(() => {
-    el.style.opacity = '0';
-    setTimeout(() => el.remove(), 300);
-  }, 2200);
-}
-
-function addVisibleProductToCart() {
-  const nameEl = document.getElementById('pdp-nombre');
-  const imgEl = document.getElementById('pdp-img');
-  const idEl = document.getElementById('pdp-id');
-  const priceEl = document.getElementById('pdp-precio');
-
-  const id = String(idEl?.textContent || '').replace(/^ID:\s*/i, '').trim();
-  const nombre = String(nameEl?.textContent || '').trim();
-  const imagen = String(imgEl?.src || '').trim();
-  const priceMatches = String(priceEl?.textContent || '').match(/\d+(?:\.\d{1,2})?/g) || [];
-  const precio = Number(priceMatches.at(-1) || 0);
-
-  if (!nombre || !id || !Number.isFinite(precio)) {
-    notify('⚠️ Aún no termina de cargar el producto');
-    return;
-  }
-
-  const cart = readCart();
-  cart.push({ id, nombre, precio, imagen });
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
-  updateCounter();
-  notify('✅ Producto añadido al carrito TEST');
-}
-
-// Interceptamos ANTES que el onclick de producto.js.
-document.addEventListener('click', (event) => {
-  const button = event.target.closest?.('#pdp-add');
-  if (!button) return;
-
-  event.preventDefault();
-  event.stopPropagation();
-  event.stopImmediatePropagation();
-  addVisibleProductToCart();
-}, true);
-
-document.addEventListener('DOMContentLoaded', updateCounter);
+document.addEventListener('DOMContentLoaded', () => {
+  updateCounterNow();
+  loadProducto();
+});
