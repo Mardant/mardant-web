@@ -1,43 +1,94 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="robots" content="noindex,nofollow">
   <title>[TEST] Catálogo Mardant · Cloudflare D1</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/estilos.css?v=19" />
+  <link rel="stylesheet" href="../css/catalogo.css?v=12" />
+  <style>
+    html,body{overflow-x:hidden}
+    .page-wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+    .test-bar{position:sticky;top:0;z-index:99999;background:#111;color:#fff;padding:8px 12px;text-align:center;font:700 13px Arial,sans-serif;border-bottom:2px solid #f48120}
+    .cta-catalogo{display:flex;justify-content:center;flex-wrap:wrap;gap:14px;margin:12px auto 16px;padding:0;background:none!important;box-shadow:none!important;border:0!important}
+    .btn-pill{display:inline-flex;align-items:center;gap:10px;color:#fff;font-weight:800;line-height:1;padding:14px 22px;border-radius:9999px;text-decoration:none;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0)),#a8322a;box-shadow:0 10px 24px rgba(168,50,42,.22)}
+    .btn-pill.alt{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0)),#171411}
+    .btn-pill.japan{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0)),#6f2b26;border:1px solid rgba(244,208,111,.28)}
+    #buscador{margin:6px auto 0}
+    #contenedor img{cursor:zoom-in}
+    .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:10000;padding:16px}
+    .lightbox[hidden]{display:none!important}.lightbox img{max-width:94vw;max-height:88vh;border-radius:12px}.lb-close{position:absolute;top:10px;right:14px;background:transparent;border:none;color:#fff;font-size:36px;cursor:pointer}
+    @media(max-width:680px){.page-wrap{padding:0 14px}}
+  </style>
 </head>
 <body>
-  <p style="font-family:Arial,sans-serif;padding:20px">Cargando catálogo de prueba...</p>
+  <div class="test-bar">🧪 TEST CLOUDFLARE D1 · CATÁLOGO CORE · 1,358 productos · NO ES PRODUCCIÓN</div>
+  <h1 class="sr-only">Catálogo Mardant Cloudflare D1</h1>
+
+  <img src="https://i.imgur.com/K7nyK2A.png" alt="Catálogo Mardant" style="width:100%;max-height:200px;object-fit:cover;border-bottom:3px solid #a8322a" referrerpolicy="no-referrer" />
+
+  <div class="page-wrap">
+    <div class="cta-catalogo">
+      <a href="./catalogo.html" class="btn-pill">↩️ <span>Volver al catálogo real</span></a>
+      <a href="./preventa.html" class="btn-pill alt">📦 <span>Ver preventas</span></a>
+      <a href="./catalogo-japon-cloudflare-test.html" class="btn-pill japan"><span>日本</span><span>Japón TEST</span></a>
+    </div>
+
+    <input id="buscador" type="text" placeholder="Buscar producto…" autocomplete="off" />
+
+    <div class="filtros" id="filtros">
+      <div id="filtro-categorias" class="grupo-filtro">
+        <button type="button" class="categoria-imagen" data-categoria=""><img src="https://i.imgur.com/gy6LkfG.png" alt="Todos" height="60" referrerpolicy="no-referrer"></button>
+        <button type="button" class="categoria-imagen" data-categoria="POKEMON"><img src="https://i.imgur.com/z7fPTus.png" alt="Pokemon" height="60" referrerpolicy="no-referrer"></button>
+        <button type="button" class="categoria-imagen" data-categoria="MY HERO ACADEMIA"><img src="https://i.imgur.com/PB85qrv.png" alt="My Hero Academia" height="60" referrerpolicy="no-referrer"></button>
+        <button type="button" class="categoria-imagen" data-categoria="DRAGON BALL"><img src="https://i.imgur.com/UUtpYIJ.png" alt="Dragon Ball" height="60" referrerpolicy="no-referrer"></button>
+        <button type="button" class="categoria-imagen" data-categoria="JUJUTSU KAISEN"><img src="https://i.imgur.com/WklTLco.png" alt="Jujutsu Kaisen" height="60" referrerpolicy="no-referrer"></button>
+        <button type="button" class="categoria-imagen" data-categoria="DEMON SLAYER"><img src="https://i.imgur.com/4teP5Jy.png" alt="Demon Slayer" height="60" referrerpolicy="no-referrer"></button>
+        <button type="button" class="categoria-imagen" data-categoria="SAILOR MOON"><img src="https://i.imgur.com/BbxtzzD.png" alt="Sailor Moon" height="60" referrerpolicy="no-referrer"></button>
+        <button type="button" class="categoria-imagen" data-categoria="NARUTO"><img src="https://i.imgur.com/UXZCDIm.png" alt="Naruto" height="60" referrerpolicy="no-referrer"></button>
+        <button type="button" class="categoria-imagen" data-categoria="ONE PIECE"><img src="https://i.imgur.com/phbUt2h.png" alt="One Piece" height="60" referrerpolicy="no-referrer"></button>
+        <button type="button" class="categoria-imagen" data-categoria="HATSUNE MIKU"><img src="https://i.imgur.com/TVdbddi.png" alt="Hatsune Miku" height="60" referrerpolicy="no-referrer"></button>
+        <button type="button" class="categoria-imagen" data-categoria="GUNDAM"><img src="https://i.imgur.com/eV0ZYQm.png" alt="Gundam" height="60" referrerpolicy="no-referrer"></button>
+        <button type="button" class="categoria-imagen" data-categoria="SPY X FAMILY"><img src="https://i.imgur.com/QLyUTVz.png" alt="Spy x Family" height="60" referrerpolicy="no-referrer"></button>
+        <button type="button" class="categoria-imagen" data-categoria="DANDADAN"><img src="https://i.imgur.com/ByVPUre.png" alt="Dandadan" height="60" referrerpolicy="no-referrer"></button>
+        <button type="button" class="categoria-imagen" data-categoria="EVANGELION"><img src="https://i.imgur.com/q1UpVyT.png" alt="Evangelion" height="60" referrerpolicy="no-referrer"></button>
+        <button type="button" class="categoria-imagen" data-categoria="FRIEREN"><img src="https://i.imgur.com/3FSm0jI.png" alt="Frieren" height="60" referrerpolicy="no-referrer"></button>
+      </div>
+    </div>
+
+    <div id="subfiltro-contenedor"></div>
+
+    <div class="orden">
+      <label class="catalog-filter-field" for="orden"><span>Ordenar</span><select id="orden"><option value="recientes">Lo más nuevo</option><option value="default">Por defecto</option><option value="oferta">Sólo ofertas</option><option value="precio-asc">Precio menor a mayor</option><option value="precio-desc">Precio mayor a menor</option><option value="nombre-az">Nombre A-Z</option><option value="nombre-za">Nombre Z-A</option></select></label>
+      <label class="catalog-filter-field" for="estado"><span>Disponibilidad</span><select id="estado"><option value="todos">Todos</option><option value="disponible">Sólo disponibles</option><option value="agotado">Sólo agotados</option></select></label>
+      <label class="catalog-filter-field" for="precio-min"><span>Precio mín.</span><input id="precio-min" class="precio-filter-input" type="number" min="0" step="1" inputmode="numeric" placeholder="1"></label>
+      <label class="catalog-filter-field" for="precio-max"><span>Precio máx.</span><input id="precio-max" class="precio-filter-input" type="number" min="0" step="1" inputmode="numeric" placeholder="100"></label>
+      <button id="limpiar-precio" class="precio-filter-clear" type="button">Limpiar precio</button>
+    </div>
+
+    <div id="contenedor" class="grid"><p>Cargando productos desde Cloudflare D1…</p></div>
+    <div id="paginacion" class="catalog-pagination" aria-label="Paginas del catalogo"></div>
+
+    <div class="carrito-contenedor">
+      <a href="./carrito.html" class="boton-carrito-flotante" title="Ver carrito 🛒">🛒<span id="contador-carrito" class="contador-carrito">0</span></a>
+      <div id="mini-carrito" class="mini-carrito"></div>
+    </div>
+    <div id="notificacion-carrito" class="noti-carrito">✅ Producto añadido al carrito</div>
+  </div>
+
+  <div id="lb" class="lightbox" hidden><img alt="Vista ampliada"><button class="lb-close" aria-label="Cerrar">×</button></div>
+
+  <script type="module" src="../js/catalogo-cloudflare-test.js?v=3"></script>
 
   <script>
-    (async () => {
-      try {
-        const response = await fetch('./catalogo.html?cf-test-shell=' + Date.now(), { cache:'no-store' });
-        if (!response.ok) throw new Error('No se pudo cargar catalogo.html');
-
-        let html = await response.text();
-
-        html = html.replace(
-          /<script\s+type=["']module["']\s+src=["']\.\.\/js\/catalogo\.js\?v=16["']><\/script>/i,
-          '<script type="module" src="../js/catalogo-cloudflare-test.js?v=1"><\/script>'
-        );
-
-        html = html.replace(
-          /<head>/i,
-          '<head>\n<meta name="robots" content="noindex,nofollow">\n<title>[TEST] Catálogo Mardant · Cloudflare D1</title>'
-        );
-
-        html = html.replace(
-          /<body([^>]*)>/i,
-          `<body$1>\n<div style="position:sticky;top:0;z-index:99999;background:#111;color:#fff;padding:8px 12px;text-align:center;font:700 13px Arial,sans-serif;border-bottom:2px solid #f48120">🧪 TEST CLOUDFLARE D1 · CATÁLOGO CORE · 1,358 productos · NO ES PRODUCCIÓN</div>`
-        );
-
-        document.open();
-        document.write(html);
-        document.close();
-      } catch (error) {
-        document.body.innerHTML = `<pre style="padding:20px;font-family:monospace">Error cargando la prueba: ${String(error?.message || error)}</pre>`;
-      }
+    (() => {
+      const cont=document.getElementById('contenedor');const lb=document.getElementById('lb');const img=lb.querySelector('img');
+      cont.addEventListener('click',e=>{const el=e.target;if(el&&el.tagName==='IMG'){img.src=el.src;lb.hidden=false;document.body.style.overflow='hidden';}});
+      const close=()=>{lb.hidden=true;img.src='';document.body.style.overflow='';};
+      lb.addEventListener('click',close);lb.querySelector('.lb-close').addEventListener('click',ev=>{ev.stopPropagation();close();});
+      document.addEventListener('keydown',ev=>{if(!lb.hidden&&ev.key==='Escape')close();});
     })();
   </script>
 </body>
