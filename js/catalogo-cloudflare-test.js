@@ -1,6 +1,11 @@
 // Prueba aislada del catálogo normal usando Cloudflare Worker + D1.
 // No modifica producción: solo se carga desde catalogo-cloudflare-test.html.
 
+// IMPORTANTE: import estático. catalogo.js registra DOMContentLoaded antes de que
+// el navegador lo dispare. Las peticiones reales ocurren después, cuando ya
+// habremos sustituido window.fetch en el cuerpo de este módulo.
+import './catalogo.js?v=16';
+
 const nativeFetch = window.fetch.bind(window);
 const CORE_TEST_API = 'https://mardant-core-test.gamesmardant.workers.dev/';
 
@@ -29,7 +34,3 @@ window.fetch = (input, init) => {
 
   return nativeFetch(input, init);
 };
-
-// Esta página test es HTML estático normal, así que catalogo.js puede registrar
-// DOMContentLoaded antes de que el navegador lo dispare.
-await import('./catalogo.js?v=16');
