@@ -18,10 +18,6 @@ const CORE_ACTIONS = new Set([
   'pedidosDisponibles'
 ]);
 
-const JAPAN_ACTIONS = new Set([
-  'catalogoPreventasJaponPage'
-]);
-
 window.fetch = (input, init) => {
   const raw = typeof input === 'string' ? input : input?.url;
 
@@ -36,9 +32,23 @@ window.fetch = (input, init) => {
       return nativeFetch(target.toString(), init);
     }
 
-    if (JAPAN_ACTIONS.has(accion)) {
+    // Catálogo Japón normal.
+    if (accion === 'catalogoPreventasJaponPage') {
       const target = new URL(JAPAN_TEST_API);
       source.searchParams.forEach((value, key) => target.searchParams.set(key, value));
+      return nativeFetch(target.toString(), init);
+    }
+
+    // La portada usa un endpoint propio llamado catalogoJaponHome.
+    // En D1 reutilizamos el endpoint paginado ya validado y devolvemos
+    // un lote suficiente de productos recientes para que la Home elija 3.
+    if (accion === 'catalogoJaponHome') {
+      const target = new URL(JAPAN_TEST_API);
+      source.searchParams.forEach((value, key) => target.searchParams.set(key, value));
+      target.searchParams.set('accion', 'catalogoPreventasJaponPage');
+      if (!target.searchParams.has('page')) target.searchParams.set('page', '1');
+      if (!target.searchParams.has('page_size')) target.searchParams.set('page_size', '60');
+      target.searchParams.set('include_meta', '0');
       return nativeFetch(target.toString(), init);
     }
 
