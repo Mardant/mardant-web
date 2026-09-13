@@ -30,14 +30,6 @@ window.fetch = (input, init) => {
   return nativeFetch(input, init);
 };
 
-// catalogo-cloudflare-test.html reconstruye catalogo.html después de una carga async.
-// Para ese momento DOMContentLoaded puede haber ocurrido ya; catalogo.js registra su
-// inicialización en ese evento, por lo que hay que dispararlo manualmente si ya pasó.
-const domAlreadyReady = document.readyState !== 'loading';
+// Esta página test es HTML estático normal, así que catalogo.js puede registrar
+// DOMContentLoaded antes de que el navegador lo dispare.
 await import('./catalogo.js?v=16');
-
-if (domAlreadyReady || document.readyState !== 'loading') {
-  queueMicrotask(() => {
-    document.dispatchEvent(new Event('DOMContentLoaded'));
-  });
-}
