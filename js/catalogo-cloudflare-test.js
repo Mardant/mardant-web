@@ -21,12 +21,11 @@ window.fetch = (input, init) => {
       return nativeFetch(target.toString(), init);
     }
 
-    // No contaminar estadísticas reales durante las pruebas.
+    // Las búsquedas TEST se registran en Cloudflare D1, nunca en Apps Script.
     if (route === 'registrar_busqueda_catalogo') {
-      return Promise.resolve(new Response(JSON.stringify({ ok:true, test:true }), {
-        status: 200,
-        headers: { 'Content-Type':'application/json; charset=utf-8' }
-      }));
+      const target = new URL(CORE_TEST_API);
+      source.searchParams.forEach((value, key) => target.searchParams.set(key, value));
+      return nativeFetch(target.toString(), init);
     }
   } catch (_) {}
 
