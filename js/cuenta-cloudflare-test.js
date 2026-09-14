@@ -9,7 +9,6 @@ const ACCOUNT_ROUTES = new Set([
   'logout',
   'status',
   'tracking_data',
-  'pedido_create',
   'puntos_solicitar_canje'
 ]);
 
