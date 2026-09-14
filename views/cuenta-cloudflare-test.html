@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <title>Mi Cuenta TEST - Mardant</title>
+  <link rel="stylesheet" href="../css/estilos.css?v=17">
+  <link rel="stylesheet" href="../css/cuenta.css?v=19">
+  <style>
+    .cf-test-banner{position:sticky;top:0;z-index:99999;background:#111;color:#fff;text-align:center;padding:8px 12px;font:700 13px/1.2 system-ui;border-bottom:2px solid #f59e0b}
+  </style>
+</head>
+<body>
+  <div class="cf-test-banner">🧪 TEST CLOUDFLARE D1 · MI CUENTA · NO ES PRODUCCIÓN</div>
+
+  <header class="topbar">
+    <div class="wrap">
+      <a class="brand" href="./inicio-cloudflare-test.html">Mardant Perú</a>
+      <nav class="nav">
+        <a href="./catalogo-cloudflare-test.html">Catálogo</a>
+        <a href="./preventa-cloudflare-test.html">Preventas</a>
+        <a href="./catalogo-japon-cloudflare-test.html">Japón</a>
+        <a href="./pedidos-cloudflare-test.html">A pedido</a>
+        <a class="active" href="./cuenta-cloudflare-test.html">Mi cuenta</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero card">
+      <div class="hero-copy">
+        <h1>Mi Cuenta</h1>
+        <p>Consulta tus días de almacenaje y sigue el estado de tus preventas.</p>
+      </div>
+    </section>
+
+    <section class="client-access-note card">
+      <div class="note-seal" aria-hidden="true">会員</div>
+      <div class="note-copy">
+        <h2>Acceso exclusivo para clientes</h2>
+        <p>La cuenta en nuestra plataforma es exclusiva para clientes que ya compraron con nosotros, reservaron preventas o solicitaron productos a pedido. Si eres cliente y aún no tienes cuenta, escríbenos para activarla.</p>
+        <a class="btn btn-whatsapp" href="https://wa.me/51985135331?text=Hola%2C%20soy%20cliente%20de%20Mardant%20y%20quiero%20activar%20mi%20cuenta." target="_blank" rel="noopener noreferrer">Contactar por WhatsApp</a>
+      </div>
+    </section>
+
+    <section id="loginSection" class="card" style="display:none;">
+      <form id="loginForm" class="form">
+        <div class="row">
+          <div class="field">
+            <label class="label" for="clientId">Cliente ID</label>
+            <input id="clientId" required placeholder="Ej: ALEX001" autocomplete="username" />
+          </div>
+          <div class="field">
+            <label class="label" for="password">Contraseña</label>
+            <div class="input-wrap">
+              <input id="password" type="password" required placeholder="••••••••" autocomplete="current-password"/>
+              <button type="button" class="toggle-pass" id="togglePass" aria-label="Mostrar/ocultar contraseña">Mostrar</button>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn">Ingresar</button>
+        <div class="msg" id="loginMsg"></div>
+      </form>
+    </section>
+
+    <section id="statusSection" class="card" style="display:none;">
+      <div class="panel-head">
+        <div class="who">
+          <div class="label">Cliente</div>
+          <div class="who-name"><span id="clientName"></span> <span class="muted">(<span id="clientCode"></span>)</span></div>
+        </div>
+        <button id="logoutBtn" class="btn secondary">Cerrar sesión</button>
+        <div class="points-mini" id="pointsMini"><span>Puntos Mardant</span><strong><span id="puntosMiniDisponibles">0</span> pts</strong></div>
+      </div>
+      <div class="msg small" id="accountSummaryMsg" role="status" aria-live="polite"></div>
+
+      <div class="kpis">
+        <div class="kpi"><div class="label">Días gratis</div><div class="val" id="diasGratis">–</div></div>
+        <div class="kpi"><div class="label">Usados</div><div class="val" id="diasUsados">–</div></div>
+        <div class="kpi"><div class="label">Restantes</div><div class="val" id="diasRestantes">–</div></div>
+        <div class="kpi"><div class="label">Excedidos</div><div class="val" id="diasExcedidos">–</div></div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="preventas">Preventas</button>
+        <button class="tab-btn" data-tab="almacen">Almacén</button>
+        <button class="tab-btn" data-tab="puntos">Puntos</button>
+      </div>
+
+      <div id="tab-almacen" style="display:none;">
+        <h3>Ítems en almacén</h3>
+        <div class="table-wrap">
+          <table id="itemsTable">
+            <thead><tr><th>Foto</th><th>ID</th><th>Descripción</th><th>Ingreso</th><th>Estado</th><th class="right">Días</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="msg small" id="almacenMsg"></div>
+        <div class="account-pagination" id="almacenPagination" hidden></div>
+        <div class="notice notice-warn">
+          <div class="notice-title">⚠️ IMPORTANTE</div>
+          <p>Cuando un producto llegue al almacén de Mardant en Perú, el cliente será notificado por WhatsApp. Desde esa notificación, tendrá un plazo máximo de <strong>30 días calendario</strong> para cancelar el saldo pendiente.</p>
+          <p>Si el cliente no realiza el pago dentro de dicho plazo, el pedido pasará a estado de <strong>ABANDONO</strong>.</p>
+          <p>El plazo máximo de almacenaje gratuito es de <strong>50 días calendario</strong> desde la llegada del producto a Perú.</p>
+        </div>
+      </div>
+
+      <div id="tab-preventas">
+        <h3>Mis preventas</h3>
+        <div class="table-wrap">
+          <table id="preTable">
+            <thead>
+              <tr>
+                <th>Foto</th><th>Estado</th><th class="right">Total cotizado</th><th class="right">Depósito</th><th class="right">Abonos extra</th><th class="right">P. cancelar</th><th>F. pedido</th><th>F. llegada aprox.</th><th>ID</th><th>Seguimiento</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="msg small" id="preMsg"></div>
+        <div class="account-pagination" id="prePagination" hidden></div>
+
+        <section class="status-legend" aria-labelledby="statusLegendTitle">
+          <h4 id="statusLegendTitle">¿Qué significa cada estado?</h4>
+          <div class="status-legend-grid">
+            <div class="status-legend-item"><span class="badge state en-solicitud">EN SOLICITUD</span><p>Tu producto fue solicitado y estamos esperando que el vendedor lo despache.</p></div>
+            <div class="status-legend-item"><span class="badge state en-almacen-jp">ALMACÉN JP</span><p>Tu producto ya llegó a nuestro almacén en Japón.</p></div>
+            <div class="status-legend-item"><span class="badge state en-camino">EN CAMINO</span><p>Tu producto salió de Japón y se encuentra en tránsito hacia Perú.</p></div>
+            <div class="status-legend-item"><span class="badge state en-almacen-pe">ALMACÉN PE</span><p>Tu producto ya está en Perú.</p></div>
+            <div class="status-legend-item"><span class="badge state enviado">ENVIADO</span><p>Tu producto ya fue entregado y el pedido se encuentra finalizado.</p></div>
+            <div class="status-legend-item"><span class="badge state abandono">ABANDONO</span><p>No se completó el pago dentro del plazo máximo.</p></div>
+          </div>
+        </section>
+      </div>
+
+      <div id="tab-puntos" style="display:none;">
+        <h3>Puntos Mardant</h3>
+        <div class="points-panel" id="pointsPanel" aria-live="polite">
+          <div class="points-main">
+            <div><div class="points-eyebrow">Saldo disponible</div><div class="points-total"><span id="puntosDisponibles">0</span> pts</div></div>
+            <div class="points-status" id="puntosEstado">Cargando puntos...</div>
+          </div>
+          <div class="points-grid">
+            <div class="points-kpi"><span>Ganados</span><strong id="puntosGanados">0</strong></div>
+            <div class="points-kpi"><span>Usados</span><strong id="puntosUsados">0</strong></div>
+            <div class="points-kpi"><span>Faltan para 5%</span><strong id="puntosFaltan">100</strong></div>
+          </div>
+          <div class="points-progress" aria-hidden="true"><div class="points-progress-bar" id="puntosProgress"></div></div>
+        </div>
+
+        <div class="points-rewards">
+          <h4>Canjes disponibles</h4>
+          <div class="reward-grid">
+            <article class="reward-card" data-reward-card="ENTREGA_GRATIS_3">
+              <div class="reward-points">20 pts</div><h5>Entrega en punto gratis</h5><p>Cubre una entrega en punto de entrega con costo máximo de S/ 3.00.</p><button class="btn small reward-btn" type="button" data-reward="ENTREGA_GRATIS_3">Solicitar canje</button>
+            </article>
+            <article class="reward-card" data-reward-card="ENVIO_GRATIS_8">
+              <div class="reward-points">50 pts</div><h5>Envío gratis</h5><p>Cubre un envío con costo máximo de S/ 8.00.</p><button class="btn small reward-btn" type="button" data-reward="ENVIO_GRATIS_8">Solicitar canje</button>
+            </article>
+            <article class="reward-card" data-reward-card="DESCUENTO_5">
+              <div class="reward-points">100 pts</div><h5>5% de descuento</h5><p>Aplica 5% de descuento a una preventa o pedido seleccionado, con descuento máximo de S/ 30.00.</p><label class="reward-select-label" for="puntosPreventaSelect">Preventa para descuento</label><select id="puntosPreventaSelect"></select><button class="btn small reward-btn" type="button" data-reward="DESCUENTO_5">Solicitar canje</button>
+            </article>
+          </div>
+          <div class="msg small" id="puntosCanjeMsg"></div>
+        </div>
+
+        <h4 class="points-history-title">Movimientos recientes</h4>
+        <div class="points-movements" id="puntosMovimientos"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><span>© 2026 Mardant Perú</span><a class="footer-legal-link" href="./terminos-importacion.html">Términos de importación</a></footer>
+
+  <div id="lbCuenta" class="lb" hidden>
+    <button class="lb-close" aria-label="Cerrar">×</button>
+    <div class="lb__content"><img id="lbImagen" alt="Foto ampliada" /></div>
+  </div>
+
+  <script type="module" src="../js/cuenta-cloudflare-test.js?v=1"></script>
+</body>
+</html>
