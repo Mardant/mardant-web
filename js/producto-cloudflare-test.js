@@ -6,6 +6,7 @@ import {
   mostrarMiniCarrito,
   notificar
 } from './carrito-utils.js?v=2';
+import './account-widget.js?v=5';
 
 const CORE_TEST_API = 'https://mardant-core-test.gamesmardant.workers.dev/';
 const $ = (s) => document.querySelector(s);
