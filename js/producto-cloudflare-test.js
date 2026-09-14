@@ -1,5 +1,11 @@
 import { whatsappLink } from './config.js?v=5';
-import { agregarAlCarrito, actualizarCarritoUI, actualizarContador, notificar } from './carrito-utils.js?v=2';
+import {
+  agregarAlCarrito,
+  actualizarCarritoUI,
+  actualizarContador,
+  mostrarMiniCarrito,
+  notificar
+} from './carrito-utils.js?v=2';
 
 const CORE_TEST_API = 'https://mardant-core-test.gamesmardant.workers.dev/';
 const $ = (s) => document.querySelector(s);
@@ -14,6 +20,27 @@ function showError(html){
 function updateCounterNow(){
   actualizarCarritoUI();
   actualizarContador();
+}
+
+function initMiniCarritoHover(){
+  const carritoBtn = document.querySelector('.boton-carrito-flotante');
+  const miniCarrito = document.getElementById('mini-carrito');
+  if (!carritoBtn || !miniCarrito) return;
+
+  carritoBtn.addEventListener('mouseenter', () => {
+    mostrarMiniCarrito();
+    miniCarrito.style.display = 'block';
+  });
+  carritoBtn.addEventListener('mouseleave', () =>
+    setTimeout(() => (miniCarrito.style.display = 'none'), 400)
+  );
+
+  miniCarrito.addEventListener('mouseenter', () => {
+    miniCarrito.style.display = 'block';
+  });
+  miniCarrito.addEventListener('mouseleave', () => {
+    miniCarrito.style.display = 'none';
+  });
 }
 
 async function loadProducto(){
@@ -71,7 +98,8 @@ function renderProducto(p){
   const addBtn = $('#pdp-add');
   addBtn.hidden = estaAgotado;
   addBtn.disabled = estaAgotado;
-  addBtn.addEventListener('click', () => {
+  addBtn.onclick = () => {
+    if (estaAgotado) return;
     agregarAlCarrito({
       id,
       nombre,
@@ -79,19 +107,19 @@ function renderProducto(p){
       oferta: null,
       imagen: img
     });
-    updateCounterNow();
-  });
+    actualizarContador();
+  };
 
   const copyBtn = $('#pdp-copy');
   copyBtn.hidden = estaAgotado;
-  copyBtn.addEventListener('click', async () => {
+  copyBtn.onclick = async () => {
     try {
       await navigator.clipboard.writeText(location.href);
       notificar('🔗 Link copiado', 'success');
     } catch (_) {
       notificar('No se pudo copiar el link.', 'warning');
     }
-  });
+  };
 
   const waBtn = $('#pdp-wa');
   const msg = [
@@ -108,6 +136,7 @@ function renderProducto(p){
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initMiniCarritoHover();
   updateCounterNow();
   loadProducto();
 });
