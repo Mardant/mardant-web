@@ -46,10 +46,28 @@ function matchTestNavigation() {
   }
 }
 
+function rewriteTrackingLinks(root = document) {
+  root.querySelectorAll?.('a.tracking-btn[href*="tracking.html"]').forEach(link => {
+    try {
+      const source = new URL(link.getAttribute('href'), location.href);
+      link.href = `./tracking-cloudflare-test.html${source.search}${source.hash}`;
+    } catch (_) {}
+  });
+}
+
 matchTestNavigation();
+rewriteTrackingLinks();
+
+const preTable = document.getElementById('preTable');
+if (preTable) {
+  const observer = new MutationObserver(() => rewriteTrackingLinks(preTable));
+  observer.observe(preTable, { childList: true, subtree: true });
+}
 
 // IMPORTANTE: imports dinamicos. Primero se instala el redirect de fetch y despues
 // se ejecuta exactamente la logica real de produccion.
 await import('./tracking.js?v=8');
 await import('./cuenta.js?v=27');
 await import('./account-widget.js?v=5');
+
+rewriteTrackingLinks();
