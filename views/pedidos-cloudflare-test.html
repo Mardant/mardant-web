@@ -53,7 +53,7 @@
 
   <div id="lb" class="lightbox" hidden><img alt="Vista ampliada"><button class="lb-close" aria-label="Cerrar">×</button></div>
 
-  <script type="module" src="../js/pedidos-cloudflare-test.js?v=1"></script>
+  <script type="module" src="../js/pedidos-cloudflare-test.js?v=2"></script>
 
   <script>
     (()=>{const cont=document.getElementById('contenedor');const lb=document.getElementById('lb');const img=lb.querySelector('img');cont.addEventListener('click',e=>{const el=e.target;if(el&&el.tagName==='IMG'){img.src=el.src;lb.hidden=false;document.body.style.overflow='hidden';}});const close=()=>{lb.hidden=true;img.src='';document.body.style.overflow='';};lb.addEventListener('click',close);lb.querySelector('.lb-close').addEventListener('click',ev=>{ev.stopPropagation();close();});document.addEventListener('keydown',ev=>{if(!lb.hidden&&ev.key==='Escape')close();});})();
