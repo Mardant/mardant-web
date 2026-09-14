@@ -1,8 +1,8 @@
-// Prueba aislada de Mi Cuenta usando Cloudflare Worker + D1.
+// Prueba aislada de Mi Cuenta usando el Worker FINAL de Cloudflare + D1.
 // Produccion sigue usando cuenta.js + ACCOUNT_API_URL de Apps Script.
 
 const nativeFetch = window.fetch.bind(window);
-const ACCOUNT_TEST_API = 'https://mardant-cuenta-test.gamesmardant.workers.dev/';
+const ACCOUNT_CLOUDFLARE_API = 'https://mardant-cuenta.gamesmardant.workers.dev/';
 
 const ACCOUNT_ROUTES = new Set([
   'login',
@@ -21,7 +21,7 @@ window.fetch = (input, init) => {
 
     // En esta pagina TEST ninguna ruta privada de Cuenta debe tocar Apps Script.
     if (ACCOUNT_ROUTES.has(route)) {
-      const target = new URL(ACCOUNT_TEST_API);
+      const target = new URL(ACCOUNT_CLOUDFLARE_API);
       source.searchParams.forEach((value, key) => target.searchParams.set(key, value));
       return nativeFetch(target.toString(), init);
     }
