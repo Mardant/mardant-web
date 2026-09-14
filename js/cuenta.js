@@ -121,7 +121,7 @@ if (lb){
 const PEN = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
 const ACCOUNT_PAGE_SIZE = 5;
 const ACCOUNT_STATUS_CACHE_KEY = 'mardant_account_status_v1';
-const ACCOUNT_STATUS_CACHE_MAX_AGE = 30 * 60 * 1000;
+const ACCOUNT_STATUS_CACHE_MAX_AGE = 2 * 60 * 1000;
 const ACCOUNT_SCOPE_CACHE_PREFIX = 'mardant_account_scope_v1_';
 const ACCOUNT_SCOPES = ['summary', 'preventas', 'almacen', 'puntos', 'cotizaciones'];
 const PUNTOS_DESCUENTO_5 = 100;
