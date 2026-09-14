@@ -1,10 +1,8 @@
 // Prueba aislada del catálogo normal usando Cloudflare Worker + D1.
-// No modifica producción: solo se carga desde catalogo-cloudflare-test.html.
+// Conserva la lógica real de producción y solo cambia la fuente de datos.
 
-// IMPORTANTE: import estático. catalogo.js registra DOMContentLoaded antes de que
-// el navegador lo dispare. Las peticiones reales ocurren después, cuando ya
-// habremos sustituido window.fetch en el cuerpo de este módulo.
 import './catalogo.js?v=16';
+import './account-widget.js?v=5';
 
 const nativeFetch = window.fetch.bind(window);
 const CORE_TEST_API = 'https://mardant-core-test.gamesmardant.workers.dev/';
@@ -34,3 +32,39 @@ window.fetch = (input, init) => {
 
   return nativeFetch(input, init);
 };
+
+function rewriteProductDetailLinks(root = document) {
+  root.querySelectorAll?.('a.ver-detalle[href*="producto.html"]').forEach(link => {
+    try {
+      const target = new URL(link.getAttribute('href'), location.href);
+      link.href = `./producto-cloudflare-test.html${target.search}${target.hash}`;
+    } catch (_) {}
+  });
+}
+
+function matchProductionNavigation() {
+  const buttons = document.querySelectorAll('.cta-catalogo .btn-pill');
+  if (buttons[0]) {
+    buttons[0].href = './inicio-cloudflare-test.html';
+    buttons[0].innerHTML = '🏠 <span>Volver al inicio</span>';
+  }
+  if (buttons[1]) {
+    buttons[1].href = './preventa-cloudflare-test.html';
+    buttons[1].innerHTML = '📦 <span>Ver preventas</span>';
+  }
+  if (buttons[2]) {
+    buttons[2].href = './catalogo-japon-cloudflare-test.html';
+    buttons[2].innerHTML = '<span>日本</span><span>Catálogo Japón</span>';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  matchProductionNavigation();
+
+  const container = document.getElementById('contenedor');
+  if (!container) return;
+
+  rewriteProductDetailLinks(container);
+  const observer = new MutationObserver(() => rewriteProductDetailLinks(container));
+  observer.observe(container, { childList:true, subtree:true });
+});
