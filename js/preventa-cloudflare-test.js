@@ -2,6 +2,7 @@
 // Producción sigue usando preventa.js directamente.
 
 import './preventa.js?v=11';
+import './account-widget.js?v=5';
 
 const nativeFetch = window.fetch.bind(window);
 const CORE_TEST_API = 'https://mardant-core-test.gamesmardant.workers.dev/';
@@ -22,3 +23,19 @@ window.fetch = (input, init) => {
 
   return nativeFetch(input, init);
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+  const buttons = document.querySelectorAll('.cta-preventa .btn-pill');
+  if (buttons[0]) {
+    buttons[0].href = './inicio-cloudflare-test.html';
+    buttons[0].innerHTML = '🏠 <span>Volver al inicio</span>';
+  }
+  if (buttons[1]) {
+    buttons[1].href = './catalogo-cloudflare-test.html';
+    buttons[1].innerHTML = '🛍️ <span>Ir al catálogo</span>';
+  }
+  if (buttons[2]) {
+    buttons[2].href = './catalogo-japon-cloudflare-test.html';
+    buttons[2].innerHTML = '<span>日本</span><span>Catálogo Japón</span>';
+  }
+});
