@@ -1,4 +1,4 @@
-import { JAPAN_API_URL, JAPAN_LEGACY_API_URL } from './config.js?v=5';
+import { JAPAN_API_URL, JAPAN_LEGACY_API_URL } from './config.js?v=6';
 import {
   cachedFetchJSON,
   fetchJSON,
