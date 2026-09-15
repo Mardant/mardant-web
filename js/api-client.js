@@ -1,18 +1,18 @@
-import { API_URL } from './config.js?v=5';
+import { API_URL } from './config.js?v=6';
 
 export const API_CACHE_TTL = {
-  HOME_DATA: 10 * 60 * 1000,
-  PRODUCTOS: 10 * 60 * 1000,
-  PREVENTAS: 10 * 60 * 1000,
-  PEDIDOS_DISPONIBLES: 10 * 60 * 1000,
+  HOME_DATA: 1 * 60 * 1000,
+  PRODUCTOS: 1 * 60 * 1000,
+  PREVENTAS: 1 * 60 * 1000,
+  PEDIDOS_DISPONIBLES: 1 * 60 * 1000,
   CATALOGO_PREVENTAS_JAPON: 10 * 60 * 1000,
-  PRODUCTO: 5 * 60 * 1000
+  PRODUCTO: 1 * 60 * 1000
 };
 
 const DEFAULT_TTL = 10 * 60 * 1000;
 const DEFAULT_MAX_STALE = 30 * 60 * 1000;
 const DEFAULT_REQUEST_TIMEOUT = 15 * 1000;
-const CACHE_PREFIX = 'mardant_api_cache_v3:';
+const CACHE_PREFIX = 'mardant_api_cache_v4:';
 const CACHE_MAX_ENTRIES = 80;
 const CACHE_MAX_BYTES = 3.5 * 1024 * 1024;
 const RETRYABLE_PUBLIC_STATUSES = new Set([404, 408, 429, 500, 502, 503, 504]);
