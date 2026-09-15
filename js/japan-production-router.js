@@ -1,9 +1,10 @@
-// Corte de produccion del Catalogo Japon hacia Cloudflare.
-// Se instala antes de los modulos existentes para evitar que versiones cacheadas
-// de config/japan-api vuelvan a tocar el backend legacy de Google Apps Script.
+// Compatibilidad de produccion para Catalogo Japon sobre Cloudflare.
+// Se carga antes de los modulos existentes para mantener compatibilidad con
+// clientes que aun tengan versiones anteriores del frontend en cache.
 (() => {
   const nativeFetch = window.fetch.bind(window);
   const JAPAN_API = 'https://mardant-japon.gamesmardant.workers.dev/';
+  const CORE_API = 'https://mardant-core.gamesmardant.workers.dev/';
 
   function jsonResponse(data, status = 200) {
     return Promise.resolve(new Response(JSON.stringify(data), {
@@ -27,8 +28,8 @@
         return nativeFetch(target.toString(), init);
       }
 
-      // La portada antigua solicita catalogoJaponHome. El Worker D1 usa el mismo
-      // endpoint paginado, por lo que traducimos la peticion sin tocar la UI.
+      // La portada solicita catalogoJaponHome; el Worker Japon usa el endpoint
+      // paginado, asi que traducimos la peticion sin cambiar la UI.
       if (accion === 'catalogoJaponHome') {
         const target = new URL(JAPAN_API);
         target.searchParams.set('accion', 'catalogoPreventasJaponPage');
@@ -39,16 +40,17 @@
         return nativeFetch(target.toString(), init);
       }
 
-      // El proxy de imagen era una capacidad legacy de Apps Script. El frontend
-      // ya tiene fallback a imagen_url, asi que evitamos tocar Google.
+      // El proxy de imagen no forma parte del Worker Japon. El frontend ya
+      // dispone de fallback directo a imagen_url.
       if (accion === 'catalogoJaponImage') {
         return jsonResponse({ ok:false, error:'image_proxy_unavailable' });
       }
 
-      // Hasta el cutover de Core, no enviamos la telemetria de busquedas de Japon
-      // al Apps Script legacy. La busqueda funcional sigue operando en D1.
+      // Las busquedas de Japon se registran en Core D1.
       if (route === 'registrar_busqueda_catalogo') {
-        return jsonResponse({ ok:true, skipped:true, backend:'cloudflare-cutover' });
+        const target = new URL(CORE_API);
+        target.searchParams.set('route', 'registrar_busqueda_catalogo');
+        return nativeFetch(target.toString(), init);
       }
     } catch (_) {}
 
