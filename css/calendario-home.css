@@ -1,0 +1,9 @@
+.seccion-calendario{--section-accent:#a8322a;--section-bg:#fbf7ef;--section-ink:#171411;--section-line:#d8c6aa}
+.seccion-calendario .section-title{font-size:clamp(23px,3vw,34px)}
+#vista-inicio .grid-calendario-home .calendar-home-photo{height:330px;aspect-ratio:1;object-fit:contain;background:#fff;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.calendar-home-card .calendar-home-date{color:#d7c8ae;font-weight:800;font-size:14px;line-height:1.45;min-height:42px;margin:3px 0 12px}
+.calendar-home-card .estado{color:#d7c8ae;border-color:#d8c6aa66;margin-left:auto;margin-right:auto}
+.calendar-home-card .boton{margin-top:auto}
+.calendar-home-more{text-align:center;margin:22px 0 0}.calendar-home-more a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:11px 22px;border-radius:999px;background:linear-gradient(180deg,#b84137,#8f2722);color:white;font-weight:900;box-shadow:0 7px 16px #a8322a2b}
+@media(max-width:900px){#vista-inicio .grid-calendario-home .calendar-home-photo{height:240px}}
+@media(max-width:480px){#vista-inicio .grid-calendario-home .calendar-home-photo{height:160px!important;object-fit:contain!important}.calendar-home-card .calendar-home-date{font-size:12px;min-height:52px}.seccion-calendario .section-title{font-size:22px}.calendar-home-more a{font-size:13px}}
