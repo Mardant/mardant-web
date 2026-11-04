@@ -287,8 +287,8 @@ function waitForCatalogRequest(promise, signal){
 function fetchCatalogPageForeground(params, signal){
   return cachedFetchJapanJSON('catalogoPreventasJaponPage', {
     params,
-    ttl: API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON,
-    cacheId: 'catalogo-japon-page-v3',
+    ttl: Math.min(API_CACHE_TTL.CATALOGO_PREVENTAS_JAPON, 30 * 1000),
+    cacheId: 'catalogo-japon-page-v4',
     staleWhileRevalidate: false,
     retries: 0,
     primaryTimeoutMs: CATALOG_PAGE_PRIMARY_TIMEOUT_MS,
@@ -344,7 +344,7 @@ async function prefetchCatalogPages({ current, total, ahead, params }){
 function scheduleCatalogPrefetch({ requestId, page, totalPages, params }){
   const current = Math.max(1, Number(page) || 1);
   const total = Math.max(1, Number(totalPages) || 1);
-  if (!allowsCatalogPrefetch() || total <= 1 || current >= total) return;
+  if (!allowsCatalogPrefetch() || total <= 1 || current >= total || params?.search) return;
 
   cancelCatalogPrefetchIdle();
   const prefetch = () => {
@@ -354,7 +354,7 @@ function scheduleCatalogPrefetch({ requestId, page, totalPages, params }){
     prefetchCatalogPages({
       current,
       total,
-      ahead:current === 1 ? 1 : 2,
+      ahead:1,
       params
     }).catch(() => {});
   };
@@ -1011,11 +1011,20 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
   const requestedQueryKey = catalogQueryKey(requestedParams);
   if (activeCatalogQueryKey && requestedQueryKey !== activeCatalogQueryKey) {
     cancelCatalogPrefetch();
+    resetCatalogImages();
+    grid.replaceChildren();
+    pagination.replaceChildren();
   }
   activeCatalogQueryKey = requestedQueryKey;
   grid?.setAttribute('aria-busy', 'true');
 
   try {
+    const terms = String(requestedParams.search || '').trim().split(/\s+/u).filter(Boolean);
+    if (terms.length && !terms.some(term => [...term].length >= 3)) {
+      throw Object.assign(new Error('search_too_short'), {
+        userMessage:'Escribe al menos una palabra de 3 caracteres para buscar.'
+      });
+    }
     const data = await fetchCatalogPage(requestedParams, controller.signal);
     if (requestId !== catalogRequestId || controller.signal.aborted) return null;
     const responseError = String(data?.error || '').trim().toLowerCase();
@@ -1050,6 +1059,8 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
       animeMetaLoaded = true;
     }
 
+    grid.hidden = false;
+    pagination.hidden = false;
     render();
     searchTracker.record(requestedParams.search);
     updateCatalogUrl(historyMode);
@@ -1073,9 +1084,14 @@ async function loadCatalogPage({ page = currentPage, historyMode = 'replace', th
     if (requestId !== catalogRequestId || controller.signal.aborted || error?.name === 'AbortError') return null;
     if (throwOnError) throw error;
     feedback.hidden = false;
-    statusEl.textContent = 'No se pudo cargar esta página del catálogo';
+    grid.hidden = true;
+    pagination.hidden = true;
+    resetCatalogImages();
+    grid.replaceChildren();
+    pagination.replaceChildren();
+    statusEl.textContent = error?.userMessage || 'No se pudo cargar esta página del catálogo';
     statusEl.classList.add('is-error');
-    dateEl.textContent = 'Intenta nuevamente en unos segundos';
+    dateEl.textContent = error?.userMessage ? 'También puedes elegir un anime en los filtros.' : 'Intenta nuevamente en unos segundos';
     console.warn('Error al cargar página del Catálogo Japón:', error);
     return null;
   } finally {
@@ -1098,8 +1114,6 @@ async function loadCatalog(){
 }
 
 const applySearchFiltersDebounced = debounce(() => {
-  const length = normalizeText(searchInput?.value).length;
-  if (length > 0 && length < 3) return;
   applyFilters({ historyMode:'replace' });
 }, 850);
 
@@ -1169,3 +1183,4 @@ document.addEventListener('keydown', event => {
 });
 
 loadCatalog();
+

@@ -1,0 +1,9 @@
+{
+  "name": "mardant-japon",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-09-14",
+  "workers_dev": true,
+  "account_id": "8c29905fa1276371f511c1559f170eba",
+  "d1_databases": [{ "binding": "DB", "database_name": "mardant-japon-db", "database_id": "55397b82-cd49-4e2b-9d8a-b381502339db" }],
+  "observability": { "enabled": true, "head_sampling_rate": 1 }
+}
