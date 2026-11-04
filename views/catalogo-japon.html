@@ -17,7 +17,7 @@
   <meta name="twitter:image" content="https://i.imgur.com/K7nyK2A.png">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../css/estilos.css?v=19">
-  <link rel="stylesheet" href="../css/catalogo-japon.css?v=12">
+  <link rel="stylesheet" href="../css/catalogo-japon.css?v=13">
 </head>
 <body>
   <h1 class="sr-only">Catálogo de productos en Japón Mardant</h1>
@@ -107,19 +107,31 @@
   </a>
 
   <div id="catalogoJaponModal" class="japan-modal" aria-hidden="true">
-    <div class="japan-modal-panel" role="dialog" aria-modal="true" aria-label="Vista del producto">
+    <div class="japan-modal-panel" role="dialog" aria-modal="true" aria-labelledby="catalogoJaponModalTitle">
       <div class="japan-modal-head">
         <strong id="catalogoJaponModalTitle">Lote</strong>
         <button id="catalogoJaponClose" type="button" aria-label="Cerrar">Cerrar</button>
       </div>
-      <div class="japan-modal-stage">
-        <img id="catalogoJaponModalImage" alt="">
+      <div class="japan-modal-tools">
+        <div class="japan-modal-controls" role="group" aria-label="Ampliar imagen">
+          <button type="button" data-image-zoom="out" aria-label="Alejar imagen" disabled>−</button>
+          <output class="japan-modal-zoom-level" aria-label="Nivel de ampliación">1×</output>
+          <button type="button" data-image-zoom="in" aria-label="Ampliar imagen" disabled>+</button>
+          <button type="button" data-image-zoom="fit" disabled>Ajustar</button>
+          <a class="japan-modal-original" target="_blank" rel="noopener noreferrer" hidden>Ver imagen</a>
+        </div>
+        <p class="japan-modal-image-status" role="status" aria-live="polite"></p>
+      </div>
+      <div class="japan-modal-stage" tabindex="0" aria-label="Imagen ampliable del lote" aria-busy="false">
+        <div class="japan-modal-canvas">
+          <img id="catalogoJaponModalImage" alt="" draggable="false" referrerpolicy="no-referrer" hidden>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="../js/japan-production-router.js?v=1"></script>
-  <script type="module" src="../js/catalogo-japon.js?v=33"></script>
+  <script type="module" src="../js/catalogo-japon.js?v=34"></script>
   <script type="module" src="../js/tracking.js?v=8"></script>
   <script type="module" src="../js/account-widget.js?v=5"></script>
 </body>

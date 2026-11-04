@@ -1,3 +1,4 @@
+import { createJapanImageViewer } from './japan-image-viewer.js?v=1';
 import { whatsappLink } from './config.js?v=5';
 import { API_CACHE_TTL } from './api-client.js?v=7';
 import {
@@ -19,10 +20,7 @@ const statusEl = document.getElementById('catalogoJaponEstado');
 const dateEl = document.getElementById('catalogoJaponFecha');
 const pagination = document.getElementById('catalogoJaponPagination');
 const modal = document.getElementById('catalogoJaponModal');
-const modalPanel = modal?.querySelector('.japan-modal-panel');
-const modalTitle = document.getElementById('catalogoJaponModalTitle');
-const modalImage = document.getElementById('catalogoJaponModalImage');
-const closeBtn = document.getElementById('catalogoJaponClose');
+const imageViewer = createJapanImageViewer(modal);
 const filterForm = document.getElementById('catalogoJaponFilters');
 const searchInput = document.getElementById('catalogoJaponSearch');
 const animeSelect = document.getElementById('catalogoJaponAnime');
@@ -558,22 +556,7 @@ function fillFilterSelect(select, values){
 }
 
 function openModal(imageUrl, id){
-  if (!modal || !modalImage || !imageUrl) return;
-  modalTitle.textContent = `Lote #${id}`;
-  modalImage.src = imageUrl;
-  modalImage.alt = `Lote #${id}`;
-  modal.classList.add('open');
-  modal.setAttribute('aria-hidden', 'false');
-  document.body.classList.add('modal-open');
-  closeBtn?.focus();
-}
-
-function closeModal(){
-  if (!modal || !modalImage) return;
-  modal.classList.remove('open');
-  modal.setAttribute('aria-hidden', 'true');
-  document.body.classList.remove('modal-open');
-  modalImage.removeAttribute('src');
+  imageViewer.open(imageUrl, id);
 }
 
 function getCatalogItem(id){
@@ -1174,13 +1157,6 @@ grid.addEventListener('click', event => {
   openModal(catalogImageUrls.get(id), id);
 });
 
-closeBtn?.addEventListener('click', closeModal);
-modal?.addEventListener('click', event => {
-  if (!modalPanel?.contains(event.target)) closeModal();
-});
-document.addEventListener('keydown', event => {
-  if (event.key === 'Escape' && modal?.classList.contains('open')) closeModal();
-});
 
 loadCatalog();
 
