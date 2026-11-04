@@ -1,4 +1,4 @@
-import { createJapanImageViewer } from './japan-image-viewer.js?v=1';
+import { createJapanImageViewer } from './japan-image-viewer.js?v=2';
 import { whatsappLink } from './config.js?v=5';
 import { API_CACHE_TTL } from './api-client.js?v=7';
 import {

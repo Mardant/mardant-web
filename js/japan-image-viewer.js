@@ -31,21 +31,26 @@ export function createJapanImageViewer(modal) {
       + '<output class="japan-modal-zoom-level" aria-label="Nivel de ampliación">1×</output>'
       + '<button type="button" data-image-zoom="in" aria-label="Ampliar imagen" disabled>+</button>'
       + '<button type="button" data-image-zoom="fit" disabled>Ajustar</button>'
-      + '<a class="japan-modal-original" target="_blank" rel="noopener noreferrer" hidden>Ver imagen</a></div>'
+      + '</div>'
       + '<p class="japan-modal-image-status" role="status" aria-live="polite"></p>';
     oldPanel.insertBefore(tools, oldStage);
-    const sheet = document.querySelector('link[href*="catalogo-japon.css"]');
-    if (sheet) {
-      const href = new URL(sheet.href);
-      href.searchParams.set('v', '13');
-      sheet.href = href.href;
-    }
+
   }
   if (!oldStage.querySelector('.japan-modal-canvas')) {
     const wrapper = document.createElement('div');
     wrapper.className = 'japan-modal-canvas';
     oldStage.appendChild(wrapper);
     wrapper.appendChild(oldImage);
+  }
+  // Remove the old external-photo link even when HTML is cached.
+  modal.querySelectorAll('.japan-modal-original').forEach(link => link.remove());
+  const sheet = document.querySelector('link[href*="catalogo-japon.css"]');
+  if (sheet) {
+    const href = new URL(sheet.href);
+    if (Number(href.searchParams.get('v') || 0) < 14) {
+      href.searchParams.set('v', '14');
+      sheet.href = href.href;
+    }
   }
   oldStage.tabIndex = 0;
   oldImage.draggable = false;
@@ -60,7 +65,6 @@ export function createJapanImageViewer(modal) {
   const fitButton = modal.querySelector('[data-image-zoom="fit"]');
   const zoomLabel = modal.querySelector('.japan-modal-zoom-level');
   const status = modal.querySelector('.japan-modal-image-status');
-  const originalLink = modal.querySelector('.japan-modal-original');
   let generation = 0;
   let cancelLoad = null;
   let previousFocus = null;
@@ -150,8 +154,6 @@ export function createJapanImageViewer(modal) {
     layout = null;
     image.hidden = true;
     image.removeAttribute('src');
-    originalLink.removeAttribute('href');
-    originalLink.hidden = true;
     stage.setAttribute('aria-busy', 'false');
     previousFocus?.isConnected && previousFocus.focus({ preventScroll: true });
     previousFocus = null;
@@ -175,8 +177,6 @@ export function createJapanImageViewer(modal) {
     image.referrerPolicy = 'no-referrer';
     title.textContent = `Lote #${id}`;
     image.alt = `Imagen del lote #${id}`;
-    originalLink.hidden = true;
-    originalLink.removeAttribute('href');
     status.textContent = 'Cargando imagen…';
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
@@ -217,8 +217,6 @@ export function createJapanImageViewer(modal) {
         if (!naturalWidth || !naturalHeight) { fail(); return; }
         image.src = candidates[index];
         image.hidden = false;
-        originalLink.href = candidates[index];
-        originalLink.hidden = false;
         stage.setAttribute('aria-busy', 'false');
         status.textContent = index > 0
           ? 'Vista previa: la foto original no está disponible.'
@@ -321,7 +319,6 @@ export function createJapanImageViewer(modal) {
   bindControl(zoomOut, () => setZoom(zoom / 1.5));
   bindControl(fitButton, fit);
   bindControl(closeButton, close);
-  bindControl(originalLink);
   modal.addEventListener('click', event => { if (!panel.contains(event.target)) close(); });
   document.addEventListener('keydown', event => {
     if (!isOpen()) return;

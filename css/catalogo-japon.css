@@ -738,9 +738,9 @@ body.modal-open{
 .japan-modal-panel{
   display:grid;
   grid-template-rows:auto auto minmax(0, 1fr);
-  width:min(1200px, calc(100vw - 36px));
-  height:calc(100vh - 36px);
-  height:calc(100dvh - 36px);
+  width:min(1040px, calc(100vw - 36px));
+  height:min(860px, 88vh);
+  height:min(860px, 88dvh);
   box-sizing:border-box;
   overflow:hidden;
   border:1px solid rgba(216,198,170,.36);
@@ -785,8 +785,7 @@ body.modal-open{
   gap:8px;
   flex-wrap:wrap;
 }
-.japan-modal-controls button,
-.japan-modal-original{
+.japan-modal-controls button{
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -806,8 +805,7 @@ body.modal-open{
   cursor:pointer;
 }
 .japan-modal-controls button:disabled{opacity:.4;cursor:default}
-.japan-modal-controls button:focus-visible,
-.japan-modal-original:focus-visible{outline:2px solid #f4d06f;outline-offset:2px}
+.japan-modal-controls button:focus-visible{outline:2px solid #f4d06f;outline-offset:2px}
 .japan-modal-zoom-level{min-width:38px;color:#f4d06f;text-align:center;font-weight:900}
 .japan-modal-image-status{margin:6px 0 0;color:#c4b4a5;font-size:12px;text-align:center;line-height:1.3}
 .japan-modal-stage{
@@ -837,8 +835,7 @@ body.modal-open{
   user-select:none;
   -webkit-user-drag:none;
 }
-.japan-modal-stage img[hidden],
-.japan-modal-original[hidden]{display:none}
+.japan-modal-stage img[hidden]{display:none}
 
 @media (max-width:1120px){
   .japan-grid{
@@ -920,9 +917,9 @@ body.modal-open{
     padding:12px;
   }
   .japan-modal-panel{
-    width:calc(100vw - 24px);
-    height:calc(100vh - 24px);
-    height:calc(100dvh - 24px);
+    width:calc(100vw - 32px);
+    height:calc(100vh - 48px);
+    height:calc(100dvh - 48px);
   }
   .japan-pagination{
     margin-top:22px;
