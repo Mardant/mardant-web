@@ -1,8 +1,8 @@
 const CATALOG_BASE='https://mardant-calendario-japon.pages.dev/';
 const IMAGE_PATH=/^images\/MD-[A-Z2-9]{5}-[a-f0-9]{16}\.webp$/;
-const japanToday=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+export const peruToday=(now=new Date())=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
 
-export function chooseLaunches(products,count=3,previousCodes=[],random=Math.random,today=japanToday()){
+export function chooseLaunches(products,count=3,previousCodes=[],random=Math.random,today=peruToday()){
   const unique=new Map();
   for(const item of products){
     if(!item||!['lanzamientos','gashapones'].includes(item.section)||!/^MD-[A-Z2-9]{5}$/.test(item.code)||!IMAGE_PATH.test(item.image)||!item.end_date||item.end_date<today)continue;
@@ -29,7 +29,7 @@ function initCalendarHome(){
   const section=document.getElementById('home-calendario-lanzamientos');
   const grid=document.getElementById('calendario-lanzamientos-home');
   if(!section||!grid)return;
-  let products=[],shown=[],loaded=false,inView=false;
+  let products=[],shown=[],loaded=false,inView=false,loading=false,lastFetchAt=0,version=null;
   function status(text){const message=document.createElement('p');message.className='home-section-status';message.setAttribute('role','status');message.textContent=text;grid.replaceChildren(message);}
   function rotate(){
     const next=chooseLaunches(products,3,shown.map(item=>item.code));
@@ -47,18 +47,22 @@ function initCalendarHome(){
     grid.replaceChildren(...cards);
   }
   async function load(){
-    if(loaded)return;loaded=true;
+    if(loading)return;loaded=true;loading=true;
+    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),20000);
     try{
-      const response=await fetch(CATALOG_BASE+'catalog.json',{cache:'no-cache',credentials:'omit'});
+      const response=await fetch(CATALOG_BASE+'catalog.json',{cache:'no-cache',credentials:'omit',signal:controller.signal});
       if(!response.ok)throw Error('catalog');
       const data=await response.json();if(data.schema!==1||!Array.isArray(data.products))throw Error('schema');
-      products=data.products;rotate();
-    }catch{status('Puedes consultar los lanzamientos en el calendario completo.');}
+      if(version!==data.generated_at||!products.length){products=data.products;version=data.generated_at;rotate();}
+    }catch{if(!products.length)status('Puedes consultar los lanzamientos en el calendario completo.');}
+    finally{clearTimeout(timeout);loading=false;lastFetchAt=Date.now();}
   }
   if('IntersectionObserver' in window){
     const loader=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){void load();loader.disconnect();}},{rootMargin:'500px'});loader.observe(section);
     const visibility=new IntersectionObserver(([entry])=>{inView=entry.isIntersecting;},{threshold:0.01});visibility.observe(section);
   }else{inView=true;void load();}
+  function refresh(){if(loaded&&!document.hidden&&Date.now()-lastFetchAt>=5*60000)void load();}
+  setInterval(refresh,60000);document.addEventListener('visibilitychange',refresh);
   if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
     setInterval(()=>{if(products.length&&inView&&!document.hidden&&!section.matches(':hover')&&!section.contains(document.activeElement))rotate();},15000);
   }

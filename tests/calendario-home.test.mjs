@@ -2,10 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 const source=fs.readFileSync(new URL('../js/calendario-home.js',import.meta.url),'utf8');
-const {chooseLaunches}=await import('data:text/javascript;charset=utf-8,'+encodeURIComponent(source));
+const {chooseLaunches,peruToday}=await import('data:text/javascript;charset=utf-8,'+encodeURIComponent(source));
 const today='2026-11-05';
 const make=(suffix,extra={})=>({code:'MD-'+suffix,section:'lanzamientos',image:'images/MD-'+suffix+'-1234567890abcdef.webp',end_date:'2026-11-30',...extra});
 const pool=['22222','22223','22224','22225','22226','22227','22228'].map(x=>make(x));
+
+test('homepage follows the Peru day even when Japan has advanced',()=>{
+  assert.equal(peruToday(new Date('2026-11-07T21:00:00Z')),'2026-11-07');
+});
 
 test('picks three distinct eligible releases without changing the source',()=>{
   const before=JSON.stringify(pool),picked=chooseLaunches(pool,3,[],()=>0.3,today);

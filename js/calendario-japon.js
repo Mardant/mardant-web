@@ -3,9 +3,9 @@ const $=id=>document.getElementById(id);
 let catalog=null,section='lanzamientos',period='day',page=1;
 const pageSize=20;
 const publicCatalogBase='https://mardant-calendario-japon.pages.dev/';
-const todayJapan=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const todayPeru=(now=new Date())=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
 const isoDay=date=>date.toISOString().slice(0,10);
-function currentRange(mode,anchor=todayJapan()){
+function currentRange(mode,anchor=todayPeru()){
   if(mode==='day')return[anchor,anchor];
   const date=new Date(anchor+'T00:00:00Z');
   if(mode==='week'){
@@ -23,11 +23,11 @@ function matchesPeriod(product,range,mode){
 }
 function stale(product){return !product.checked_at||Date.now()-Date.parse(product.checked_at)>36*3600*1000;}
 function messageFor(product){const prefix='Hola, Mardant. Quiero consultar por el lote '+product.code;if(product.section==='pokemon')return prefix+' de Pokémon.';if(product.section==='preventas')return prefix+' en preventa.';if(product.label.toLowerCase().startsWith('semana'))return prefix+', anunciado para la '+product.label.toLowerCase()+'.';if(!product.start_date)return prefix+', con fecha de lanzamiento por confirmar.';return prefix+', anunciado para '+(['exact_date','shipping_date'].includes(product.date_type)?'el ':'')+product.label+'.';}
-function rangeLabel(range){
+function rangeLabel(range,mode=period){
   const day=value=>new Intl.DateTimeFormat('es-PE',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(value+'T00:00:00Z'));
-  if(period==='day')return'Hoy, '+day(range[0])+' · Japón';
-  if(period==='week')return'Del '+day(range[0])+' al '+day(range[1])+' · Japón';
-  return new Intl.DateTimeFormat('es-PE',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(range[0]+'T00:00:00Z'))+' · Japón';
+  if(mode==='day')return'Hoy '+day(range[0]);
+  if(mode==='week')return'Del '+day(range[0])+' al '+day(range[1]);
+  return new Intl.DateTimeFormat('es-PE',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(range[0]+'T00:00:00Z'));
 }
 function render(){
   if(!catalog)return;
@@ -54,11 +54,33 @@ function render(){
   }
   if(!rows.length){const empty=document.createElement('div');empty.className='empty';empty.textContent=dated?'No hay lanzamientos confirmados para '+(period==='day'?'hoy. Revisa también Semana o Mes.':period==='week'?'esta semana. Revisa también Mes.':'este mes.'):'No hay productos disponibles en esta categoría.';grid.append(empty);}
 }
+let fetching=false,lastFetchAt=0;
+async function loadCatalog(){
+  if(fetching)return;fetching=true;
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),20000);
+  try{
+    const response=await fetch(publicCatalogBase+'catalog.json',{cache:'no-cache',credentials:'omit',signal:controller.signal});
+    if(!response.ok)throw Error('load');
+    const data=await response.json();
+    if(data.schema!==1||!Array.isArray(data.products))throw Error('schema');
+    const products=data.products.map(product=>{if(!/^images\/MD-[A-Z2-9]{5}-[a-f0-9]{16}\.webp$/.test(product.image))throw Error('image');return {...product,image:publicCatalogBase+product.image};});
+    if(!catalog||catalog.generated_at!==data.generated_at){catalog={...data,products};render();}
+  }catch{
+    if(!catalog){const error=document.createElement('div');error.className='empty';error.textContent='No pudimos cargar el catálogo. Volveremos a intentarlo automáticamente.';$('grid').replaceChildren(error);}
+  }finally{clearTimeout(timeout);fetching=false;lastFetchAt=Date.now();}
+}
 function setup(){
   document.querySelectorAll('[data-section]').forEach(button=>button.addEventListener('click',()=>{section=button.dataset.section;page=1;document.querySelectorAll('[data-section]').forEach(b=>b.classList.toggle('active',b===button));render();}));
   document.querySelectorAll('[data-period]').forEach(button=>button.addEventListener('click',()=>{period=button.dataset.period;page=1;render();}));
   for(const[id,delta]of[['prev',-1],['next',1]])$(id).addEventListener('click',()=>{page+=delta;render();$('grid').scrollIntoView({behavior:'smooth',block:'start'});});
-  fetch(publicCatalogBase+'catalog.json',{cache:'no-cache',credentials:'omit'}).then(r=>{if(!r.ok)throw Error('load');return r.json();}).then(data=>{if(data.schema!==1||!Array.isArray(data.products))throw Error('schema');catalog={...data,products:data.products.map(product=>{if(!/^images\/MD-[A-Z2-9]{5}-[a-f0-9]{16}\.webp$/.test(product.image))throw Error('image');return {...product,image:publicCatalogBase+product.image};})};render();}).catch(()=>{const error=document.createElement('div');error.className='empty';error.textContent='No pudimos cargar el catálogo. Recarga la página en unos momentos.';$('grid').replaceChildren(error);});
-  let previousDay=todayJapan();setInterval(()=>{const nextDay=todayJapan();if(nextDay!==previousDay){previousDay=nextDay;page=1;render();}},60000);
+  void loadCatalog();
+  let previousDay=todayPeru();
+  function refresh(){
+    const nextDay=todayPeru();if(nextDay!==previousDay){previousDay=nextDay;page=1;render();}
+    if(!document.hidden&&Date.now()-lastFetchAt>=5*60000)void loadCatalog();
+  }
+  setInterval(refresh,60000);
+  document.addEventListener('visibilitychange',refresh);
+  window.addEventListener('pageshow',refresh);
 }
 if(typeof document!=='undefined')setup();
