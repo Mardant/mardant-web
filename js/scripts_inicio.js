@@ -522,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch((error) => console.error('Error cargando portada:', error));
 });
 
-const slides = document.querySelectorAll('.carrusel img');
+const slides = document.querySelectorAll('.carrusel > img, .carrusel > .carrusel-enlace');
 const ind = $('#indicadores');
 if (ind && slides.length) {
   slides.forEach((_, i) => {
@@ -539,7 +539,11 @@ if (ind && slides.length) {
     puntos.forEach((dot, j) => dot.classList.toggle('activo', j === idx));
   };
 
-  setInterval(() => { idx = (idx + 1) % slides.length; show(); }, 8000);
+  setInterval(() => {
+    if (slides[idx].matches('.carrusel-enlace:hover, .carrusel-enlace:focus-within')) return;
+    idx = (idx + 1) % slides.length;
+    show();
+  }, 8000);
   show();
 }
 

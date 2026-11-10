@@ -18,7 +18,7 @@
   <base href="/views/">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../css/estilos.css?v=17" />
-  <link rel="stylesheet" href="../css/estilos_inicio.css?v=26">
+  <link rel="stylesheet" href="../css/estilos_inicio.css?v=27">
   <link rel="stylesheet" href="../css/calendario-home.css?v=1">
 </head>
 <body>
@@ -40,7 +40,10 @@
     <a href="./contacto.html"><img alt="Contacto" class="boton-imagen" referrerpolicy="no-referrer" src="https://i.imgur.com/IJ7YYxR.png"/><span class="sr-only">Contacto</span></a>
   </nav>
   <div class="carrusel">
-    <img src="https://i.imgur.com/D9qJpmt.png" class="activo" alt="Slide 1" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
+    <a class="carrusel-enlace activo" href="/views/catalogo.html">
+      <img src="/assets/banners/black-friday-inicio.png" width="1000" height="180" alt="Black Friday en Mardant. Visita el Catálogo. Ofertas disponibles desde el 13 de noviembre." loading="eager" fetchpriority="high">
+    </a>
+    <img src="https://i.imgur.com/D9qJpmt.png" alt="Slide 1" loading="lazy" decoding="async" referrerpolicy="no-referrer">
     <img src="https://i.imgur.com/iFcP1c3.png" alt="Slide 2" loading="lazy" decoding="async" referrerpolicy="no-referrer">
     <img src="https://i.imgur.com/YXrMQqw.png" alt="Slide 3" loading="lazy" decoding="async" referrerpolicy="no-referrer">
     <div class="carrusel-indicadores" id="indicadores"></div>
@@ -77,7 +80,7 @@
   <div id="lb-inicio" class="lightbox" hidden><img alt="Vista ampliada"><button class="lb-close" aria-label="Cerrar">×</button></div>
 </section>
 <script src="../js/japan-production-router.js?v=1"></script>
-<script type="module" src="../js/scripts_inicio.js?v=17"></script>
+<script type="module" src="../js/scripts_inicio.js?v=18"></script>
 <script>
   (function () {
     const root = document.getElementById('vista-inicio');
