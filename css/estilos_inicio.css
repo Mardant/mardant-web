@@ -163,6 +163,7 @@ html,body{
   position: relative;
   width: 100%;
   max-width: 1200px;
+  container-type: inline-size;
   margin: 16px auto 26px;
   overflow: clip;                   /* mejor que hidden p/recorte preciso */
   border-radius: 14px;
@@ -214,23 +215,22 @@ html,body{
 
 /* Indicadores */
 #vista-inicio .carrusel-indicadores{
-  position:absolute; left:0; right:0; bottom:10px;
-  display:flex; justify-content:center; gap:10px;
+  position:absolute;
+  left:12px;
+  bottom:8px;
+  /* El arte de proporción 1000:180 se centra en el alto disponible. */
+  bottom:max(8px, calc(50% - 9cqw + 4px));
+  display:flex;
+  gap:6px;
 }
 #vista-inicio .carrusel-indicadores .punto{
-  width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,.65)
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:rgba(255,255,255,.9);
+  box-shadow:0 0 0 1px rgba(23,20,17,.42);
 }
 #vista-inicio .carrusel-indicadores .punto.activo{ background:#a8322a }
-
-#vista-inicio .carrusel:has(> .carrusel-enlace.activo){
-  overflow:visible;
-}
-#vista-inicio .carrusel-enlace.activo ~ .carrusel-indicadores{
-  bottom:-20px;
-}
-#vista-inicio .carrusel-enlace.activo ~ .carrusel-indicadores .punto:not(.activo){
-  background:#c1ab96;
-}
 
 /* ---------------- Secciones ---------------- */
 .seccion{ padding:32px 18px; max-width:1200px; margin:0 auto; }
