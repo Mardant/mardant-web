@@ -197,9 +197,10 @@ html,body{
   display:block;
   width:100%;
   height:100%;
-  object-fit:contain;
+  object-fit:cover;
   border-radius:inherit;
 }
+#vista-inicio .carrusel > .carrusel-enlace--black-friday > img{ object-fit:contain; }
 #vista-inicio .carrusel > .carrusel-enlace:not(.activo){ display:none; }
 #vista-inicio .carrusel > .carrusel-enlace:focus-visible{
   outline:3px solid #a8322a;
@@ -207,7 +208,8 @@ html,body{
 }
 
 @media (max-width:680px){
-  #vista-inicio .carrusel > img{
+  #vista-inicio .carrusel > img,
+  #vista-inicio .carrusel > .carrusel-enlace > img{
     object-fit:contain !important;
     object-position:center center !important;
   }
