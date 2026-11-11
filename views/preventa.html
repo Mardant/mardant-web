@@ -164,6 +164,24 @@
       font-size:36px; line-height:1; cursor:pointer; opacity:.9;
     }
     .lb-close:hover{ opacity:1; }
+
+    .preventa-opciones{ margin-top:14px; }
+    .preventa-opcion{ padding:14px 0 4px; border-top:1px solid rgba(244,208,111,.24); }
+    .preventa-modalidad{ color:#dfcfb3; font-size:13px; font-weight:800; }
+    .grid-preventa .preventa-opcion .precio{ margin:6px 0; }
+    .preventa-opcion .precio span{ font-size:12px; font-weight:600; color:#dfcfb3; }
+    .preventa-detalle{ margin:0 0 12px; font-size:12px; line-height:1.55; color:#dfcfb3; }
+    .grid-preventa .producto .preventa-opcion a.boton{
+      box-sizing:border-box; width:100%; min-height:44px; padding:12px 8px;
+      font-size:13px; line-height:1.35; text-decoration:none; white-space:normal;
+    }
+    .grid-preventa .producto a.reserva-completa{
+      background:linear-gradient(180deg,#f7d16f,#d6aa41); border-color:#f7d16f; color:#171411;
+    }
+    .grid-preventa .producto a.reserva-completa:hover{
+      background:linear-gradient(180deg,#ffe094,#e6bb54);
+    }
+
   </style>
 </head>
 <body>
@@ -211,7 +229,7 @@
   </div>
 
   <!-- Lógica de la página -->
-  <script type="module" src="../js/preventa.js?v=11"></script>
+  <script type="module" src="../js/preventa.js?v=12"></script>
 
   <!-- Lightbox: abrir al tocar cualquier imagen -->
   <script>

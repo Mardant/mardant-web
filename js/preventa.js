@@ -63,7 +63,7 @@ async function loadPreventasPage({ urlMode = 'replace' } = {}) {
   try {
     const data = await cachedFetchJSON('preventasPage', {
       ttl: API_CACHE_TTL.PREVENTAS,
-      cacheId: 'preventas-page-v4',
+      cacheId: 'preventas-page-v5',
       params: requestedParams,
       staleWhileRevalidate: true,
       retries: 0,
@@ -93,7 +93,7 @@ async function loadPreventasPage({ urlMode = 'replace' } = {}) {
       behind: 1,
       ttl: API_CACHE_TTL.PREVENTAS,
       params: requestedParams,
-      cacheId: 'preventas-page-v4',
+      cacheId: 'preventas-page-v5',
       signal: controller.signal
     }).catch(() => {});
   } catch (error) {
@@ -108,7 +108,7 @@ async function loadPreventasFallback(serverError, { requestId, controller, reque
   try {
     const data = await cachedFetchJSON('preventas', {
       ttl: API_CACHE_TTL.PREVENTAS,
-      cacheId: 'preventas-full-v4',
+      cacheId: 'preventas-full-v5',
       staleWhileRevalidate: true,
       retries: 0,
       timeoutMs: 12000
@@ -159,60 +159,88 @@ function render(lista = []) {
   preventas.forEach(p => cont.appendChild(card(p)));
 }
 
+function positiveAmount(value) {
+  if (value === null || value === undefined || String(value).trim() === '') return null;
+  const amount = Number(String(value).replace(',', '.'));
+  return Number.isFinite(amount) && amount > 0 ? Math.round(amount * 100) / 100 : null;
+}
+
+function soles(amount) {
+  return `S/ ${amount.toFixed(2)}`;
+}
+
 function card(p) {
   const nombreRaw = String(p.nombre || 'Preventa Mardant').trim();
   const nombre = escapeHtml(nombreRaw);
-  const img = p.imagen?.trim()
-    ? escapeHtml(p.imagen)
-    : 'https://via.placeholder.com/300x300?text=Sin+imagen';
-  const ref = p.id || p.nombre || 'preventa';
-  const urlWA = whatsappLink(`Hola, quiero reservar esta preventa con S/ 15: ${nombreRaw}`);
-  const precio = `S/. ${(+p.precio || 0).toFixed(2)}`;
+  const img = p.imagen?.trim() ? escapeHtml(p.imagen) : 'https://via.placeholder.com/300x300?text=Sin+imagen';
+  const ref = String(p.id || p.nombre || 'preventa').trim();
+  const total = positiveAmount(p.precio);
+  const abono = positiveAmount(p.reserva_minima) ?? 15;
+  const totalCompleto = positiveAmount(p.precio_reserva_100) ?? positiveAmount(p.reserva_100) ?? total;
   const llegada = p['fecha aprox llegada peru'] || 'Proximamente';
   const trackCategory = [p.categoria, p.subcategoria].filter(Boolean).join(' - ') || 'Preventa';
+  const producto = `${nombreRaw} (ID #${ref})`;
+  const opciones = [];
 
+  if (total !== null && abono <= total) {
+    const saldo = Math.round((total - abono) * 100) / 100;
+    opciones.push({
+      tipo: 'abono', titulo: 'Reserva con abono', total,
+      detalle: `Abono hoy ${soles(abono)} · Saldo ${soles(saldo)}`,
+      boton: `RESERVAR CON ${soles(abono)}`,
+      mensaje: `Hola, quiero reservar la preventa ${producto} con un abono de ${soles(abono)}. Precio final: ${soles(total)}. Saldo por pagar: ${soles(saldo)}.`
+    });
+  }
+  if (totalCompleto !== null) {
+    opciones.push({
+      tipo: 'completa', titulo: 'Reserva con pago completo', total: totalCompleto,
+      detalle: `Pagas ${soles(totalCompleto)} al reservar · Saldo S/ 0.00`,
+      boton: 'RESERVAR AL 100%',
+      mensaje: `Hola, quiero reservar la preventa ${producto} pagando el 100%: ${soles(totalCompleto)}. Precio final: ${soles(totalCompleto)}. Saldo pendiente: S/ 0.00.`
+    });
+  }
+  const precios = opciones.map(opcion => `${opcion.titulo}: precio final ${soles(opcion.total)} (${opcion.detalle}).`).join(' ');
+  const shareSubtitle = total !== null && abono <= total ? `Con abono de ${soles(abono)}` : 'Consulta las modalidades de reserva';
+  const shareNote = `${totalCompleto !== null ? `Pago completo ${soles(totalCompleto)}. ` : ''}Llegada aproximada: ${llegada}`;
+  const consultar = whatsappLink(`Hola, quiero consultar el precio y la reserva de la preventa ${producto}.`);
   const div = document.createElement('div');
   div.className = 'producto';
   div.innerHTML = `
-    <img src="${img}" alt="${nombre}" class="img" loading="lazy" referrerpolicy="no-referrer">
-    <div class="nombre">${nombre}</div>
-    <div class="categoria">${escapeHtml(p.categoria || '')}${p.subcategoria ? ' - ' + escapeHtml(p.subcategoria) : ''}</div>
-    <div class="precio">S/. ${(+p.precio || 0).toFixed(2)}</div>
-    <div class="estado">Llega: ${escapeHtml(p['fecha aprox llegada peru'] || 'Proximamente')}</div>
-    <a href="${urlWA}"
-       target="_blank"
-       rel="noopener noreferrer"
-       class="boton"
-       data-track-item-id="${escapeHtml(String(ref).trim())}"
-       data-track-item-name="${nombre}"
-       data-track-price="${(+p.precio || 0).toFixed(2)}"
-       data-track-category="${escapeHtml(trackCategory)}"
-       data-track-source="preventa"
-       data-track-cta="RESERVAR CON S/ 15">RESERVAR CON S/ 15</a>
-    <div class="social-actions social-actions-single">
-      <button
-        class="social-icon-button"
-        type="button"
-        data-share-preventa
-        data-share-title="${nombre} - Preventa Mardant"
-        data-share-text="Mira esta preventa en Mardant: ${nombre}"
-        data-share-url="${escapeHtml(buildShareUrl({ preventa: ref }))}"
-        data-share-image="${img}"
-        data-share-eyebrow="Preventa Mardant"
-        data-share-subtitle="Reserva desde S/ 15"
-        data-share-price="${escapeHtml(precio)}"
-        data-share-badge="PREVENTA"
-        data-share-note="Llegada aproximada: ${escapeHtml(llegada)}"
-        data-share-cta="Reservar por WhatsApp en mardant.com"
-        data-share-file="mardant-preventa-${escapeHtml(String(ref).replace(/\s+/g, '-'))}.png"
-        aria-label="Compartir ${nombre}"
-        title="Compartir">
-        ${shareIcon()}
-        <span class="sr-only">Compartir</span>
+    <img src='${img}' alt='${nombre}' class='img' loading='lazy' referrerpolicy='no-referrer'>
+    <div class='nombre'>${nombre}</div>
+    <div class='categoria'>${escapeHtml(p.categoria || '')}${p.subcategoria ? ' - ' + escapeHtml(p.subcategoria) : ''}</div>
+    <div class='estado'>Llega: ${escapeHtml(llegada)}</div>
+    <div class='preventa-opciones' aria-label='Modalidades de reserva'>
+      ${opciones.map(opcion => `
+        <section class='preventa-opcion preventa-opcion-${opcion.tipo}' aria-label='${opcion.titulo}'>
+          <div class='preventa-modalidad'>${opcion.titulo}</div>
+          <div class='precio'><span>Precio final</span> ${soles(opcion.total)}</div>
+          <p class='preventa-detalle'>${opcion.detalle}</p>
+          <a href='${escapeHtml(whatsappLink(opcion.mensaje))}'
+             target='_blank' rel='noopener noreferrer' class='boton reserva-${opcion.tipo}'
+             data-track-item-id='${escapeHtml(ref)}' data-track-item-name='${nombre}'
+             data-track-price='${opcion.total.toFixed(2)}' data-track-category='${escapeHtml(trackCategory)}'
+             data-track-source='preventa' data-track-cta='${opcion.boton}'>${opcion.boton}</a>
+        </section>`).join('')}
+      ${opciones.length ? '' : `<a class='boton' href='${escapeHtml(consultar)}' target='_blank' rel='noopener noreferrer'>CONSULTAR PREVENTA</a>`}
+    </div>
+    <div class='social-actions social-actions-single'>
+      <button class='social-icon-button' type='button' data-share-preventa
+        data-share-title='${nombre} - Preventa Mardant'
+        data-share-text='${escapeHtml(`Mira esta preventa en Mardant: ${nombreRaw}. ${precios}`)}'
+        data-share-url='${escapeHtml(buildShareUrl({ preventa: ref }))}' data-share-image='${img}'
+        data-share-eyebrow='Preventa Mardant' data-share-subtitle='${escapeHtml(shareSubtitle)}'
+        data-share-price='${escapeHtml(total !== null ? soles(total) : 'Consultar precio')}'
+        data-share-badge='PREVENTA' data-share-note='${escapeHtml(shareNote)}'
+        data-share-cta='Reservar por WhatsApp en mardant.com'
+        data-share-file='mardant-preventa-${escapeHtml(ref.replace(/\s+/g, '-'))}.png'
+        aria-label='Compartir ${nombre}' title='Compartir'>
+        ${shareIcon()}<span class='sr-only'>Compartir</span>
       </button>
     </div>`;
   return div;
 }
+
 
 function showErr(e){
   $('#contenedor').innerHTML = '<p style="color:red;">Error al cargar productos.</p>';
