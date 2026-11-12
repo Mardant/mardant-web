@@ -63,7 +63,7 @@ async function loadPreventasPage({ urlMode = 'replace' } = {}) {
   try {
     const data = await cachedFetchJSON('preventasPage', {
       ttl: API_CACHE_TTL.PREVENTAS,
-      cacheId: 'preventas-page-v5',
+      cacheId: 'preventas-page-v6',
       params: requestedParams,
       staleWhileRevalidate: true,
       retries: 0,
@@ -93,7 +93,7 @@ async function loadPreventasPage({ urlMode = 'replace' } = {}) {
       behind: 1,
       ttl: API_CACHE_TTL.PREVENTAS,
       params: requestedParams,
-      cacheId: 'preventas-page-v5',
+      cacheId: 'preventas-page-v6',
       signal: controller.signal
     }).catch(() => {});
   } catch (error) {
@@ -108,7 +108,7 @@ async function loadPreventasFallback(serverError, { requestId, controller, reque
   try {
     const data = await cachedFetchJSON('preventas', {
       ttl: API_CACHE_TTL.PREVENTAS,
-      cacheId: 'preventas-full-v5',
+      cacheId: 'preventas-full-v6',
       staleWhileRevalidate: true,
       retries: 0,
       timeoutMs: 12000
@@ -170,6 +170,7 @@ function soles(amount) {
 }
 
 function card(p) {
+  const reservado = String(p.estado || '').toUpperCase().split(/\s+/).includes('RESERVADO');
   const nombreRaw = String(p.nombre || 'Preventa Mardant').trim();
   const nombre = escapeHtml(nombreRaw);
   const img = p.imagen?.trim() ? escapeHtml(p.imagen) : 'https://via.placeholder.com/300x300?text=Sin+imagen';
@@ -205,8 +206,12 @@ function card(p) {
   const consultar = whatsappLink(`Hola, quiero consultar el precio y la reserva de la preventa ${producto}.`);
   const div = document.createElement('div');
   div.className = 'producto';
+  div.dataset.reserved = String(reservado);
   div.innerHTML = `
-    <img src='${img}' alt='${nombre}' class='img' loading='lazy' referrerpolicy='no-referrer'>
+    <div class='preventa-image'>
+      <img src='${img}' alt='${nombre}' class='img' loading='lazy' referrerpolicy='no-referrer'>
+      ${reservado ? "<img src='/assets/preventas/reservado.png' class='reserved-stamp' alt='RESERVADO' loading='lazy'>" : ''}
+    </div>
     <div class='nombre'>${nombre}</div>
     <div class='categoria'>${escapeHtml(p.categoria || '')}${p.subcategoria ? ' - ' + escapeHtml(p.subcategoria) : ''}</div>
     <div class='estado'>Llega: ${escapeHtml(llegada)}</div>
@@ -216,23 +221,23 @@ function card(p) {
           <div class='preventa-modalidad'>${opcion.titulo}</div>
           <div class='precio'><span>Precio final</span> ${soles(opcion.total)}</div>
           <p class='preventa-detalle'>${opcion.detalle}</p>
-          <a href='${escapeHtml(whatsappLink(opcion.mensaje))}'
+          ${reservado ? "<p class='preventa-reservada'>RESERVADO</p>" : `<a href='${escapeHtml(whatsappLink(opcion.mensaje))}'
              target='_blank' rel='noopener noreferrer' class='boton reserva-${opcion.tipo}'
              data-track-item-id='${escapeHtml(ref)}' data-track-item-name='${nombre}'
              data-track-price='${opcion.total.toFixed(2)}' data-track-category='${escapeHtml(trackCategory)}'
-             data-track-source='preventa' data-track-cta='${opcion.boton}'>${opcion.boton}</a>
+             data-track-source='preventa' data-track-cta='${opcion.boton}'>${opcion.boton}</a>`}
         </section>`).join('')}
-      ${opciones.length ? '' : `<a class='boton' href='${escapeHtml(consultar)}' target='_blank' rel='noopener noreferrer'>CONSULTAR PREVENTA</a>`}
+      ${opciones.length ? '' : reservado ? "<p class='preventa-reservada'>RESERVADO</p>" : `<a class='boton' href='${escapeHtml(consultar)}' target='_blank' rel='noopener noreferrer'>CONSULTAR PREVENTA</a>`}
     </div>
     <div class='social-actions social-actions-single'>
       <button class='social-icon-button' type='button' data-share-preventa
         data-share-title='${nombre} - Preventa Mardant'
-        data-share-text='${escapeHtml(`Mira esta preventa en Mardant: ${nombreRaw}. ${precios}`)}'
+        data-share-text='${escapeHtml(`${reservado ? 'RESERVADO. ' : ''}Mira esta preventa en Mardant: ${nombreRaw}. ${precios}`)}'
         data-share-url='${escapeHtml(buildShareUrl({ preventa: ref }))}' data-share-image='${img}'
         data-share-eyebrow='Preventa Mardant' data-share-subtitle='${escapeHtml(shareSubtitle)}'
         data-share-price='${escapeHtml(total !== null ? soles(total) : 'Consultar precio')}'
-        data-share-badge='PREVENTA' data-share-note='${escapeHtml(shareNote)}'
-        data-share-cta='Reservar por WhatsApp en mardant.com'
+        data-share-badge='${reservado ? 'RESERVADO' : 'PREVENTA'}' data-share-note='${escapeHtml(shareNote)}'
+        data-share-cta='${reservado ? 'Ver preventas en mardant.com' : 'Reservar por WhatsApp en mardant.com'}'
         data-share-file='mardant-preventa-${escapeHtml(ref.replace(/\s+/g, '-'))}.png'
         aria-label='Compartir ${nombre}' title='Compartir'>
         ${shareIcon()}<span class='sr-only'>Compartir</span>

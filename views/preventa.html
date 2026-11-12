@@ -182,6 +182,18 @@
       background:linear-gradient(180deg,#ffe094,#e6bb54);
     }
 
+    .preventa-image { position:relative; isolation:isolate; }
+    .grid-preventa .producto img.reserved-stamp {
+      position:absolute; top:50%; left:0; transform:translateY(-50%);
+      width:100% !important; height:auto !important; pointer-events:none; mix-blend-mode:multiply;
+    }
+    .preventa-reservada { font-weight:900; color:#ffb7b7; }
+    .lightbox-picture { position:relative; isolation:isolate; line-height:0; }
+    .lightbox .lightbox-stamp { display:none; }
+    .lightbox.is-reserved .lightbox-stamp {
+      display:block; position:absolute; top:50%; left:0; transform:translateY(-50%);
+      width:100%; height:auto; box-shadow:none; pointer-events:none; mix-blend-mode:multiply;
+    }
   </style>
 </head>
 <body>
@@ -224,12 +236,12 @@
 
   <!-- ========== Lightbox (overlay) ========== -->
   <div id="lb" class="lightbox" hidden>
-    <img alt="Vista ampliada">
+    <div class="lightbox-picture"><img alt="Vista ampliada"><img class="lightbox-stamp" src="/assets/preventas/reservado.png" alt="RESERVADO"></div>
     <button class="lb-close" aria-label="Cerrar">×</button>
   </div>
 
   <!-- Lógica de la página -->
-  <script type="module" src="../js/preventa.js?v=12"></script>
+  <script type="module" src="../js/preventa.js?v=13-reservado"></script>
 
   <!-- Lightbox: abrir al tocar cualquier imagen -->
   <script>
@@ -242,6 +254,7 @@
         const el = e.target;
         if (el && el.tagName === 'IMG') {
           img.src = el.src;
+          lb.classList.toggle('is-reserved', el.closest('.producto')?.dataset.reserved === 'true');
           lb.hidden = false;
           document.body.style.overflow = 'hidden';
         }
@@ -266,8 +279,3 @@
   <script type="module" src="../js/account-widget.js?v=5"></script>
 </body>
 </html>
-
-
-
-
-
