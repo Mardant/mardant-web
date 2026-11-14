@@ -753,3 +753,50 @@ html,body{
 .menu-visual a:hover img.boton-imagen,.menu-visual a:focus-visible img.boton-imagen{animation:none;transform:translateY(-2px) scale(1.02)}
 @media(max-width:1100px){.menu-visual{justify-content:flex-start;max-width:none;gap:12px}.menu-visual a{flex:0 0 154px;width:154px}.menu-visual img.boton-imagen{height:56px;padding:5px 7px}}
 @media(max-width:680px){.menu-visual{padding:12px 10px 14px;gap:10px;scroll-padding:10px}.menu-visual a{flex-basis:148px;width:148px}.menu-visual img.boton-imagen{height:52px}}
+
+/* Black Friday */
+.menu-visual.menu-visual--black-friday { padding-top: 49px; }
+.menu-visual .bf-catalog img.boton-imagen {
+  border-color: #191716;
+  box-shadow: 0 0 0 2px #ffe33b, 0 0 0 4px #191716, 0 6px 15px rgba(25,23,22,.3);
+}
+.menu-visual .bf-catalog .bf-label {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  font: italic 950 17px/1 system-ui, sans-serif;
+  letter-spacing: .015em;
+  white-space: nowrap;
+  filter: drop-shadow(0 2px 0 #191716) drop-shadow(0 2px 4px #19171638);
+}
+.menu-visual .bf-catalog .bf-ticket {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  place-items: center;
+  width: 9em;
+  padding: 7px 5px;
+  clip-path: polygon(6% 0, 100% 0, 97% 50%, 100% 50%, 94% 100%, 0 100%, 3% 50%, 0 50%);
+  background: linear-gradient(105deg, #191716 50%, #ffe33b 50%);
+  color: #fff;
+}
+.menu-visual .bf-catalog .bf-ticket span:last-child { color: #191716; }
+.menu-visual .bf-catalog .bf-label::before,
+.menu-visual .bf-catalog .bf-label::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 15px;
+  height: 23px;
+  background: #ed392b;
+  clip-path: polygon(0 0, 100% 33%, 83% 45%, 0 0, 0 52%, 78% 51%, 100% 62%, 0 52%, 4% 100%, 100% 72%, 87% 87%, 4% 100%);
+}
+.menu-visual .bf-catalog .bf-label::before { right: calc(100% + 3px); transform: translateY(-50%); }
+.menu-visual .bf-catalog .bf-label::after { left: calc(100% + 3px); transform: translateY(-50%) scaleX(-1); }
+@media (max-width: 680px) {
+  .menu-visual.menu-visual--black-friday { padding-top: 45px; }
+  .menu-visual .bf-catalog .bf-label { font-size: 14px; }
+  .menu-visual .bf-catalog .bf-label::before,
+  .menu-visual .bf-catalog .bf-label::after { width: 10px; }
+}
