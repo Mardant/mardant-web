@@ -533,7 +533,8 @@ function canvasToBlob(canvas){
 
 async function createShareImageBlob(item){
   const id = String(item.id_lote || '').trim();
-  const etiqueta = etiquetaInfo(publicAvailability(item));
+  const stockFresh = item.verification_status === 'active' && Number(item.stock_verified_at || 0) >= Date.now()/1000 - 600;
+  const etiqueta = stockFresh ? etiquetaInfo(publicAvailability(item)) : { text: 'Stock por confirmar', className: 'is-preventa' };
   const canvas = document.createElement('canvas');
   canvas.width = 1080;
   canvas.height = 1920;
@@ -625,7 +626,8 @@ async function createShareImageBlob(item){
 function card(item){
   const id = String(item.id_lote || '').trim();
   const imageUrl = String(item.imagen_url || '').trim();
-  const etiqueta = etiquetaInfo(publicAvailability(item));
+  const stockFresh = item.verification_status === 'active' && Number(item.stock_verified_at || 0) >= Date.now()/1000 - 600;
+  const etiqueta = stockFresh ? etiquetaInfo(publicAvailability(item)) : { text: 'Stock por confirmar', className: 'is-preventa' };
   const rank = rankInfo(item.rank);
   const shareUrl = loteShareUrl(id);
   registerCatalogImage(id, imageUrl);
@@ -1040,3 +1042,58 @@ grid.addEventListener('click', event => {
 
 loadCatalog();
 
+
+
+
+// A consultation queues only this catalogue id. Reads stay bounded on the Pi.
+const stockRequests = new Map();
+function stockBadge(card, result) {
+  if (!card?.isConnected) return;
+  const badge = card.querySelector('.japan-badge');
+  if (!badge) return;
+  const fresh = result.fresh && result.status === 'active';
+  if (['sold', 'removed', 'stock_bajo'].includes(result.status)) {
+    badge.textContent = 'No disponible';
+    const link = card.querySelector('.japan-request');
+    if (link) { link.removeAttribute('href'); link.setAttribute('aria-disabled', 'true'); link.textContent = 'No disponible'; }
+    return;
+  }
+  badge.textContent = fresh ? 'Stock comprobado' : 'Stock por confirmar';
+  badge.title = fresh && result.verified_at ? 'Comprobado: ' + new Date(result.verified_at * 1000).toLocaleString('es-PE') : 'Se confirmará con la tienda de origen.';
+}
+async function requestStock(id, card) {
+  if (!/^[1-9]\d{0,11}$/.test(id)) return;
+  const previous = stockRequests.get(id);
+  if (previous && Date.now() - previous < 60000) return;
+  stockRequests.set(id, Date.now());
+  if (stockRequests.size > 100) stockRequests.delete(stockRequests.keys().next().value);
+  const endpoint = 'https://mardant-japon.gamesmardant.workers.dev/';
+  try {
+    const response = await fetch(endpoint + '?accion=stockRequest', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({id}), signal: AbortSignal.timeout(5000)
+    });
+    const result = await response.json();
+    if (response.status === 404) { stockBadge(card, {status:'removed'}); return; }
+    if (!response.ok || !result.ok) return;
+    stockBadge(card, result);
+    if (result.fresh) return;
+    for (const wait of [3000, 5000, 10000, 15000, 20000, 30000, 30000, 30000]) {
+      await new Promise(resolve => setTimeout(resolve, wait));
+      if (!card.isConnected || document.hidden) return;
+      const checked = await fetch(endpoint + '?accion=stockStatus&id=' + encodeURIComponent(id), {signal: AbortSignal.timeout(5000)});
+      if (!checked.ok) return;
+      const status = await checked.json();
+      stockBadge(card, status);
+      if (status.fresh || ['sold','removed','stock_bajo'].includes(status.status)) return;
+    }
+  } catch (_) { /* The consultation remains usable and its stock stays unconfirmed. */ }
+}
+document.addEventListener('click', event => {
+  const target = event.target.closest?.('.japan-request, .japan-image-button');
+  if (!target) return;
+  const card = target.closest('.japan-card');
+  const id = target.dataset.trackItemId || target.dataset.id || '';
+  if (target.getAttribute('aria-disabled') === 'true') { event.preventDefault(); return; }
+  requestStock(id, card);
+});
