@@ -533,8 +533,7 @@ function canvasToBlob(canvas){
 
 async function createShareImageBlob(item){
   const id = String(item.id_lote || '').trim();
-  const stockFresh = item.verification_status === 'active' && Number(item.stock_verified_at || 0) >= Date.now()/1000 - 600;
-  const etiqueta = stockFresh ? etiquetaInfo(publicAvailability(item)) : { text: 'Stock por confirmar', className: 'is-preventa' };
+  const etiqueta = etiquetaInfo(publicAvailability(item));
   const canvas = document.createElement('canvas');
   canvas.width = 1080;
   canvas.height = 1920;
@@ -626,8 +625,7 @@ async function createShareImageBlob(item){
 function card(item){
   const id = String(item.id_lote || '').trim();
   const imageUrl = String(item.imagen_url || '').trim();
-  const stockFresh = item.verification_status === 'active' && Number(item.stock_verified_at || 0) >= Date.now()/1000 - 600;
-  const etiqueta = stockFresh ? etiquetaInfo(publicAvailability(item)) : { text: 'Stock por confirmar', className: 'is-preventa' };
+  const etiqueta = etiquetaInfo(publicAvailability(item));
   const rank = rankInfo(item.rank);
   const shareUrl = loteShareUrl(id);
   registerCatalogImage(id, imageUrl);
@@ -1058,8 +1056,11 @@ function stockBadge(card, result) {
     if (link) { link.removeAttribute('href'); link.setAttribute('aria-disabled', 'true'); link.textContent = 'No disponible'; }
     return;
   }
-  badge.textContent = fresh ? 'Stock comprobado' : 'Stock por confirmar';
-  badge.title = fresh && result.verified_at ? 'Comprobado: ' + new Date(result.verified_at * 1000).toLocaleString('es-PE') : 'Se confirmará con la tienda de origen.';
+  // Keep Disponible / Preventa as the catalogue's commercial classification.
+  // A pending check changes neither that classification nor its label.
+  if (fresh && result.verified_at) {
+    badge.title = 'Comprobado: ' + new Date(result.verified_at * 1000).toLocaleString('es-PE');
+  }
 }
 async function requestStock(id, card) {
   if (!/^[1-9]\d{0,11}$/.test(id)) return;
